@@ -157,6 +157,7 @@ export default function Home() {
   const [volume, setVolume] = useState(60);
   const [isMuted, setIsMuted] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
+  const [timelineZoom, setTimelineZoom] = useState(30); // pixels per second
 
   // Canvas State
   const [aspectRatio, setAspectRatio] = useState("Original");
@@ -384,8 +385,9 @@ export default function Home() {
   const handleTimelineDrag = (e: React.MouseEvent<HTMLDivElement> | MouseEvent) => {
     if (!timelineRef.current) return;
     const rect = timelineRef.current.getBoundingClientRect();
-    const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
-    const percentage = x / rect.width;
+    const trackWidth = Math.max(rect.width, totalDuration * timelineZoom);
+    const x = Math.max(0, Math.min(e.clientX - rect.left + timelineRef.current.scrollLeft, trackWidth));
+    const percentage = x / trackWidth;
     const newTime = percentage * totalDuration;
 
     if (resizeState !== null) {
@@ -805,6 +807,8 @@ export default function Home() {
   .animate-anim-stomp { animation: anim-stomp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
   .animate-anim-wave { animation: anim-wave 0.4s ease-in-out forwards; }
 `;
+
+  const currentActiveSubIdx = timelineSegments.findIndex(seg => currentTime >= seg.start && currentTime < seg.end);
 
   return (
     <div className="h-[100dvh] w-full bg-[#070b19] text-white font-sans overflow-hidden grid grid-rows-[auto_1fr_auto_auto] md:grid-rows-[auto_1fr_auto] grid-cols-1 md:grid-cols-[84px_1fr]">
@@ -2180,33 +2184,28 @@ export default function Home() {
           {/* Interactive Subtitle Layer */}
           <div
             onMouseDown={(e) => {
+              if (currentActiveSubIdx === -1) return;
               if (isEditingOverlaySubtitle) return;
               e.stopPropagation();
               setActiveCanvasElement('subtitle');
               setCanvasInteraction({ element: 'subtitle', action: 'move', startX: e.clientX, startY: e.clientY, initialBounds: subtitleBounds });
 
-              // Select the current active subtitle in the timeline but do not open the side panel
-              const activeSubIdx = timelineSegments.findIndex(seg => currentTime >= seg.start && currentTime < seg.end);
-              if (activeSubIdx !== -1) {
-                setSelectedItem({ type: 'subtitle', id: activeSubIdx });
-              }
+              setSelectedItem({ type: 'subtitle', id: currentActiveSubIdx });
             }}
             onDoubleClick={(e) => {
+              if (currentActiveSubIdx === -1) return;
               e.stopPropagation();
               setIsPlaying(false); // Pause video player
-              const activeSubIdx = timelineSegments.findIndex(seg => currentTime >= seg.start && currentTime < seg.end);
-              if (activeSubIdx !== -1) {
-                setIsEditingOverlaySubtitle(true);
-                setSelectedItem({ type: 'subtitle', id: activeSubIdx });
-              }
+              setIsEditingOverlaySubtitle(true);
+              setSelectedItem({ type: 'subtitle', id: currentActiveSubIdx });
             }}
             style={{
               left: `${subtitleBounds.x}%`, top: `${subtitleBounds.y}%`,
               width: `${subtitleBounds.width}%`, height: `${subtitleBounds.height}%`
             }}
-            className={`absolute flex items-center justify-center ${isEditingOverlaySubtitle ? 'select-text' : 'select-none'} ${activeCanvasElement === 'subtitle' ? 'ring-1 ring-fuchsia-500 z-30 cursor-move bg-black/10' : 'z-20 hover:ring-1 hover:ring-white/20'}`}
+            className={`absolute flex items-center justify-center ${isEditingOverlaySubtitle ? 'select-text' : 'select-none'} ${currentActiveSubIdx === -1 ? 'pointer-events-none' : 'pointer-events-auto'} ${(activeCanvasElement === 'subtitle' && currentActiveSubIdx !== -1) ? 'ring-1 ring-fuchsia-500 z-30 cursor-move bg-black/10' : 'z-20 hover:ring-1 hover:ring-white/20'}`}
           >
-            {activeCanvasElement === 'subtitle' && !isEditingOverlaySubtitle && (
+            {activeCanvasElement === 'subtitle' && currentActiveSubIdx !== -1 && !isEditingOverlaySubtitle && (
               <div className="absolute -top-14 left-1/2 -translate-x-1/2 bg-[#16223f] border border-[#253966] rounded-xl shadow-2xl flex items-center gap-1.5 p-1.5 z-50 animate-in fade-in zoom-in-95 duration-200 whitespace-nowrap cursor-default" onMouseDown={e => e.stopPropagation()}>
                 <div className="flex items-center bg-[#0d142d] rounded-lg px-2 py-1 border border-[#1e2a4a]">
                   <button onClick={() => setSubtitleFontSize(prev => Math.max(10, prev - 5))} className="text-zinc-400 hover:text-white px-1.5 py-0.5 text-xs font-mono">-</button>
@@ -2406,7 +2405,7 @@ export default function Home() {
               );
             })()}
 
-            {activeCanvasElement === 'subtitle' && (
+            {activeCanvasElement === 'subtitle' && currentActiveSubIdx !== -1 && (
               <>
                 <div onMouseDown={(e) => { e.stopPropagation(); setCanvasInteraction({ element: 'subtitle', action: 'resize-tl', startX: e.clientX, startY: e.clientY, initialBounds: subtitleBounds }); }} className="absolute -top-1.5 -left-1.5 w-2 h-2 bg-white cursor-nwse-resize shadow-sm" />
                 <div onMouseDown={(e) => { e.stopPropagation(); setCanvasInteraction({ element: 'subtitle', action: 'resize-tr', startX: e.clientX, startY: e.clientY, initialBounds: subtitleBounds }); }} className="absolute -top-1.5 -right-1.5 w-2 h-2 bg-white cursor-nesw-resize shadow-sm" />
@@ -2444,14 +2443,58 @@ export default function Home() {
       {/* 4. Lower Timeline & Controls Bar */}
       <footer className="col-start-1 md:col-span-2 row-start-3 bg-[#0b1022] border-t border-[#1e2a4a]/40 p-3 md:p-4 flex flex-col gap-3.5 z-10">
 
-        {/* Helper instructions / Selected state indicators */}
-        {selectedItem && (
-          <div className="flex items-center gap-3 px-1 shrink-0">
-            <span className="text-[10px] text-amber-400/80 italic animate-pulse">
-              Selected: {selectedItem.type === 'subtitle' ? 'Subtitle' : 'Video'}. Press Delete or Backspace key to remove.
-            </span>
+        {/* Timeline Toolbar: Selected status on left, Zoom scaler on right */}
+        <div className="flex items-center justify-between px-1 shrink-0">
+          <div className="flex items-center gap-3">
+            {selectedItem && (
+              <span className="text-[10px] text-amber-400/80 italic animate-pulse">
+                Selected: {selectedItem.type === 'subtitle' ? 'Subtitle' : 'Video'}. Press Delete or Backspace key to remove.
+              </span>
+            )}
           </div>
-        )}
+          <div className="flex items-center gap-3 bg-[#0d142d] px-3 py-1.5 rounded-lg border border-[#1e2a4a]/40 text-xs">
+            <button
+              onClick={() => setTimelineZoom(prev => Math.max(5, prev - 10))}
+              className="text-zinc-400 hover:text-white transition-colors cursor-pointer"
+              title="Zoom Out"
+            >
+              <ZoomOut className="w-3.5 h-3.5" />
+            </button>
+            <div className="flex items-center gap-2">
+              <input
+                type="range"
+                min="5"
+                max="150"
+                step="1"
+                value={timelineZoom}
+                onChange={(e) => setTimelineZoom(Number(e.target.value))}
+                className="w-24 accent-amber-500 h-1 bg-zinc-750 rounded-lg appearance-none cursor-pointer"
+              />
+              <span className="text-[10px] text-zinc-400 font-mono w-12 text-right">{timelineZoom} px/s</span>
+            </div>
+            <button
+              onClick={() => setTimelineZoom(prev => Math.min(150, prev + 10))}
+              className="text-zinc-400 hover:text-white transition-colors cursor-pointer"
+              title="Zoom In"
+            >
+              <ZoomIn className="w-3.5 h-3.5" />
+            </button>
+            <div className="w-[1px] h-3 bg-zinc-700" />
+            <button
+              onClick={() => {
+                if (timelineRef.current) {
+                  const visibleWidth = timelineRef.current.clientWidth;
+                  const fitZoom = Math.max(5, Math.min(150, (visibleWidth - 20) / Math.max(1, totalDuration)));
+                  setTimelineZoom(Math.round(fitZoom));
+                }
+              }}
+              className="text-zinc-400 hover:text-white transition-colors text-[10px] font-medium cursor-pointer"
+              title="Fit to Screen"
+            >
+              Fit
+            </button>
+          </div>
+        </div>
 
         {/* Professional Video Editing Timeline */}
         <div
@@ -2479,158 +2522,172 @@ export default function Home() {
               setIsDraggingTimeline(true);
               handleTimelineDrag(e);
             }}
-            className="flex-1 relative flex flex-col bg-[#070b19] overflow-x-auto overflow-y-hidden cursor-ew-resize"
+            className="flex-1 relative flex flex-col bg-[#070b19] overflow-x-auto overflow-y-hidden cursor-ew-resize animate-in fade-in duration-300"
           >
-            {/* Time Ticks Header (Ruler) */}
-            <div className="h-8 bg-[#0a0f24] border-b border-[#1e2a4a]/50 relative w-full shrink-0 flex items-end">
-              {Array.from({ length: Math.ceil(totalDuration) }).map((_, i) => (
-                <div key={i} className="absolute text-[8px] text-[#ccd6e8]/60 font-mono tracking-wider bottom-0.5 pl-1" style={{ left: `${(i / totalDuration) * 100}%` }}>
-                  <div className="absolute -left-[1px] bottom-0 h-2 border-l border-[#253966]" />
-                  0:{i.toString().padStart(2, '0')}
-                </div>
-              ))}
-            </div>
-
-            {/* Bright Yellow Playhead */}
+            {/* Scalable Track Wrapper */}
             <div
-              className="absolute top-0 bottom-0 w-[2px] bg-yellow-400 z-30 pointer-events-none transition-all duration-100 ease-linear shadow-[0_0_8px_rgba(250,204,21,0.5)]"
-              style={{ left: `${(currentTime / totalDuration) * 100}%` }}
+              style={{ width: `${totalDuration * timelineZoom}px`, minWidth: '100%' }}
+              className="relative flex-1 flex flex-col h-full"
             >
-              {/* Triangular playhead marker */}
-              <div className="absolute top-0 -left-[5px] w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-yellow-400" />
-            </div>
-
-            {/* Track Contents */}
-            <div className="flex-1 flex flex-col gap-2 p-3">
-
-              {/* Video Track (Green Horizontal Bar with Thumbnails) */}
-              <div
-                onClick={() => setAddSubtitleTime(null)}
-                className="h-14 relative w-full bg-[#052e16]/30 border border-[#14532d]/40 rounded-lg flex items-center overflow-hidden"
-              >
-                {videoSrc && (
-                  <div
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedItem({ type: 'video', id: 'main-video' });
-                      setAddSubtitleTime(null);
-                    }}
-                    style={{ left: '0%', width: '100%' }}
-                    className={`absolute inset-y-0.5 rounded-md flex items-center justify-between border transition-all select-none cursor-pointer overflow-hidden px-3 ${selectedItem?.type === 'video' && selectedItem.id === 'main-video'
-                        ? "bg-[#10b981]/25 border-emerald-400 text-white z-10"
-                        : "bg-[#064e3b]/50 border-[#10b981]/30 text-emerald-300"
-                      }`}
-                  >
-                    {/* Simulated thumbnail background */}
-                    <div className="absolute inset-0 opacity-10 flex gap-1 pointer-events-none">
-                      {Array.from({ length: 12 }).map((_, idx) => (
-                        <div key={idx} className="h-full w-14 bg-zinc-400 shrink-0 border-r border-zinc-500" />
-                      ))}
-                    </div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider relative z-10">Background Video (Main)</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Subtitles Track (Blue blocks with Side Grips) */}
-              <div
-                onClick={(e) => {
-                  if (!timelineRef.current) return;
-                  const rect = timelineRef.current.getBoundingClientRect();
-                  const clickX = e.clientX - rect.left;
-                  const percentage = Math.max(0, Math.min(clickX, rect.width)) / rect.width;
-                  const clickedTime = percentage * totalDuration;
-
-                  // Position playhead at click location
-                  setCurrentTime(clickedTime);
-                  if (videoRef.current) {
-                    videoRef.current.currentTime = clickedTime;
-                  }
-
-                  // Set add button time and deselect any active subtitle segment
-                  setAddSubtitleTime(clickedTime);
-                  setSelectedItem(null);
-                }}
-                className="h-14 relative w-full bg-[#1e293b]/20 border border-[#334155]/20 rounded-lg flex items-center cursor-pointer overflow-visible"
-              >
-                {timelineSegments.map((seg, i) => {
-                  const segTime = seg.start;
-                  const nextSegTime = seg.end;
-                  const isActive = currentTime >= segTime && currentTime < nextSegTime;
-                  const isSelected = selectedItem?.type === 'subtitle' && selectedItem.id === i;
-                  const leftPos = (segTime / totalDuration) * 100;
-                  const width = ((nextSegTime - segTime) / totalDuration) * 100;
+              {/* Time Ticks Header (Ruler) */}
+              <div className="h-8 bg-[#0a0f24] border-b border-[#1e2a4a]/50 relative w-full shrink-0 flex items-end">
+                {Array.from({ length: Math.ceil(totalDuration) }).map((_, i) => {
+                  const interval = timelineZoom < 15 ? 10 : timelineZoom < 35 ? 5 : 2;
+                  const showLabel = i % interval === 0;
+                  if (!showLabel && i > 0 && i < Math.ceil(totalDuration) - 1) return null;
 
                   return (
-                    <div
-                      key={`sub-${i}`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setCurrentTime(segTime);
-                        setSelectedItem({ type: 'subtitle', id: i });
-                        setAddSubtitleTime(null); // Hide tooltip when selecting segment
-                        setActiveTab("subtitles");
-                      }}
-                      onMouseDown={(e) => {
-                        e.stopPropagation();
-                        if (!timelineRef.current) return;
-                        const rect = timelineRef.current.getBoundingClientRect();
-                        const clickX = e.clientX - rect.left;
-                        const percentage = Math.max(0, Math.min(clickX, rect.width)) / rect.width;
-                        const clickTime = percentage * totalDuration;
-                        setResizeState({ index: i, edge: 'move', offsetX: clickTime - segTime });
-                      }}
-                      style={{ left: `${leftPos}%`, width: `calc(${width}% - 2px)` }}
-                      className={`absolute inset-y-1.5 rounded-md flex justify-between items-center border transition-all select-none cursor-move shrink-0 overflow-hidden group ${isSelected
-                          ? "bg-[#1d4ed8] border-blue-400 text-white z-25 shadow-[0_0_12px_rgba(29,78,216,0.4)]"
-                          : isActive
-                            ? "bg-[#1e3a8a] border-blue-500/80 text-white z-20"
-                            : "bg-[#0f172a] border-[#1e293b] text-[#ccd6e8] opacity-85 hover:opacity-100 hover:border-blue-500/40"
-                        }`}
-                    >
-                      {/* Left Grip Handle */}
-                      <div
-                        onMouseDown={(e) => { e.stopPropagation(); setResizeState({ index: i, edge: 'start' }); }}
-                        className="h-full w-2.5 cursor-col-resize flex flex-col justify-center gap-0.5 px-0.5 opacity-50 group-hover:opacity-100 transition-opacity border-r border-white/5"
-                      >
-                        <div className="w-[1.5px] h-3 bg-white/50 rounded-full mx-auto" />
-                      </div>
-
-                      <span className="text-[10px] font-semibold truncate px-2 w-full text-center">{seg.label}</span>
-
-                      {/* Right Grip Handle */}
-                      <div
-                        onMouseDown={(e) => { e.stopPropagation(); setResizeState({ index: i, edge: 'end' }); }}
-                        className="h-full w-2.5 cursor-col-resize flex flex-col justify-center gap-0.5 px-0.5 opacity-50 group-hover:opacity-100 transition-opacity border-l border-white/5"
-                      >
-                        <div className="w-[1.5px] h-3 bg-white/50 rounded-full mx-auto" />
-                      </div>
+                    <div key={i} className="absolute text-[8px] text-[#ccd6e8]/60 font-mono tracking-wider bottom-0.5 pl-1" style={{ left: `${(i / totalDuration) * 100}%` }}>
+                      <div className="absolute -left-[1px] bottom-0 h-2 border-l border-[#253966]" />
+                      {showLabel && `0:${i.toString().padStart(2, '0')}`}
                     </div>
                   );
                 })}
-
-                {/* Floating Add Subtitle Button Tooltip */}
-                {addSubtitleTime !== null && (
-                  <div
-                    onClick={(e) => e.stopPropagation()} // Prevent resetting addSubtitleTime when clicking tooltip wrapper
-                    className="absolute z-40 -top-11 -translate-x-1/2 flex flex-col items-center select-none"
-                    style={{ left: `${(addSubtitleTime / totalDuration) * 100}%` }}
-                  >
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleAddSubtitleAtTime(addSubtitleTime);
-                        setAddSubtitleTime(null);
-                      }}
-                      className="bg-blue-600 hover:bg-blue-500 text-white text-[10px] md:text-[11px] font-bold py-1 px-2.5 rounded-full shadow-lg border border-blue-400/30 flex items-center gap-1 active:scale-95 transition-all whitespace-nowrap"
-                    >
-                      <Plus className="w-3 h-3" /> Add Subtitle
-                    </button>
-                    <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[4px] border-t-blue-600 mt-[1px]" />
-                  </div>
-                )}
               </div>
 
+              {/* Bright Yellow Playhead */}
+              <div
+                className="absolute top-0 bottom-0 w-[2px] bg-yellow-400 z-30 pointer-events-none transition-all duration-100 ease-linear shadow-[0_0_8px_rgba(250,204,21,0.5)]"
+                style={{ left: `${(currentTime / totalDuration) * 100}%` }}
+              >
+                {/* Triangular playhead marker */}
+                <div className="absolute top-0 -left-[5px] w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-yellow-400" />
+              </div>
+
+              {/* Track Contents */}
+              <div className="flex-1 flex flex-col gap-2 p-3">
+
+                {/* Video Track (Green Horizontal Bar with Thumbnails) */}
+                <div
+                  onClick={() => setAddSubtitleTime(null)}
+                  className="h-14 relative w-full bg-[#052e16]/30 border border-[#14532d]/40 rounded-lg flex items-center overflow-hidden"
+                >
+                  {videoSrc && (
+                    <div
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedItem({ type: 'video', id: 'main-video' });
+                        setAddSubtitleTime(null);
+                      }}
+                      style={{ left: '0%', width: '100%' }}
+                      className={`absolute inset-y-0.5 rounded-md flex items-center justify-between border transition-all select-none cursor-pointer overflow-hidden px-3 ${selectedItem?.type === 'video' && selectedItem.id === 'main-video'
+                          ? "bg-[#10b981]/25 border-emerald-400 text-white z-10"
+                          : "bg-[#064e3b]/50 border-[#10b981]/30 text-emerald-300"
+                        }`}
+                    >
+                      {/* Simulated thumbnail background */}
+                      <div className="absolute inset-0 opacity-10 flex gap-1 pointer-events-none">
+                        {Array.from({ length: 12 }).map((_, idx) => (
+                          <div key={idx} className="h-full w-14 bg-zinc-400 shrink-0 border-r border-zinc-500" />
+                        ))}
+                      </div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider relative z-10">Background Video (Main)</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Subtitles Track (Blue blocks with Side Grips) */}
+                <div
+                  onClick={(e) => {
+                    if (!timelineRef.current) return;
+                    const rect = timelineRef.current.getBoundingClientRect();
+                    const trackWidth = Math.max(rect.width, totalDuration * timelineZoom);
+                    const clickX = e.clientX - rect.left + timelineRef.current.scrollLeft;
+                    const percentage = Math.max(0, Math.min(clickX, trackWidth)) / trackWidth;
+                    const clickedTime = percentage * totalDuration;
+
+                    // Position playhead at click location
+                    setCurrentTime(clickedTime);
+                    if (videoRef.current) {
+                      videoRef.current.currentTime = clickedTime;
+                    }
+
+                    // Set add button time and deselect any active subtitle segment
+                    setAddSubtitleTime(clickedTime);
+                    setSelectedItem(null);
+                  }}
+                  className="h-14 relative w-full bg-[#1e293b]/20 border border-[#334155]/20 rounded-lg flex items-center cursor-pointer overflow-visible"
+                >
+                  {timelineSegments.map((seg, i) => {
+                    const segTime = seg.start;
+                    const nextSegTime = seg.end;
+                    const isActive = currentTime >= segTime && currentTime < nextSegTime;
+                    const isSelected = selectedItem?.type === 'subtitle' && selectedItem.id === i;
+                    const leftPos = (segTime / totalDuration) * 100;
+                    const width = ((nextSegTime - segTime) / totalDuration) * 100;
+
+                    return (
+                      <div
+                        key={`sub-${i}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCurrentTime(segTime);
+                          setSelectedItem({ type: 'subtitle', id: i });
+                          setAddSubtitleTime(null); // Hide tooltip when selecting segment
+                          setActiveTab("subtitles");
+                        }}
+                        onMouseDown={(e) => {
+                          e.stopPropagation();
+                          if (!timelineRef.current) return;
+                          const rect = timelineRef.current.getBoundingClientRect();
+                          const trackWidth = Math.max(rect.width, totalDuration * timelineZoom);
+                          const clickX = e.clientX - rect.left + timelineRef.current.scrollLeft;
+                          const percentage = Math.max(0, Math.min(clickX, trackWidth)) / trackWidth;
+                          const clickTime = percentage * totalDuration;
+                          setResizeState({ index: i, edge: 'move', offsetX: clickTime - segTime });
+                        }}
+                        style={{ left: `${leftPos}%`, width: `calc(${width}% - 2px)` }}
+                        className={`absolute inset-y-1.5 rounded-md flex justify-between items-center border transition-all select-none cursor-move shrink-0 overflow-hidden group ${isSelected
+                            ? "bg-[#1d4ed8] border-blue-400 text-white z-25 shadow-[0_0_12px_rgba(29,78,216,0.4)]"
+                            : isActive
+                              ? "bg-[#1e3a8a] border-blue-500/80 text-white z-20"
+                              : "bg-[#0f172a] border-[#1e293b] text-[#ccd6e8] opacity-85 hover:opacity-100 hover:border-blue-500/40"
+                          }`}
+                      >
+                        {/* Left Grip Handle */}
+                        <div
+                          onMouseDown={(e) => { e.stopPropagation(); setResizeState({ index: i, edge: 'start' }); }}
+                          className="h-full w-2.5 cursor-col-resize flex flex-col justify-center gap-0.5 px-0.5 opacity-50 group-hover:opacity-100 transition-opacity border-r border-white/5"
+                        >
+                          <div className="w-[1.5px] h-3 bg-white/50 rounded-full mx-auto" />
+                        </div>
+
+                        <span className="text-[10px] font-semibold truncate px-2 w-full text-center">{seg.label}</span>
+
+                        {/* Right Grip Handle */}
+                        <div
+                          onMouseDown={(e) => { e.stopPropagation(); setResizeState({ index: i, edge: 'end' }); }}
+                          className="h-full w-2.5 cursor-col-resize flex flex-col justify-center gap-0.5 px-0.5 opacity-50 group-hover:opacity-100 transition-opacity border-l border-white/5"
+                        >
+                          <div className="w-[1.5px] h-3 bg-white/50 rounded-full mx-auto" />
+                        </div>
+                      </div>
+                    );
+                  })}
+
+                  {/* Floating Add Subtitle Button Tooltip */}
+                  {addSubtitleTime !== null && (
+                    <div
+                      onClick={(e) => e.stopPropagation()} // Prevent resetting addSubtitleTime when clicking tooltip wrapper
+                      className="absolute z-40 -top-11 -translate-x-1/2 flex flex-col items-center select-none"
+                      style={{ left: `${(addSubtitleTime / totalDuration) * 100}%` }}
+                    >
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAddSubtitleAtTime(addSubtitleTime);
+                          setAddSubtitleTime(null);
+                        }}
+                        className="bg-blue-600 hover:bg-blue-500 text-white text-[10px] md:text-[11px] font-bold py-1 px-2.5 rounded-full shadow-lg border border-blue-400/30 flex items-center gap-1 active:scale-95 transition-all whitespace-nowrap"
+                      >
+                        <Plus className="w-3 h-3" /> Add Subtitle
+                      </button>
+                      <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[4px] border-t-blue-600 mt-[1px]" />
+                    </div>
+                  )}
+                </div>
+
+              </div>
             </div>
           </div>
         </div>
