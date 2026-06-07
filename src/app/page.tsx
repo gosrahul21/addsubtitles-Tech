@@ -388,7 +388,7 @@ export default function Home() {
     if (!timelineRef.current) return;
     const rect = timelineRef.current.getBoundingClientRect();
     const trackWidth = Math.max(rect.width, totalDuration * timelineZoom);
-    
+
     let clientX = 0;
     if ('touches' in e && e.touches.length > 0) {
       clientX = e.touches[0].clientX;
@@ -1046,9 +1046,8 @@ export default function Home() {
             <button
               onClick={handleUndo}
               disabled={historyIndex <= 0}
-              className={`p-1.5 rounded transition-all ${
-                historyIndex <= 0 ? 'text-zinc-600 cursor-not-allowed opacity-55' : 'text-zinc-400 hover:text-white hover:bg-[#16223f]'
-              }`}
+              className={`p-1.5 rounded transition-all ${historyIndex <= 0 ? 'text-zinc-600 cursor-not-allowed opacity-55' : 'text-zinc-400 hover:text-white hover:bg-[#16223f]'
+                }`}
               title="Undo"
             >
               <RotateCcw className="w-4 h-4" />
@@ -1056,9 +1055,8 @@ export default function Home() {
             <button
               onClick={handleRedo}
               disabled={historyIndex >= history.length - 1}
-              className={`p-1.5 rounded transition-all ${
-                historyIndex >= history.length - 1 ? 'text-zinc-600 cursor-not-allowed opacity-55' : 'text-zinc-400 hover:text-white hover:bg-[#16223f]'
-              }`}
+              className={`p-1.5 rounded transition-all ${historyIndex >= history.length - 1 ? 'text-zinc-600 cursor-not-allowed opacity-55' : 'text-zinc-400 hover:text-white hover:bg-[#16223f]'
+                }`}
               title="Redo"
             >
               <RotateCw className="w-4 h-4" />
@@ -1258,10 +1256,10 @@ export default function Home() {
                         setAddSubtitleTime(null); // Hide tooltip when selecting segment
                       }}
                       className={`p-4 rounded-xl border transition-all cursor-pointer relative group/card ${selectedItem?.type === 'subtitle' && selectedItem.id === i
-                          ? 'bg-[#182747] border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.15)]'
-                          : isActive
-                            ? 'bg-[#182747]/60 border-amber-400/40 shadow-[0_0_10px_rgba(251,191,36,0.05)]'
-                            : 'bg-[#0c1122] border-[#1e2a4a]/60 hover:border-[#253966]'
+                        ? 'bg-[#182747] border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.15)]'
+                        : isActive
+                          ? 'bg-[#182747]/60 border-amber-400/40 shadow-[0_0_10px_rgba(251,191,36,0.05)]'
+                          : 'bg-[#0c1122] border-[#1e2a4a]/60 hover:border-[#253966]'
                         }`}
                     >
                       <div className="flex justify-between items-center mb-2">
@@ -1270,11 +1268,10 @@ export default function Home() {
                             {formatTime(seg.start)} - {formatTime(seg.end)}
                           </div>
                           {(seg as any).speaker && (
-                            <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded ${
-                              (seg as any).speaker === 'A' 
-                                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' 
+                            <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded ${(seg as any).speaker === 'A'
+                                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
                                 : 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
-                            }`}>
+                              }`}>
                               Voice {(seg as any).speaker}
                             </span>
                           )}
@@ -2687,8 +2684,8 @@ export default function Home() {
                       }}
                       style={{ left: '0%', width: '100%' }}
                       className={`absolute inset-y-0.5 rounded-md flex items-center justify-between border transition-all select-none cursor-pointer overflow-hidden px-3 ${selectedItem?.type === 'video' && selectedItem.id === 'main-video'
-                          ? "bg-[#10b981]/25 border-emerald-400 text-white z-10"
-                          : "bg-[#064e3b]/50 border-[#10b981]/30 text-emerald-300"
+                        ? "bg-[#10b981]/25 border-emerald-400 text-white z-10"
+                        : "bg-[#064e3b]/50 border-[#10b981]/30 text-emerald-300"
                         }`}
                     >
                       {/* Simulated thumbnail background */}
@@ -2784,10 +2781,10 @@ export default function Home() {
                         }}
                         style={{ left: `${leftPos}%`, width: `calc(${width}% - 2px)` }}
                         className={`absolute inset-y-1.5 rounded-md flex justify-between items-center border transition-all select-none cursor-move shrink-0 overflow-hidden group ${isSelected
-                            ? "bg-[#1d4ed8] border-blue-400 text-white z-25 shadow-[0_0_12px_rgba(29,78,216,0.4)]"
-                            : isActive
-                              ? "bg-[#1e3a8a] border-blue-500/80 text-white z-20"
-                              : "bg-[#0f172a] border-[#1e293b] text-[#ccd6e8] opacity-85 hover:opacity-100 hover:border-blue-500/40"
+                          ? "bg-[#1d4ed8] border-blue-400 text-white z-25 shadow-[0_0_12px_rgba(29,78,216,0.4)]"
+                          : isActive
+                            ? "bg-[#1e3a8a] border-blue-500/80 text-white z-20"
+                            : "bg-[#0f172a] border-[#1e293b] text-[#ccd6e8] opacity-85 hover:opacity-100 hover:border-blue-500/40"
                           }`}
                       >
                         {/* Left Grip Handle */}
@@ -2844,7 +2841,7 @@ export default function Home() {
         <div className="flex flex-col gap-2.5 px-4 py-3 mt-1 bg-[#1a1a1a] rounded-xl border border-[#333] shadow-lg">
 
           {/* Timeline Dragger */}
-          <div 
+          <div
             ref={playerProgressRef}
             className="relative w-full h-4 flex items-center group cursor-pointer"
             onMouseDown={(e) => {

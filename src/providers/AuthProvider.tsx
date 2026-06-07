@@ -18,7 +18,7 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
-  setUser: () => {},
+  setUser: () => { },
   loading: true,
 });
 
