@@ -820,7 +820,7 @@ export default function Home() {
             </svg>
           </div>
           <span className="text-md font-bold tracking-tight bg-gradient-to-r from-white via-zinc-100 to-zinc-300 bg-clip-text text-transparent font-heading">
-            VidScribe <span className="text-amber-400 font-semibold">AI</span>
+            Add<span className="text-amber-400 font-semibold">Subtitles</span>
           </span>
         </div>
 
