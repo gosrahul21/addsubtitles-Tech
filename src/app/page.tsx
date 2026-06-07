@@ -171,7 +171,9 @@ export default function Home() {
   const [activeTemplate, setActiveTemplate] = useState("Classic");
 
   const timelineRef = useRef<HTMLDivElement>(null);
+  const playerProgressRef = useRef<HTMLDivElement>(null);
   const [isDraggingTimeline, setIsDraggingTimeline] = useState(false);
+  const [isDraggingPlayerProgress, setIsDraggingPlayerProgress] = useState(false);
   const [resizeState, setResizeState] = useState<{ index: number, edge: 'start' | 'end' | 'move', offsetX?: number } | null>(null);
   const [editingSubtitleIndex, setEditingSubtitleIndex] = useState<number | null>(null);
   const [isEditingOverlaySubtitle, setIsEditingOverlaySubtitle] = useState(false);
@@ -382,11 +384,21 @@ export default function Home() {
     }
   }, [aspectRatio, videoSrc]);
 
-  const handleTimelineDrag = (e: React.MouseEvent<HTMLDivElement> | MouseEvent) => {
+  const handleTimelineDrag = (e: React.MouseEvent<HTMLDivElement> | MouseEvent | TouchEvent | React.TouchEvent<HTMLDivElement>) => {
     if (!timelineRef.current) return;
     const rect = timelineRef.current.getBoundingClientRect();
     const trackWidth = Math.max(rect.width, totalDuration * timelineZoom);
-    const x = Math.max(0, Math.min(e.clientX - rect.left + timelineRef.current.scrollLeft, trackWidth));
+    
+    let clientX = 0;
+    if ('touches' in e && e.touches.length > 0) {
+      clientX = e.touches[0].clientX;
+    } else if ('changedTouches' in e && e.changedTouches.length > 0) {
+      clientX = e.changedTouches[0].clientX;
+    } else if ('clientX' in e) {
+      clientX = (e as MouseEvent).clientX;
+    }
+
+    const x = Math.max(0, Math.min(clientX - rect.left + timelineRef.current.scrollLeft, trackWidth));
     const percentage = x / trackWidth;
     const newTime = percentage * totalDuration;
 
@@ -450,10 +462,19 @@ export default function Home() {
       setIsDraggingTimeline(false);
       setResizeState(null);
       setCanvasInteraction(null);
+      setIsDraggingPlayerProgress(false);
     };
     const handleMouseMove = (e: MouseEvent) => {
       if (isDraggingTimeline || resizeState !== null) {
         handleTimelineDrag(e);
+      }
+
+      if (isDraggingPlayerProgress && playerProgressRef.current) {
+        const rect = playerProgressRef.current.getBoundingClientRect();
+        const percentage = Math.max(0, Math.min(e.clientX - rect.left, rect.width)) / rect.width;
+        const newTime = percentage * totalDuration;
+        setCurrentTime(newTime);
+        if (videoRef.current) videoRef.current.currentTime = newTime;
       }
 
       if (canvasInteraction && canvasRef.current) {
@@ -524,17 +545,108 @@ export default function Home() {
         });
       }
     };
+    const handleTouchMove = (e: TouchEvent) => {
+      if (isDraggingTimeline || resizeState !== null) {
+        if (e.cancelable) e.preventDefault();
+        handleTimelineDrag(e);
+      }
 
-    if (isDraggingTimeline || resizeState !== null || canvasInteraction !== null) {
+      if (isDraggingPlayerProgress && playerProgressRef.current && e.touches.length > 0) {
+        if (e.cancelable) e.preventDefault();
+        const rect = playerProgressRef.current.getBoundingClientRect();
+        const clientX = e.touches[0].clientX;
+        const percentage = Math.max(0, Math.min(clientX - rect.left, rect.width)) / rect.width;
+        const newTime = percentage * totalDuration;
+        setCurrentTime(newTime);
+        if (videoRef.current) videoRef.current.currentTime = newTime;
+      }
+
+      if (canvasInteraction && canvasRef.current && e.touches.length > 0) {
+        if (e.cancelable) e.preventDefault();
+        const rect = canvasRef.current.getBoundingClientRect();
+        const clientX = e.touches[0].clientX;
+        const clientY = e.touches[0].clientY;
+        const deltaX = ((clientX - canvasInteraction.startX) / rect.width) * 100;
+        const deltaY = ((clientY - canvasInteraction.startY) / rect.height) * 100;
+
+        const setBounds = canvasInteraction.element === 'video' ? setVideoBounds : setSubtitleBounds;
+        const initial = canvasInteraction.initialBounds;
+
+        setBounds(prev => {
+          let newBounds = { ...initial };
+
+          if (canvasInteraction.element === 'video') {
+            const vidRatio = videoRef.current ? (videoRef.current.videoWidth / videoRef.current.videoHeight) : (16 / 9);
+            let cw = 1920, ch = 1080;
+            if (aspectRatio === "9:16 (TikTok)") { cw = 1080; ch = 1920; }
+            else if (aspectRatio === "1:1 (Instagram)") { cw = 1080; ch = 1080; }
+            else if (aspectRatio === "4:5 (Facebook)") { cw = 1080; ch = 1350; }
+            else if (videoRef.current) { cw = videoRef.current.videoWidth; ch = videoRef.current.videoHeight; }
+
+            const canvasRatio = cw / ch;
+            const updateHeightFromWidth = (wPct: number) => wPct * canvasRatio / vidRatio;
+
+            if (canvasInteraction.action === 'move') {
+              newBounds.x = initial.x + deltaX;
+              newBounds.y = initial.y + deltaY;
+            } else if (canvasInteraction.action === 'resize-br') {
+              newBounds.width = Math.max(10, initial.width + deltaX);
+              newBounds.height = updateHeightFromWidth(newBounds.width);
+            } else if (canvasInteraction.action === 'resize-bl') {
+              newBounds.width = Math.max(10, initial.width - deltaX);
+              newBounds.height = updateHeightFromWidth(newBounds.width);
+              newBounds.x = initial.x + initial.width - newBounds.width;
+            } else if (canvasInteraction.action === 'resize-tr') {
+              newBounds.width = Math.max(10, initial.width + deltaX);
+              newBounds.height = updateHeightFromWidth(newBounds.width);
+              newBounds.y = initial.y + initial.height - newBounds.height;
+            } else if (canvasInteraction.action === 'resize-tl') {
+              newBounds.width = Math.max(10, initial.width - deltaX);
+              newBounds.height = updateHeightFromWidth(newBounds.width);
+              newBounds.x = initial.x + initial.width - newBounds.width;
+              newBounds.y = initial.y + initial.height - newBounds.height;
+            }
+          } else {
+            if (canvasInteraction.action === 'move') {
+              newBounds.x = initial.x + deltaX;
+              newBounds.y = initial.y + deltaY;
+            } else if (canvasInteraction.action === 'resize-br') {
+              newBounds.width = Math.max(10, initial.width + deltaX);
+              newBounds.height = Math.max(10, initial.height + deltaY);
+            } else if (canvasInteraction.action === 'resize-bl') {
+              newBounds.x = initial.x + deltaX;
+              newBounds.width = Math.max(10, initial.width - deltaX);
+              newBounds.height = Math.max(10, initial.height + deltaY);
+            } else if (canvasInteraction.action === 'resize-tr') {
+              newBounds.y = initial.y + deltaY;
+              newBounds.width = Math.max(10, initial.width + deltaX);
+              newBounds.height = Math.max(10, initial.height - deltaY);
+            } else if (canvasInteraction.action === 'resize-tl') {
+              newBounds.x = initial.x + deltaX;
+              newBounds.y = initial.y + deltaY;
+              newBounds.width = Math.max(10, initial.width - deltaX);
+              newBounds.height = Math.max(10, initial.height - deltaY);
+            }
+          }
+          return newBounds;
+        });
+      }
+    };
+
+    if (isDraggingTimeline || resizeState !== null || canvasInteraction !== null || isDraggingPlayerProgress) {
       window.addEventListener('mousemove', handleMouseMove);
       window.addEventListener('mouseup', handleMouseUp);
+      window.addEventListener('touchmove', handleTouchMove, { passive: false });
+      window.addEventListener('touchend', handleMouseUp);
     }
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleMouseUp);
     };
-  }, [isDraggingTimeline, resizeState, canvasInteraction, totalDuration]);
+  }, [isDraggingTimeline, resizeState, canvasInteraction, totalDuration, timelineZoom, isDraggingPlayerProgress]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -2522,12 +2634,16 @@ export default function Home() {
               setIsDraggingTimeline(true);
               handleTimelineDrag(e);
             }}
+            onTouchStart={(e) => {
+              setIsDraggingTimeline(true);
+              handleTimelineDrag(e);
+            }}
             className="flex-1 relative flex flex-col bg-[#070b19] overflow-x-auto overflow-y-hidden cursor-ew-resize animate-in fade-in duration-300"
           >
             {/* Scalable Track Wrapper */}
             <div
               style={{ width: `${totalDuration * timelineZoom}px`, minWidth: '100%' }}
-              className="relative flex-1 flex flex-col h-full"
+              className="relative shrink-0 flex flex-col h-full"
             >
               {/* Time Ticks Header (Ruler) */}
               <div className="h-8 bg-[#0a0f24] border-b border-[#1e2a4a]/50 relative w-full shrink-0 flex items-end">
@@ -2606,6 +2722,25 @@ export default function Home() {
                     setAddSubtitleTime(clickedTime);
                     setSelectedItem(null);
                   }}
+                  onTouchStart={(e) => {
+                    if (!timelineRef.current) return;
+                    const rect = timelineRef.current.getBoundingClientRect();
+                    const trackWidth = Math.max(rect.width, totalDuration * timelineZoom);
+                    const clientX = e.touches[0].clientX;
+                    const clickX = clientX - rect.left + timelineRef.current.scrollLeft;
+                    const percentage = Math.max(0, Math.min(clickX, trackWidth)) / trackWidth;
+                    const clickedTime = percentage * totalDuration;
+
+                    // Position playhead at click location
+                    setCurrentTime(clickedTime);
+                    if (videoRef.current) {
+                      videoRef.current.currentTime = clickedTime;
+                    }
+
+                    // Set add button time and deselect any active subtitle segment
+                    setAddSubtitleTime(clickedTime);
+                    setSelectedItem(null);
+                  }}
                   className="h-14 relative w-full bg-[#1e293b]/20 border border-[#334155]/20 rounded-lg flex items-center cursor-pointer overflow-visible"
                 >
                   {timelineSegments.map((seg, i) => {
@@ -2636,6 +2771,17 @@ export default function Home() {
                           const clickTime = percentage * totalDuration;
                           setResizeState({ index: i, edge: 'move', offsetX: clickTime - segTime });
                         }}
+                        onTouchStart={(e) => {
+                          e.stopPropagation();
+                          if (!timelineRef.current) return;
+                          const rect = timelineRef.current.getBoundingClientRect();
+                          const trackWidth = Math.max(rect.width, totalDuration * timelineZoom);
+                          const clientX = e.touches[0].clientX;
+                          const clickX = clientX - rect.left + timelineRef.current.scrollLeft;
+                          const percentage = Math.max(0, Math.min(clickX, trackWidth)) / trackWidth;
+                          const clickTime = percentage * totalDuration;
+                          setResizeState({ index: i, edge: 'move', offsetX: clickTime - segTime });
+                        }}
                         style={{ left: `${leftPos}%`, width: `calc(${width}% - 2px)` }}
                         className={`absolute inset-y-1.5 rounded-md flex justify-between items-center border transition-all select-none cursor-move shrink-0 overflow-hidden group ${isSelected
                             ? "bg-[#1d4ed8] border-blue-400 text-white z-25 shadow-[0_0_12px_rgba(29,78,216,0.4)]"
@@ -2647,6 +2793,7 @@ export default function Home() {
                         {/* Left Grip Handle */}
                         <div
                           onMouseDown={(e) => { e.stopPropagation(); setResizeState({ index: i, edge: 'start' }); }}
+                          onTouchStart={(e) => { e.stopPropagation(); setResizeState({ index: i, edge: 'start' }); }}
                           className="h-full w-2.5 cursor-col-resize flex flex-col justify-center gap-0.5 px-0.5 opacity-50 group-hover:opacity-100 transition-opacity border-r border-white/5"
                         >
                           <div className="w-[1.5px] h-3 bg-white/50 rounded-full mx-auto" />
@@ -2657,6 +2804,7 @@ export default function Home() {
                         {/* Right Grip Handle */}
                         <div
                           onMouseDown={(e) => { e.stopPropagation(); setResizeState({ index: i, edge: 'end' }); }}
+                          onTouchStart={(e) => { e.stopPropagation(); setResizeState({ index: i, edge: 'end' }); }}
                           className="h-full w-2.5 cursor-col-resize flex flex-col justify-center gap-0.5 px-0.5 opacity-50 group-hover:opacity-100 transition-opacity border-l border-white/5"
                         >
                           <div className="w-[1.5px] h-3 bg-white/50 rounded-full mx-auto" />
@@ -2696,10 +2844,21 @@ export default function Home() {
         <div className="flex flex-col gap-2.5 px-4 py-3 mt-1 bg-[#1a1a1a] rounded-xl border border-[#333] shadow-lg">
 
           {/* Timeline Dragger */}
-          <div className="relative w-full h-4 flex items-center group cursor-pointer"
+          <div 
+            ref={playerProgressRef}
+            className="relative w-full h-4 flex items-center group cursor-pointer"
             onMouseDown={(e) => {
+              setIsDraggingPlayerProgress(true);
               const rect = e.currentTarget.getBoundingClientRect();
               const percentage = Math.max(0, Math.min(e.clientX - rect.left, rect.width)) / rect.width;
+              setCurrentTime(percentage * totalDuration);
+              if (videoRef.current) videoRef.current.currentTime = percentage * totalDuration;
+            }}
+            onTouchStart={(e) => {
+              setIsDraggingPlayerProgress(true);
+              const rect = e.currentTarget.getBoundingClientRect();
+              const clientX = e.touches[0].clientX;
+              const percentage = Math.max(0, Math.min(clientX - rect.left, rect.width)) / rect.width;
               setCurrentTime(percentage * totalDuration);
               if (videoRef.current) videoRef.current.currentTime = percentage * totalDuration;
             }}
@@ -2708,7 +2867,7 @@ export default function Home() {
               <div className="absolute left-0 top-0 bottom-0 bg-[#3b82f6] rounded-full" style={{ width: `${(currentTime / Math.max(0.1, totalDuration)) * 100}%` }} />
             </div>
             <div
-              className="absolute w-3.5 h-3.5 bg-white rounded-full shadow-md pointer-events-none scale-0 group-hover:scale-100 transition-transform"
+              className={`absolute w-3.5 h-3.5 bg-white rounded-full shadow-md pointer-events-none transition-transform ${isDraggingPlayerProgress ? 'scale-100' : 'scale-0 group-hover:scale-100'}`}
               style={{ left: `calc(${(currentTime / Math.max(0.1, totalDuration)) * 100}% - 7px)` }}
             />
           </div>
