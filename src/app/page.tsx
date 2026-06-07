@@ -182,6 +182,8 @@ export default function Home() {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showOpenProjectModal, setShowOpenProjectModal] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
+  const [exportedVideoUrl, setExportedVideoUrl] = useState<string | null>(null);
   const [uploadLanguage, setUploadLanguage] = useState("English (US)");
   const [subtitleFontSize, setSubtitleFontSize] = useState(75);
   const [showSubtitleMoreOptions, setShowSubtitleMoreOptions] = useState(false);
@@ -1025,11 +1027,13 @@ export default function Home() {
                   setExportProgress(progress);
                 });
 
+                if (exportedVideoUrl) {
+                  URL.revokeObjectURL(exportedVideoUrl);
+                }
+
                 const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'exported_video.mp4';
-                a.click();
+                setExportedVideoUrl(url);
+                setShowDownloadModal(true);
               } catch (e) {
                 console.error(e);
                 alert("Export failed. See console for details.");
@@ -3118,6 +3122,97 @@ export default function Home() {
 
       {/* Upgrade Modal */}
       <UpgradeModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
+
+      {/* Download Options Modal */}
+      {showDownloadModal && exportedVideoUrl && (
+        <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative bg-[#0b1329] border border-[#1e2a4a] rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            {/* Glow backgrounds */}
+            <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-emerald-500/5 blur-[80px] pointer-events-none" />
+            <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-amber-500/5 blur-[80px] pointer-events-none" />
+
+            {/* Header */}
+            <div className="relative z-10 flex items-center justify-between p-6 border-b border-[#1e2a4a]/50">
+              <h2 className="text-xl font-bold font-heading text-white flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                Export Successful!
+              </h2>
+              <button 
+                onClick={() => setShowDownloadModal(false)}
+                className="p-1.5 text-zinc-400 hover:text-white hover:bg-[#16223f] rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="relative z-10 p-6 space-y-5">
+              <p className="text-sm text-zinc-300 leading-relaxed">
+                Your video has been rendered and subtitles have been baked. Choose an option below to save your files:
+              </p>
+
+              <div className="flex flex-col gap-3">
+                <a
+                  href={exportedVideoUrl}
+                  download="exported_video.mp4"
+                  onClick={() => setShowDownloadModal(false)}
+                  className="w-full py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-amber-400 to-amber-600 text-[#332b10] hover:shadow-[0_0_15px_rgba(212,175,55,0.3)] hover:scale-[1.01] transition-all flex justify-center items-center gap-2"
+                >
+                  <Download className="w-4 h-4" />
+                  Download Video (.mp4)
+                </a>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const formatTime = (secs: number) => {
+                      const date = new Date(0);
+                      date.setSeconds(secs);
+                      const ms = Math.round((secs % 1) * 1000).toString().padStart(3, '0');
+                      const timeStr = date.toISOString().substring(11, 19);
+                      return `${timeStr},${ms}`;
+                    };
+
+                    const srtContent = timelineSegments
+                      .map((seg, idx) => {
+                        return `${idx + 1}\n${formatTime(seg.start)} --> ${formatTime(seg.end)}\n${seg.label}\n`;
+                      })
+                      .join('\n');
+
+                    const srtBlob = new Blob([srtContent], { type: 'text/plain;charset=utf-8' });
+                    const srtUrl = URL.createObjectURL(srtBlob);
+                    const link = document.createElement('a');
+                    link.href = srtUrl;
+                    link.download = 'subtitles.srt';
+                    link.click();
+                    URL.revokeObjectURL(srtUrl);
+                  }}
+                  className="w-full py-3.5 rounded-xl font-bold text-sm bg-transparent border border-white/10 hover:border-white/30 text-white hover:bg-white/5 transition-all flex justify-center items-center gap-2"
+                >
+                  <MessageSquare className="w-4 h-4 text-amber-400" />
+                  Download Subtitles (.srt)
+                </button>
+              </div>
+
+              <div className="text-center pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowDownloadModal(false);
+                    if (exportedVideoUrl) {
+                      URL.revokeObjectURL(exportedVideoUrl);
+                      setExportedVideoUrl(null);
+                    }
+                  }}
+                  className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+                >
+                  Discard Export Cache
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
