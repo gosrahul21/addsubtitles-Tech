@@ -1,18 +1,45 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Check, X, Sparkles, Zap, Crown, X as CloseIcon } from 'lucide-react';
 import axios from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
-const pricingTiers = [
-  {
-    name: "FREE",
+const uiConfig: Record<string, any> = {
+  FREE: {
     icon: <Zap className="w-5 h-5 text-slate-400" />,
-    price: "$0",
     period: "forever",
     description: "Perfect for getting started.",
+    buttonText: "Current Plan",
+    buttonVariant: "outline",
+    popular: false,
+  },
+  PRO: {
+    icon: <Sparkles className="w-5 h-5 text-amber-600" />,
+    period: "per month",
+    description: "For content creators.",
+    buttonText: "Upgrade to Pro",
+    buttonVariant: "gradient",
+    popular: true,
+  },
+  ENTERPRISE: {
+    icon: <Crown className="w-5 h-5 text-purple-400" />,
+    period: "per month",
+    description: "For teams and agencies.",
+    buttonText: "Contact Sales",
+    buttonVariant: "outline",
+    popular: false,
+  }
+};
+
+const initialFallbackTiers = [
+  {
+    name: "FREE",
+    icon: uiConfig.FREE.icon,
+    price: "$0",
+    period: uiConfig.FREE.period,
+    description: uiConfig.FREE.description,
     features: [
       "Watermarked exports",
       "Auto subtitles up to 1m",
@@ -21,15 +48,16 @@ const pricingTiers = [
       "No Watermark",
       "4K Export",
     ],
-    buttonText: "Current Plan",
-    buttonVariant: "outline",
+    buttonText: uiConfig.FREE.buttonText,
+    buttonVariant: uiConfig.FREE.buttonVariant,
+    popular: false,
   },
   {
     name: "PRO",
-    icon: <Sparkles className="w-5 h-5 text-amber-600" />,
+    icon: uiConfig.PRO.icon,
     price: "$19",
-    period: "per month",
-    description: "For content creators.",
+    period: uiConfig.PRO.period,
+    description: uiConfig.PRO.description,
     features: [
       "No Watermark",
       "1080p & 4K Export",
@@ -38,24 +66,25 @@ const pricingTiers = [
     notIncluded: [
       "API Access",
     ],
-    buttonText: "Upgrade to Pro",
-    buttonVariant: "gradient",
+    buttonText: uiConfig.PRO.buttonText,
+    buttonVariant: uiConfig.PRO.buttonVariant,
     popular: true,
   },
   {
     name: "ENTERPRISE",
-    icon: <Crown className="w-5 h-5 text-purple-400" />,
+    icon: uiConfig.ENTERPRISE.icon,
     price: "$99",
-    period: "per month",
-    description: "For teams and agencies.",
+    period: uiConfig.ENTERPRISE.period,
+    description: uiConfig.ENTERPRISE.description,
     features: [
       "Priority Rendering Queue",
       "API Access",
       "Unlimited Subtitles",
     ],
     notIncluded: [],
-    buttonText: "Contact Sales",
-    buttonVariant: "outline",
+    buttonText: uiConfig.ENTERPRISE.buttonText,
+    buttonVariant: uiConfig.ENTERPRISE.buttonVariant,
+    popular: false,
   }
 ];
 
@@ -66,6 +95,45 @@ interface UpgradeModalProps {
 
 export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
   const [loadingTier, setLoadingTier] = useState<string | null>(null);
+  const [pricingTiers, setPricingTiers] = useState<any[]>(initialFallbackTiers);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    async function loadPlans() {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/payments/plans`);
+        if (response.data && Array.isArray(response.data) && response.data.length > 0) {
+          const mapped = response.data.map((p: any) => {
+            const config = uiConfig[p.name.toUpperCase()] || {
+              icon: <Zap className="w-5 h-5 text-slate-400" />,
+              period: "per month",
+              description: "Custom plan.",
+              buttonText: `Subscribe to ${p.name}`,
+              buttonVariant: "outline",
+              popular: false,
+            };
+            return {
+              name: p.name,
+              icon: config.icon,
+              price: `$${p.price}`,
+              period: config.period,
+              description: config.description,
+              features: p.benefits || [],
+              notIncluded: p.limitations || [],
+              buttonText: config.buttonText,
+              buttonVariant: config.buttonVariant,
+              popular: config.popular,
+            };
+          });
+          setPricingTiers(mapped);
+        }
+      } catch (err) {
+        console.error("Failed to load plans in modal, using fallback configuration:", err);
+      }
+    }
+    loadPlans();
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -168,13 +236,13 @@ export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
 
                 <div className="mt-6 space-y-3">
                   <ul className="space-y-2">
-                    {tier.features.map((feature, i) => (
+                    {tier.features.map((feature: string, i: number) => (
                       <li key={i} className="flex items-start gap-2 text-slate-200 text-sm">
                         <Check className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
                         <span className="leading-tight">{feature}</span>
                       </li>
                     ))}
-                    {tier.notIncluded.map((feature, i) => (
+                    {tier.notIncluded.map((feature: string, i: number) => (
                       <li key={i} className="flex items-start gap-2 text-slate-600 text-sm">
                         <X className="w-4 h-4 shrink-0 mt-0.5" />
                         <span className="leading-tight">{feature}</span>

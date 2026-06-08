@@ -1,19 +1,46 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Check, X, Sparkles, Zap, Crown } from 'lucide-react';
 import axios from 'axios';
 
 // Mock endpoint or use the real one if env is set
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
-const pricingTiers = [
-  {
-    name: "FREE",
+const uiConfig: Record<string, any> = {
+  FREE: {
     icon: <Zap className="w-6 h-6 text-slate-400" />,
-    price: "$0",
     period: "forever",
     description: "Perfect for getting started and trying out the tools.",
+    buttonText: "Current Plan",
+    buttonVariant: "outline",
+    popular: false,
+  },
+  PRO: {
+    icon: <Sparkles className="w-6 h-6 text-amber-600" />,
+    period: "per month",
+    description: "For content creators who need professional quality.",
+    buttonText: "Upgrade to Pro",
+    buttonVariant: "gradient",
+    popular: true,
+  },
+  ENTERPRISE: {
+    icon: <Crown className="w-6 h-6 text-purple-400" />,
+    period: "per month",
+    description: "For teams and agencies with high volume needs.",
+    buttonText: "Contact Sales",
+    buttonVariant: "outline",
+    popular: false,
+  }
+};
+
+const initialFallbackTiers = [
+  {
+    name: "FREE",
+    icon: uiConfig.FREE.icon,
+    price: "$0",
+    period: uiConfig.FREE.period,
+    description: uiConfig.FREE.description,
     features: [
       "Watermarked 720p exports",
       "Auto subtitles up to 1 minute",
@@ -24,15 +51,16 @@ const pricingTiers = [
       "4K Export",
       "Translation to 150+ languages",
     ],
-    buttonText: "Current Plan",
-    buttonVariant: "outline",
+    buttonText: uiConfig.FREE.buttonText,
+    buttonVariant: uiConfig.FREE.buttonVariant,
+    popular: false,
   },
   {
     name: "PRO",
-    icon: <Sparkles className="w-6 h-6 text-amber-600" />,
+    icon: uiConfig.PRO.icon,
     price: "$19",
-    period: "per month",
-    description: "For content creators who need professional quality.",
+    period: uiConfig.PRO.period,
+    description: uiConfig.PRO.description,
     features: [
       "No Watermark",
       "1080p & 4K Export",
@@ -44,16 +72,16 @@ const pricingTiers = [
       "Priority Rendering Queue",
       "API Access",
     ],
-    buttonText: "Upgrade to Pro",
-    buttonVariant: "gradient",
+    buttonText: uiConfig.PRO.buttonText,
+    buttonVariant: uiConfig.PRO.buttonVariant,
     popular: true,
   },
   {
     name: "ENTERPRISE",
-    icon: <Crown className="w-6 h-6 text-purple-400" />,
+    icon: uiConfig.ENTERPRISE.icon,
     price: "$99",
-    period: "per month",
-    description: "For teams and agencies with high volume needs.",
+    period: uiConfig.ENTERPRISE.period,
+    description: uiConfig.ENTERPRISE.description,
     features: [
       "Everything in PRO",
       "Priority Rendering Queue",
@@ -63,13 +91,51 @@ const pricingTiers = [
       "Dedicated Support Manager",
     ],
     notIncluded: [],
-    buttonText: "Contact Sales",
-    buttonVariant: "outline",
+    buttonText: uiConfig.ENTERPRISE.buttonText,
+    buttonVariant: uiConfig.ENTERPRISE.buttonVariant,
+    popular: false,
   }
 ];
 
 export default function PricingPage() {
   const [loadingTier, setLoadingTier] = useState<string | null>(null);
+  const [pricingTiers, setPricingTiers] = useState<any[]>(initialFallbackTiers);
+
+  useEffect(() => {
+    async function loadPlans() {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/payments/plans`);
+        if (response.data && Array.isArray(response.data) && response.data.length > 0) {
+          const mapped = response.data.map((p: any) => {
+            const config = uiConfig[p.name.toUpperCase()] || {
+              icon: <Zap className="w-6 h-6 text-slate-400" />,
+              period: "per month",
+              description: "Custom subscription plan.",
+              buttonText: `Subscribe to ${p.name}`,
+              buttonVariant: "outline",
+              popular: false,
+            };
+            return {
+              name: p.name,
+              icon: config.icon,
+              price: `$${p.price}`,
+              period: config.period,
+              description: config.description,
+              features: p.benefits || [],
+              notIncluded: p.limitations || [],
+              buttonText: config.buttonText,
+              buttonVariant: config.buttonVariant,
+              popular: config.popular,
+            };
+          });
+          setPricingTiers(mapped);
+        }
+      } catch (err) {
+        console.error("Failed to load plans from backend, using fallback configuration:", err);
+      }
+    }
+    loadPlans();
+  }, []);
 
   const handleSubscribe = async (tierName: string) => {
     if (tierName === 'FREE' || tierName === 'ENTERPRISE') {
@@ -180,13 +246,13 @@ export default function PricingPage() {
                 <div className="mt-10 space-y-4">
                   <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Included Features</p>
                   <ul className="space-y-4">
-                    {tier.features.map((feature, i) => (
+                    {tier.features.map((feature: string, i: number) => (
                       <li key={i} className="flex items-start gap-3 text-slate-200">
                         <Check className="w-5 h-5 text-amber-400 shrink-0 mt-0.5 drop-shadow-[0_0_8px_rgba(212,175,55,0.5)]" />
                         <span className="leading-tight">{feature}</span>
                       </li>
                     ))}
-                    {tier.notIncluded.map((feature, i) => (
+                    {tier.notIncluded.map((feature: string, i: number) => (
                       <li key={i} className="flex items-start gap-3 text-slate-600">
                         <X className="w-5 h-5 shrink-0 mt-0.5" />
                         <span className="leading-tight">{feature}</span>

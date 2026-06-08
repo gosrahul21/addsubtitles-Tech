@@ -45,6 +45,7 @@ export interface ExportOptions {
   removeSilences?: boolean;
   silenceCuts?: any[];
   filterFillerWords?: boolean;
+  addWatermark?: boolean;
 }
 
 const getSubtitleAnimStyle = (anim: string, timeElapsed: number): { transform?: string, opacity?: number } => {
@@ -492,6 +493,19 @@ export async function exportVideo(
              duration: sample.duration 
            });
         }
+
+        if (options.addWatermark) {
+          // Add watermark logo and text at the bottom right
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+          ctx.font = 'bold 24px sans-serif';
+          ctx.textAlign = 'right';
+          ctx.textBaseline = 'bottom';
+          const padding = 20;
+          ctx.fillText('addsubtitles.tech', offscreenCanvas.width - padding, offscreenCanvas.height - padding);
+          
+          // Optionally, if we had an Image object for the logo we could draw it here too.
+        }
+
         return offscreenCanvas;
       }
     },

@@ -8,6 +8,7 @@ import { extractAudioToWav } from '@/lib/audioExtractor';
 import { SilenceInterval } from '@/lib/silenceDetection';
 import { generateHooksFromText, translateSubtitles } from '@/lib/magicServices';
 import UpgradeModal from '@/components/UpgradeModal';
+import Logo from '@/components/Logo';
 import {
   Type,
   Sparkles,
@@ -71,7 +72,7 @@ const getSubtitleStyles = (template: string) => {
 
   switch (template) {
     case 'Classic':
-      className = "bg-black/70 px-4 py-2 rounded-lg text-white font-sans font-bold shadow-md border border-white/10";
+      className = "bg-black/70 px-4 py-2 rounded-lg text-white font-sans font-bold shadow-md";
       style = {};
       break;
     case 'BANGERS':
@@ -931,16 +932,7 @@ export default function Home() {
       <header className="col-span-1 md:col-span-2 row-start-1 flex items-center justify-between px-4 md:px-6 py-3 bg-[#0d142d] border-b border-[#1e2a4a]/40 shadow-lg z-20">
 
         {/* Mobile: Logo left */}
-        <div className="flex items-center gap-2 md:hidden">
-          <div className="bg-gradient-to-tr from-amber-400 to-amber-600 p-1.5 rounded-md shadow-md shadow-amber-500/10">
-            <svg className="w-4 h-4 text-[#0d142d]" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2L2 22h20L12 2zm0 4.8L18.4 19H5.6L12 6.8z" />
-            </svg>
-          </div>
-          <span className="text-md font-bold tracking-tight bg-gradient-to-r from-white via-zinc-100 to-zinc-300 bg-clip-text text-transparent font-heading">
-            Add<span className="text-amber-400 font-semibold">Subtitles</span>
-          </span>
-        </div>
+        <Logo size="sm" className="md:hidden" />
 
         {/* Desktop: Undo/Redo & Utility Actions */}
         <div className="hidden md:flex items-center gap-2">
@@ -1021,7 +1013,8 @@ export default function Home() {
                   videoBounds,
                   removeSilences,
                   silenceCuts,
-                  filterFillerWords
+                  filterFillerWords,
+                  addWatermark: true,
                 }, (status, progress) => {
                   setExportStatus(status);
                   setExportProgress(progress);
@@ -1069,16 +1062,7 @@ export default function Home() {
         </div>
 
         {/* Central Logo - Desktop Only */}
-        <div className="hidden md:flex items-center gap-2 absolute left-1/2 -translate-x-1/2">
-          <div className="bg-gradient-to-tr from-amber-400 to-amber-600 p-1.5 rounded-md shadow-md shadow-amber-500/10">
-            <svg className="w-5 h-5 text-[#0d142d]" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2L2 22h20L12 2zm0 4.8L18.4 19H5.6L12 6.8z" />
-            </svg>
-          </div>
-          <span className="text-lg font-bold tracking-tight bg-gradient-to-r from-white via-zinc-100 to-zinc-300 bg-clip-text text-transparent font-heading">
-            Add<span className="text-amber-400 font-semibold">Subtitles</span>
-          </span>
-        </div>
+        <Logo size="md" className="hidden md:flex absolute left-1/2 -translate-x-1/2" />
 
         {/* User Account / SubPlus CTA */}
         <div className="flex items-center gap-3">
@@ -1273,8 +1257,8 @@ export default function Home() {
                           </div>
                           {(seg as any).speaker && (
                             <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded ${(seg as any).speaker === 'A'
-                                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                                : 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                              ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                              : 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
                               }`}>
                               Voice {(seg as any).speaker}
                             </span>
@@ -1547,7 +1531,7 @@ export default function Home() {
                 <div className="grid grid-cols-2 gap-3 md:gap-4 pb-4">
                   {[
                     { name: 'Default', type: 'blank', element: <span className="text-xs text-zinc-500 font-medium group-hover:text-amber-400/70 transition-colors pointer-events-none">Default</span> },
-                    { name: 'Classic', type: 'classic', element: <span className="px-3 py-1 bg-black/80 rounded-md text-white font-sans font-bold text-sm shadow-md border border-white/10 z-10 transition-transform group-hover:scale-105 pointer-events-none">Classic</span> },
+                    { name: 'Classic', type: 'classic', element: <span className="px-3 py-1 bg-black/80 rounded-md text-white font-sans font-bold text-sm shadow-md z-10 transition-transform group-hover:scale-105 pointer-events-none">Classic</span> },
                     { name: 'BANGERS', type: 'bangers', element: <span className="text-amber-400 font-black text-xl italic tracking-wider drop-shadow-[0_2px_0_rgba(0,0,0,1)] z-10 transition-transform group-hover:scale-105 pointer-events-none" style={{ WebkitTextStroke: '1px black' }}>BANGERS</span> },
                     { name: 'STREET', type: 'street', element: <span className="text-white font-black text-lg uppercase tracking-widest z-10 drop-shadow-md transition-transform group-hover:scale-105 pointer-events-none" style={{ WebkitTextStroke: '0.5px rgba(255,255,255,0.5)' }}>STREET</span> },
                     { name: 'BEAST', type: 'beast', element: <span className="text-yellow-500 font-black text-xl italic uppercase tracking-tighter drop-shadow-[0_3px_5px_rgba(0,0,0,1)] z-10 transition-transform group-hover:scale-105 pointer-events-none">BEAST</span> },
@@ -1585,7 +1569,7 @@ export default function Home() {
                   </div>
                   {/* Classic */}
                   <div className="aspect-[4/3] rounded-xl border border-[#1e2a4a] hover:border-amber-400 bg-[#0c1122] transition-all cursor-pointer flex items-center justify-center overflow-hidden shadow-inner relative group">
-                    <span className="px-3 py-1 bg-black/80 rounded-md text-white font-sans font-bold text-sm shadow-md border border-white/10 z-10 transition-transform group-hover:scale-105">Classic</span>
+                    <span className="px-3 py-1 bg-black/80 rounded-md text-white font-sans font-bold text-sm shadow-md z-10 transition-transform group-hover:scale-105">Classic</span>
                   </div>
                   {/* Clean */}
                   <div className="aspect-[4/3] rounded-xl border border-[#1e2a4a] hover:border-amber-400 bg-[#0c1122]/50 transition-all cursor-pointer flex items-center justify-center group relative">
@@ -3137,7 +3121,7 @@ export default function Home() {
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
                 Export Successful!
               </h2>
-              <button 
+              <button
                 onClick={() => setShowDownloadModal(false)}
                 className="p-1.5 text-zinc-400 hover:text-white hover:bg-[#16223f] rounded-lg transition-colors"
               >
