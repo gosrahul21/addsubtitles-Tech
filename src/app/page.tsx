@@ -1093,6 +1093,15 @@ export default function Home() {
               {showUserMenu && (
                 <div className="absolute top-full right-0 mt-2 w-40 bg-[#0d142d] border border-[#1e2a4a] rounded-lg shadow-xl shadow-black/50 z-50 overflow-hidden flex flex-col">
                   <button
+                    onClick={() => {
+                      setShowUserMenu(false);
+                      alert('Profile modal or page coming soon!');
+                    }}
+                    className="px-4 py-2.5 text-left text-sm text-zinc-300 hover:text-white hover:bg-[#16223f] transition-colors border-b border-[#1e2a4a]"
+                  >
+                    Profile Settings
+                  </button>
+                  <button
                     onClick={handleLogout}
                     className="px-4 py-2.5 text-left text-sm text-zinc-300 hover:text-white hover:bg-[#16223f] transition-colors"
                   >
@@ -1105,9 +1114,16 @@ export default function Home() {
           {loading && (
             <div className="relative hidden sm:block w-24 h-8 bg-[#16223f] animate-pulse rounded-md border border-[#253966]"></div>
           )}
-          <button onClick={() => setShowUpgradeModal(true)} className="subplus-button rounded-md py-1 px-2 shadow-md text-[10px] md:text-xs uppercase tracking-wider whitespace-nowrap">
-            Upgrade <span className="hidden md:inline">Subscription</span>
-          </button>
+          {user?.subscriptionTier === 'FREE' ? (
+            <button onClick={() => setShowUpgradeModal(true)} className="subplus-button rounded-md py-1 px-2 shadow-md text-[10px] md:text-xs uppercase tracking-wider whitespace-nowrap">
+              Upgrade <span className="hidden md:inline">Subscription</span>
+            </button>
+          ) : (
+            <button onClick={() => setShowUpgradeModal(true)} className="flex items-center gap-1.5 bg-[#16223f] border border-amber-500/50 hover:bg-[#1f2f54] text-amber-400 rounded-md py-1 px-2.5 shadow-md text-[10px] md:text-xs uppercase tracking-wider whitespace-nowrap transition-colors">
+              <Crown className="w-3.5 h-3.5" />
+              {user?.subscriptionTier} <span className="hidden md:inline">PLAN</span>
+            </button>
+          )}
         </div>
       </header>
 

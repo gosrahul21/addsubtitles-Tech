@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Check, X, Sparkles, Zap, Crown, X as CloseIcon } from 'lucide-react';
 import axios from 'axios';
+import { useAuth } from '@/providers/AuthProvider';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -11,7 +12,7 @@ const uiConfig: Record<string, any> = {
     icon: <Zap className="w-5 h-5 text-slate-400" />,
     period: "forever",
     description: "Perfect for getting started.",
-    buttonText: "Current Plan",
+    buttonText: "Free Plan",
     buttonVariant: "outline",
     popular: false,
   },
@@ -23,12 +24,12 @@ const uiConfig: Record<string, any> = {
     buttonVariant: "gradient",
     popular: true,
   },
-  ENTERPRISE: {
+  "PRO PLUS": {
     icon: <Crown className="w-5 h-5 text-purple-400" />,
     period: "per month",
-    description: "For teams and agencies.",
-    buttonText: "Contact Sales",
-    buttonVariant: "outline",
+    description: "For professional creators.",
+    buttonText: "Upgrade to Pro Plus",
+    buttonVariant: "gradient",
     popular: false,
   }
 };
@@ -48,14 +49,14 @@ const initialFallbackTiers = [
       "No Watermark",
       "4K Export",
     ],
-    buttonText: uiConfig.FREE.buttonText,
+    buttonText: "Free Plan",
     buttonVariant: uiConfig.FREE.buttonVariant,
     popular: false,
   },
   {
     name: "PRO",
     icon: uiConfig.PRO.icon,
-    price: "$19",
+    price: "$9",
     period: uiConfig.PRO.period,
     description: uiConfig.PRO.description,
     features: [
@@ -71,19 +72,19 @@ const initialFallbackTiers = [
     popular: true,
   },
   {
-    name: "ENTERPRISE",
-    icon: uiConfig.ENTERPRISE.icon,
-    price: "$99",
-    period: uiConfig.ENTERPRISE.period,
-    description: uiConfig.ENTERPRISE.description,
+    name: "PRO PLUS",
+    icon: uiConfig["PRO PLUS"].icon,
+    price: "$14",
+    period: uiConfig["PRO PLUS"].period,
+    description: uiConfig["PRO PLUS"].description,
     features: [
       "Priority Rendering Queue",
       "API Access",
       "Unlimited Subtitles",
     ],
     notIncluded: [],
-    buttonText: uiConfig.ENTERPRISE.buttonText,
-    buttonVariant: uiConfig.ENTERPRISE.buttonVariant,
+    buttonText: uiConfig["PRO PLUS"].buttonText,
+    buttonVariant: uiConfig["PRO PLUS"].buttonVariant,
     popular: false,
   }
 ];
@@ -94,6 +95,8 @@ interface UpgradeModalProps {
 }
 
 export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
+  const { user } = useAuth();
+  const currentTier = user?.subscriptionTier || 'FREE';
   const [loadingTier, setLoadingTier] = useState<string | null>(null);
   const [pricingTiers, setPricingTiers] = useState<any[]>(initialFallbackTiers);
 
@@ -138,10 +141,7 @@ export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
   if (!isOpen) return null;
 
   const handleSubscribe = async (tierName: string) => {
-    if (tierName === 'FREE' || tierName === 'ENTERPRISE') {
-      if (tierName === 'ENTERPRISE') {
-         alert("Please email sales@addsubtitles.tech to setup an enterprise plan.");
-      }
+    if (tierName === 'FREE') {
       return;
     }
     
@@ -220,15 +220,19 @@ export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
 
                 <button 
                   onClick={() => handleSubscribe(tier.name)}
-                  disabled={loadingTier === tier.name || tier.name === 'FREE'}
+                  disabled={loadingTier === tier.name || tier.name === currentTier || tier.name === 'FREE'}
                   className={`w-full py-3 rounded-lg font-bold text-sm md:text-base transition-all duration-200 flex justify-center items-center group relative overflow-hidden ${
-                    tier.buttonVariant === 'gradient'
-                      ? 'subplus-button shadow-[0_0_15px_rgba(212,175,55,0.2)] text-[#332b10]'
-                      : 'bg-transparent border border-white/20 text-white hover:bg-white/10'
-                  } ${tier.name === 'FREE' ? 'opacity-50 cursor-default hover:bg-transparent' : ''}`}
+                    tier.name === currentTier
+                      ? 'bg-[#16223f] border border-[#253966] text-slate-300 cursor-default opacity-80'
+                      : tier.buttonVariant === 'gradient'
+                        ? 'subplus-button shadow-[0_0_15px_rgba(212,175,55,0.2)] text-[#332b10]'
+                        : 'bg-transparent border border-white/20 text-white hover:bg-white/10'
+                  } ${tier.name === 'FREE' && tier.name !== currentTier ? 'opacity-50 cursor-default hover:bg-transparent' : ''}`}
                 >
                   {loadingTier === tier.name ? (
                     <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  ) : tier.name === currentTier ? (
+                    'Current Plan'
                   ) : (
                     tier.buttonText
                   )}

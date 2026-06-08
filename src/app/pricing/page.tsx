@@ -24,12 +24,12 @@ const uiConfig: Record<string, any> = {
     buttonVariant: "gradient",
     popular: true,
   },
-  ENTERPRISE: {
+  "PRO PLUS": {
     icon: <Crown className="w-6 h-6 text-purple-400" />,
     period: "per month",
-    description: "For teams and agencies with high volume needs.",
-    buttonText: "Contact Sales",
-    buttonVariant: "outline",
+    description: "For professional creators.",
+    buttonText: "Upgrade to Pro Plus",
+    buttonVariant: "gradient",
     popular: false,
   }
 };
@@ -58,7 +58,7 @@ const initialFallbackTiers = [
   {
     name: "PRO",
     icon: uiConfig.PRO.icon,
-    price: "$19",
+    price: "$9",
     period: uiConfig.PRO.period,
     description: uiConfig.PRO.description,
     features: [
@@ -77,11 +77,11 @@ const initialFallbackTiers = [
     popular: true,
   },
   {
-    name: "ENTERPRISE",
-    icon: uiConfig.ENTERPRISE.icon,
-    price: "$99",
-    period: uiConfig.ENTERPRISE.period,
-    description: uiConfig.ENTERPRISE.description,
+    name: "PRO PLUS",
+    icon: uiConfig["PRO PLUS"].icon,
+    price: "$14",
+    period: uiConfig["PRO PLUS"].period,
+    description: uiConfig["PRO PLUS"].description,
     features: [
       "Everything in PRO",
       "Priority Rendering Queue",
@@ -91,8 +91,8 @@ const initialFallbackTiers = [
       "Dedicated Support Manager",
     ],
     notIncluded: [],
-    buttonText: uiConfig.ENTERPRISE.buttonText,
-    buttonVariant: uiConfig.ENTERPRISE.buttonVariant,
+    buttonText: uiConfig["PRO PLUS"].buttonText,
+    buttonVariant: uiConfig["PRO PLUS"].buttonVariant,
     popular: false,
   }
 ];
@@ -138,11 +138,7 @@ export default function PricingPage() {
   }, []);
 
   const handleSubscribe = async (tierName: string) => {
-    if (tierName === 'FREE' || tierName === 'ENTERPRISE') {
-      // Typically enterprise goes to a contact form, Free is default
-      if (tierName === 'ENTERPRISE') {
-         alert("Please email sales@addsubtitles.tech to setup an enterprise plan.");
-      }
+    if (tierName === 'FREE') {
       return;
     }
     
