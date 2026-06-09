@@ -124,6 +124,14 @@ const getSubtitleAnimClass = (animName: string) => {
     default: return '';
   }
 };
+
+export interface TimelineSegment {
+  start: number;
+  end: number;
+  label: string;
+  words?: { start: number; end: number; word: string }[];
+}
+
 export default function Home() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(14.7);
@@ -289,7 +297,7 @@ export default function Home() {
     initialBounds: { x: number, y: number, width: number, height: number };
   } | null>(null);
 
-  const [timelineSegments, setTimelineSegments] = useState([
+  const [timelineSegments, setTimelineSegments] = useState<TimelineSegment[]>([
     { start: 6, end: 8.5, label: "um o use, no sign, uh no payment required." },
     { start: 9, end: 11.5, label: "Here's how it works..." },
     { start: 12, end: 14.5, label: "Upload your video." },
