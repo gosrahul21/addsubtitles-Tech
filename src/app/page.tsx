@@ -8,6 +8,7 @@ import { extractAudioToWav } from '@/lib/audioExtractor';
 import { SilenceInterval } from '@/lib/silenceDetection';
 import { generateHooksFromText, translateSubtitles } from '@/lib/magicServices';
 import UpgradeModal from '@/components/UpgradeModal';
+import ProfileModal from '@/components/ProfileModal';
 import Logo from '@/components/Logo';
 import {
   Type,
@@ -127,7 +128,7 @@ export default function Home() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(14.7);
   const [totalDuration, setTotalDuration] = useState(52.1);
-  const [activeTab, setActiveTab] = useState("subtitles");
+  const [activeTab, setActiveTab] = useState("");
   const [activeStyleFilter, setActiveStyleFilter] = useState("All");
   const [bgColor, setBgColor] = useState("#ec4899");
   const [fontColor, setFontColor] = useState("#ffffff");
@@ -183,10 +184,11 @@ export default function Home() {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showOpenProjectModal, setShowOpenProjectModal] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
   const [showDownloadModal, setShowDownloadModal] = useState(false);
   const [exportedVideoUrl, setExportedVideoUrl] = useState<string | null>(null);
   const [uploadLanguage, setUploadLanguage] = useState("English (US)");
-  const [subtitleFontSize, setSubtitleFontSize] = useState(75);
+  const [subtitleFontSize, setSubtitleFontSize] = useState(24);
   const [showSubtitleMoreOptions, setShowSubtitleMoreOptions] = useState(false);
   const [subtitleStyle, setSubtitleStyle] = useState({ bold: false, italic: false, allCaps: false });
 
@@ -198,13 +200,14 @@ export default function Home() {
       fontColor: '#ffffff',
       fontFamily: 'Montserrat',
       subtitleStyle: { bold: false, italic: false, allCaps: false },
+      fontAlign: 'center',
       bgStyle: 'None',
       bgColor: '#000000',
       outline: 'None',
       shadow: 'None',
       subtitleAnim: 'Pop',
       wordAnim: 'Karaoke',
-      subtitleFontSize: 75,
+      subtitleFontSize: 24,
       maxLines: 2,
     };
 
@@ -819,6 +822,7 @@ export default function Home() {
               end: sub.timestampEnd,
               label: sub.text,
               speaker: sub.speaker || 'A',
+              words: sub.wordsJson || [],
             }));
             setTimelineSegments(segments);
             setHistory([JSON.parse(JSON.stringify(segments))]);
@@ -982,7 +986,7 @@ export default function Home() {
                 const { className: templateClassName, style: templateStyle } = getSubtitleStyles(activeTemplate);
                 const blob = await exportVideo({
                   videoBlob: videoFile,
-                  subtitles: timelineSegments.map((s, idx) => ({ start: s.start, end: s.end, text: s.label, id: idx.toString() })),
+                  subtitles: timelineSegments.map((s: any, idx) => ({ start: s.start, end: s.end, text: s.label, id: idx.toString(), words: s.words })),
                   templateClassName,
                   templateStyle,
                   subtitleFontSize,
@@ -1095,7 +1099,7 @@ export default function Home() {
                   <button
                     onClick={() => {
                       setShowUserMenu(false);
-                      alert('Profile modal or page coming soon!');
+                      setShowProfileModal(true);
                     }}
                     className="px-4 py-2.5 text-left text-sm text-zinc-300 hover:text-white hover:bg-[#16223f] transition-colors border-b border-[#1e2a4a]"
                   >
@@ -2450,7 +2454,36 @@ export default function Home() {
               }
 
               const wordDuration = (activeSub.end - activeSub.start) / Math.max(1, words.length);
-              const activeWordIndex = Math.floor((currentTime - activeSub.start) / wordDuration);
+              
+              let activeWordIndex = -1;
+              if (activeSub.words && activeSub.words.length === words.length) {
+                // Precise word-level timings from backend
+                let lastMatched = -1;
+                for (let i = 0; i < activeSub.words.length; i++) {
+                  if (currentTime >= activeSub.words[i].start) {
+                    lastMatched = i;
+                  } else {
+                    break;
+                  }
+                }
+                activeWordIndex = lastMatched;
+              } else {
+                // Fallback: Character-proportional estimation (for user-edited text)
+                const totalChars = Math.max(1, words.reduce((acc, w) => acc + w.length, 0));
+                const duration = activeSub.end - activeSub.start;
+                let currentStart = activeSub.start;
+                for (let i = 0; i < words.length; i++) {
+                  const wordDur = (words[i].length / totalChars) * duration;
+                  if (currentTime >= currentStart && currentTime < currentStart + wordDur) {
+                    activeWordIndex = i;
+                    break;
+                  }
+                  currentStart += wordDur;
+                }
+                if (activeWordIndex === -1 && currentTime >= activeSub.end) {
+                  activeWordIndex = words.length - 1;
+                }
+              }
 
               return (
                 <h2
@@ -2611,19 +2644,19 @@ export default function Home() {
 
         {/* Professional Video Editing Timeline */}
         <div
-          className="relative min-h-[170px] bg-[#090d1f] rounded-xl border border-[#1e2a4a]/40 flex overflow-hidden select-none shadow-2xl"
+          className="relative h-[128px] shrink-0 bg-[#090d1f] rounded-xl border border-[#1e2a4a]/40 flex overflow-hidden select-none shadow-2xl"
         >
           {/* Left-side Track Header Panel */}
           <div className="w-12 md:w-14 bg-[#0d142d] border-r border-[#1e2a4a]/40 flex flex-col pt-8 text-[#ccd6e8]/80 shrink-0">
             {/* Video Track Header */}
-            <div className="h-14 flex flex-col items-center justify-center gap-1 border-b border-[#1e2a4a]/20">
-              <FileVideo className="w-4 h-4 text-zinc-400" />
+            <div className="h-10 flex flex-row items-center justify-center gap-1 border-b border-[#1e2a4a]/20">
+              <FileVideo className="w-3.5 h-3.5 text-zinc-400" />
               <span className="text-[8px] font-bold text-zinc-500 tracking-wider">V1</span>
             </div>
 
             {/* Subtitles Track Header */}
-            <div className="h-14 flex flex-col items-center justify-center gap-1 border-b border-[#1e2a4a]/20">
-              <Type className="w-4 h-4 text-zinc-400" />
+            <div className="h-10 flex flex-row items-center justify-center gap-1 border-b border-[#1e2a4a]/20">
+              <Type className="w-3.5 h-3.5 text-zinc-400" />
               <span className="text-[8px] font-bold text-zinc-500 tracking-wider">T1</span>
             </div>
           </div>
@@ -2672,12 +2705,12 @@ export default function Home() {
               </div>
 
               {/* Track Contents */}
-              <div className="flex-1 flex flex-col gap-2 p-3">
+              <div className="flex-1 flex flex-col">
 
                 {/* Video Track (Green Horizontal Bar with Thumbnails) */}
                 <div
                   onClick={() => setAddSubtitleTime(null)}
-                  className="h-14 relative w-full bg-[#052e16]/30 border border-[#14532d]/40 rounded-lg flex items-center overflow-hidden"
+                  className="h-10 relative w-full bg-[#052e16]/30 border-b border-[#1e2a4a]/20 flex items-center overflow-hidden"
                 >
                   {videoSrc && (
                     <div
@@ -2742,7 +2775,7 @@ export default function Home() {
                     setAddSubtitleTime(clickedTime);
                     setSelectedItem(null);
                   }}
-                  className="h-14 relative w-full bg-[#1e293b]/20 border border-[#334155]/20 rounded-lg flex items-center cursor-pointer overflow-visible"
+                  className="h-10 relative w-full bg-[#1e293b]/20 border-b border-[#1e2a4a]/20 flex items-center cursor-pointer overflow-visible"
                 >
                   {timelineSegments.map((seg, i) => {
                     const segTime = seg.start;
@@ -2963,7 +2996,6 @@ export default function Home() {
                       if (file) {
                         setVideoSrc(URL.createObjectURL(file));
                         setVideoFile(file);
-                        setShowUploadModal(false);
                       }
                     }}
                   />
@@ -3029,27 +3061,32 @@ export default function Home() {
                     if (!createRes.ok) throw new Error("Failed to create project");
                     const project = await createRes.json();
 
-                    // 2. Extract Audio Locally
-                    const { extractAudioToWav } = await import('@/lib/audioExtractor');
-                    const { wavBlob: audioBlob, silenceCuts: cuts } = await extractAudioToWav(videoFile, (p) => setAudioExtractProgress(p));
-                    setSilenceCuts(cuts);
+                    // 2. Try to Extract Audio Locally
+                    let uploadBlob: Blob = videoFile;
+                    let uploadName = videoFile.name;
+                    try {
+                      const { extractAudioToWav } = await import('@/lib/audioExtractor');
+                      const { wavBlob: audioBlob, silenceCuts: cuts } = await extractAudioToWav(videoFile, (p) => setAudioExtractProgress(p));
+                      setSilenceCuts(cuts);
+                      uploadBlob = audioBlob;
+                      uploadName = 'extracted_audio.wav';
+                    } catch (decodeErr) {
+                      console.warn("Local audio extraction failed, falling back to full video upload.", decodeErr);
+                      setAudioExtractProgress(100);
+                    }
 
-                    // 3. Upload Audio Blob to Backend
+                    // 3. Upload Blob to Backend (which now automatically triggers processing)
                     const formData = new FormData();
-                    formData.append('audioFile', audioBlob, 'extracted_audio.wav');
+                    formData.append('audioFile', uploadBlob, uploadName);
                     const uploadRes = await fetch(`${apiUrl}/projects/${project.id}/upload`, {
                       method: 'POST',
                       body: formData,
                     });
                     if (!uploadRes.ok) throw new Error("Upload failed");
 
-                    // 4. Trigger Processing (Transcription)
+                    // 4. Update UI State
                     setIsProcessingSubtitles(true);
                     setActiveProjectId(project.id);
-                    await fetch(`${apiUrl}/projects/${project.id}/process`, {
-                      method: 'POST'
-                    });
-
                     setShowUploadModal(false);
                     pollProjectStatus(project.id);
                   } catch (err) {
@@ -3122,6 +3159,14 @@ export default function Home() {
 
       {/* Upgrade Modal */}
       <UpgradeModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
+
+      {/* Profile Modal */}
+      <ProfileModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        onUpgrade={() => setShowUpgradeModal(true)}
+        onLogout={handleLogout}
+      />
 
       {/* Download Options Modal */}
       {showDownloadModal && exportedVideoUrl && (

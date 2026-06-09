@@ -8,6 +8,7 @@ type User = {
   id: string;
   email: string;
   subscriptionTier: string;
+  createdAt?: string;
 };
 
 type AuthContextType = {

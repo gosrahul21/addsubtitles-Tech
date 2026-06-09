@@ -43,11 +43,11 @@ function audioBufferToWav(buffer: AudioBuffer): Blob {
   let pos = 0;
 
   // write WAVE header
-  setUint32(0x46464952); // "RIFF"
+  writeString('RIFF'); // "RIFF"
   setUint32(length - 8); // file length - 8
-  setUint32(0x45564157); // "WAVE"
+  writeString('WAVE'); // "WAVE"
 
-  setUint32(0x666d7420); // "fmt " chunk
+  writeString('fmt '); // "fmt " chunk
   setUint32(16); // length = 16
   setUint16(1); // PCM (uncompressed)
   setUint16(numOfChan);
@@ -56,8 +56,8 @@ function audioBufferToWav(buffer: AudioBuffer): Blob {
   setUint16(numOfChan * 2); // block-align
   setUint16(16); // 16-bit (hardcoded in this exporter)
 
-  setUint32(0x64617461); // "data" - chunk
-  setUint32(length - pos - 4); // chunk length
+  writeString('data'); // "data" - chunk
+  setUint32(length - 44); // chunk length (total length minus 44 bytes of header)
 
   // write interleaved data
   for (i = 0; i < buffer.numberOfChannels; i++) {
@@ -84,5 +84,12 @@ function audioBufferToWav(buffer: AudioBuffer): Blob {
   function setUint32(data: number) {
     view.setUint32(offset, data, true);
     offset += 4;
+  }
+
+  function writeString(str: string) {
+    for (let i = 0; i < str.length; i++) {
+      view.setUint8(offset + i, str.charCodeAt(i));
+    }
+    offset += str.length;
   }
 }

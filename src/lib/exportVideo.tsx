@@ -9,6 +9,7 @@ export interface Subtitle {
   start: number;
   end: number;
   text: string;
+  words?: { word: string; start: number; end: number; speaker?: string }[];
 }
 
 export interface ExportOptions {
@@ -126,8 +127,32 @@ const SubtitleSnapshot = ({ options, sub, currentTime }: { options: ExportOption
     chunkedWords = [words];
   }
 
-  const wordDuration = (sub.end - sub.start) / Math.max(1, words.length);
-  const activeWordIndex = Math.floor((currentTime - sub.start) / wordDuration);
+  let activeWordIndex = -1;
+  if (sub.words && sub.words.length === words.length) {
+    let lastMatched = -1;
+    for (let i = 0; i < sub.words.length; i++) {
+      if (currentTime >= sub.words[i].start) {
+        lastMatched = i;
+      } else {
+        break;
+      }
+    }
+    activeWordIndex = lastMatched;
+  } else {
+    // Fallback: Character-proportional estimation (for user-edited text)
+    const totalChars = Math.max(1, words.reduce((acc, w) => acc + w.length, 0));
+    const duration = sub.end - sub.start;
+    let currentStart = sub.start;
+    for (let i = 0; i < words.length; i++) {
+      const wordDur = (words[i].length / totalChars) * duration;
+      if (currentTime >= currentStart && currentTime < currentStart + wordDur) {
+        activeWordIndex = i;
+        break;
+      }
+      currentStart += wordDur;
+    }
+    if (activeWordIndex === -1) activeWordIndex = currentTime >= sub.end ? words.length - 1 : 0;
+  }
 
   // We render the container at the absolute pixel dimensions to match the video exactly
   const left = (subtitleBounds.x / 100) * videoWidth;
