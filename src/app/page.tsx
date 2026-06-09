@@ -1140,77 +1140,77 @@ export default function Home() {
       </header>
 
       {/* 2. Left Side Navigation Panel (Bottom on Mobile) */}
-      <aside className="col-start-1 row-start-4 md:row-start-2 md:col-start-1 bg-[#090d1f] border-t md:border-t-0 md:border-r border-[#1e2a4a]/30 flex flex-row md:flex-col items-center justify-around md:justify-start py-2 px-1 md:px-0 md:py-3 gap-1 md:gap-2.5 z-10 overflow-x-auto md:overflow-x-hidden md:overflow-y-auto scrollbar-hide shrink-0 pb-safe w-full">
+      <aside className="col-start-1 row-start-4 md:row-start-2 md:col-start-1 bg-[#090d1f] border-t md:border-t-0 md:border-r border-[#1e2a4a]/30 flex flex-row md:flex-col items-center justify-around md:justify-start py-2 px-1 md:px-0 md:py-2 gap-1 md:gap-1 z-10 overflow-x-auto md:overflow-x-hidden md:overflow-y-auto scrollbar-hide shrink-0 pb-safe w-full">
 
         <button
           onClick={() => setActiveTab("subtitles")}
-          className={`flex flex-col items-center justify-center flex-1 md:flex-none md:w-16 h-12 md:h-16 rounded-xl transition-all ${activeTab === "subtitles" ? "bg-[#182747] text-amber-400 border border-[#2d4370] shadow-md" : "text-zinc-400 hover:bg-[#101933] hover:text-white"
+          className={`flex flex-col items-center justify-center flex-1 md:flex-none md:w-16 h-12 md:h-14 rounded-xl transition-all ${activeTab === "subtitles" ? "bg-[#182747] text-amber-400 border border-[#2d4370] shadow-md" : "text-zinc-400 hover:bg-[#101933] hover:text-white"
             }`}
         >
-          <Type className="w-4 h-4 md:w-5 md:h-5 mb-1" />
+          <Type className="w-4 h-4 md:w-4 md:h-4 mb-1" />
           <span className="text-[9px] md:text-[10px] font-semibold tracking-wider whitespace-nowrap">Subtitles</span>
         </button>
 
         <button
           onClick={() => setActiveTab("styles")}
-          className={`flex flex-col items-center justify-center flex-1 md:flex-none md:w-16 h-12 md:h-16 rounded-xl transition-all ${activeTab === "styles" ? "bg-[#182747] text-amber-400 border border-[#2d4370] shadow-md" : "text-zinc-400 hover:bg-[#101933] hover:text-white"
+          className={`flex flex-col items-center justify-center flex-1 md:flex-none md:w-16 h-12 md:h-14 rounded-xl transition-all ${activeTab === "styles" ? "bg-[#182747] text-amber-400 border border-[#2d4370] shadow-md" : "text-zinc-400 hover:bg-[#101933] hover:text-white"
             }`}
         >
-          <Palette className="w-4 h-4 md:w-5 md:h-5 mb-1" />
+          <Palette className="w-4 h-4 md:w-4 md:h-4 mb-1" />
           <span className="text-[9px] md:text-[10px] font-semibold tracking-wider whitespace-nowrap">Styles</span>
         </button>
 
         <button
           onClick={() => setActiveTab("magic")}
-          className={`flex flex-col items-center justify-center flex-1 md:flex-none md:w-16 h-12 md:h-16 rounded-xl transition-all ${activeTab === "magic" ? "bg-[#182747] text-amber-400 border border-[#2d4370] shadow-md" : "text-zinc-400 hover:bg-[#101933] hover:text-white"
+          className={`flex flex-col items-center justify-center flex-1 md:flex-none md:w-16 h-12 md:h-14 rounded-xl transition-all ${activeTab === "magic" ? "bg-[#182747] text-amber-400 border border-[#2d4370] shadow-md" : "text-zinc-400 hover:bg-[#101933] hover:text-white"
             }`}
         >
-          <Wand className="w-4 h-4 md:w-5 md:h-5 mb-1" />
+          <Wand className="w-4 h-4 md:w-4 md:h-4 mb-1" />
           <span className="text-[9px] md:text-[10px] font-semibold tracking-wider whitespace-nowrap">Magic</span>
         </button>
 
         <button
           onClick={() => setActiveTab("animate")}
-          className={`flex flex-col items-center justify-center flex-1 md:flex-none md:w-16 h-12 md:h-16 rounded-xl transition-all ${activeTab === "animate" ? "bg-[#182747] text-amber-400 border border-[#2d4370] shadow-md" : "text-zinc-400 hover:bg-[#101933] hover:text-white"
+          className={`flex flex-col items-center justify-center flex-1 md:flex-none md:w-16 h-12 md:h-14 rounded-xl transition-all ${activeTab === "animate" ? "bg-[#182747] text-amber-400 border border-[#2d4370] shadow-md" : "text-zinc-400 hover:bg-[#101933] hover:text-white"
             }`}
         >
-          <Wand2 className="w-4 h-4 md:w-5 md:h-5 mb-1" />
+          <Wand2 className="w-4 h-4 md:w-4 md:h-4 mb-1" />
           <span className="text-[9px] md:text-[10px] font-semibold tracking-wider whitespace-nowrap">Animate</span>
         </button>
 
         <button
           onClick={() => setActiveTab("font")}
-          className={`flex flex-col items-center justify-center flex-1 md:flex-none md:w-16 h-12 md:h-16 rounded-xl transition-all ${activeTab === "font" ? "bg-[#182747] text-amber-400 border border-[#2d4370] shadow-md" : "text-zinc-400 hover:bg-[#101933] hover:text-white"
+          className={`flex flex-col items-center justify-center flex-1 md:flex-none md:w-16 h-12 md:h-14 rounded-xl transition-all ${activeTab === "font" ? "bg-[#182747] text-amber-400 border border-[#2d4370] shadow-md" : "text-zinc-400 hover:bg-[#101933] hover:text-white"
             }`}
         >
-          <CaseSensitive className="w-4 h-4 md:w-5 md:h-5 mb-1" />
+          <CaseSensitive className="w-4 h-4 md:w-4 md:h-4 mb-1" />
           <span className="text-[9px] md:text-[10px] font-semibold tracking-wider whitespace-nowrap">Font</span>
         </button>
 
         <button
           onClick={() => setActiveTab("layout")}
-          className={`flex flex-col items-center justify-center flex-1 md:flex-none md:w-16 h-12 md:h-16 rounded-xl transition-all ${activeTab === "layout" ? "bg-[#182747] text-amber-400 border border-[#2d4370] shadow-md" : "text-zinc-400 hover:bg-[#101933] hover:text-white"
+          className={`flex flex-col items-center justify-center flex-1 md:flex-none md:w-16 h-12 md:h-14 rounded-xl transition-all ${activeTab === "layout" ? "bg-[#182747] text-amber-400 border border-[#2d4370] shadow-md" : "text-zinc-400 hover:bg-[#101933] hover:text-white"
             }`}
         >
-          <LayoutTemplate className="w-4 h-4 md:w-5 md:h-5 mb-1" />
+          <LayoutTemplate className="w-4 h-4 md:w-4 md:h-4 mb-1" />
           <span className="text-[9px] md:text-[10px] font-semibold tracking-wider whitespace-nowrap">Layout</span>
         </button>
 
         <button
           onClick={() => setActiveTab("background")}
-          className={`flex flex-col items-center justify-center flex-1 md:flex-none md:w-16 h-12 md:h-16 rounded-xl transition-all ${activeTab === "background" ? "bg-[#182747] text-amber-400 border border-[#2d4370] shadow-md" : "text-zinc-400 hover:bg-[#101933] hover:text-white"
+          className={`flex flex-col items-center justify-center flex-1 md:flex-none md:w-16 h-12 md:h-14 rounded-xl transition-all ${activeTab === "background" ? "bg-[#182747] text-amber-400 border border-[#2d4370] shadow-md" : "text-zinc-400 hover:bg-[#101933] hover:text-white"
             }`}
         >
-          <Square className="w-4 h-4 md:w-5 md:h-5 mb-1" />
+          <Square className="w-4 h-4 md:w-4 md:h-4 mb-1" />
           <span className="text-[9px] md:text-[10px] font-semibold tracking-wider whitespace-nowrap">Background</span>
         </button>
 
         <button
           onClick={() => setActiveTab("canvas")}
-          className={`flex flex-col items-center justify-center flex-1 md:flex-none md:w-16 h-12 md:h-16 rounded-xl transition-all ${activeTab === "canvas" ? "bg-[#182747] text-amber-400 border border-[#2d4370] shadow-md" : "text-zinc-400 hover:bg-[#101933] hover:text-white"
+          className={`flex flex-col items-center justify-center flex-1 md:flex-none md:w-16 h-12 md:h-14 rounded-xl transition-all ${activeTab === "canvas" ? "bg-[#182747] text-amber-400 border border-[#2d4370] shadow-md" : "text-zinc-400 hover:bg-[#101933] hover:text-white"
             }`}
         >
-          <Grid3X3 className="w-4 h-4 md:w-5 md:h-5 mb-1" />
+          <Grid3X3 className="w-4 h-4 md:w-4 md:h-4 mb-1" />
           <span className="text-[9px] md:text-[10px] font-semibold tracking-wider whitespace-nowrap">Canvas</span>
         </button>
 
