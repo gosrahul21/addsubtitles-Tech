@@ -754,6 +754,36 @@ export default function Home() {
     }
   }, [user]);
 
+  // Use requestAnimationFrame for frame-perfect karaoke syncing
+  useEffect(() => {
+    let animationFrameId: number;
+    
+    const updateTime = () => {
+      if (videoRef.current && isPlaying) {
+        let curTime = videoRef.current.currentTime;
+        if (removeSilences && silenceCuts && silenceCuts.length > 0) {
+          const activeCut = silenceCuts.find(cut => curTime >= cut.start && curTime < cut.end);
+          if (activeCut) {
+            videoRef.current.currentTime = activeCut.end;
+            curTime = activeCut.end;
+          }
+        }
+        setCurrentTime(curTime);
+        animationFrameId = requestAnimationFrame(updateTime);
+      }
+    };
+
+    if (isPlaying) {
+      animationFrameId = requestAnimationFrame(updateTime);
+    }
+
+    return () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
+  }, [isPlaying, removeSilences, silenceCuts]);
+
   const applyPresetStyle = (style: any) => {
     if (style.fontColor) setFontColor(style.fontColor);
     if (style.fontFamily) setFontFamily(style.fontFamily);
@@ -2466,15 +2496,14 @@ export default function Home() {
               let activeWordIndex = -1;
               if (activeSub.words && activeSub.words.length === words.length) {
                 // Precise word-level timings from backend
-                let lastMatched = -1;
                 for (let i = 0; i < activeSub.words.length; i++) {
-                  if (currentTime >= activeSub.words[i].start) {
-                    lastMatched = i;
-                  } else {
-                    break;
+                  const w = activeSub.words[i];
+                  // Add a small 50ms tolerance so consecutive words feel continuous
+                  if (currentTime >= w.start && currentTime <= w.end + 0.05) {
+                    activeWordIndex = i;
+                    // If it's a perfect match, break. If multiple overlap, the last one wins.
                   }
                 }
-                activeWordIndex = lastMatched;
               } else {
                 // Fallback: Character-proportional estimation (for user-edited text)
                 const totalChars = Math.max(1, words.reduce((acc, w) => acc + w.length, 0));
@@ -3208,7 +3237,6 @@ export default function Home() {
                 <a
                   href={exportedVideoUrl}
                   download="exported_video.mp4"
-                  onClick={() => setShowDownloadModal(false)}
                   className="w-full py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-amber-400 to-amber-600 text-[#332b10] hover:shadow-[0_0_15px_rgba(212,175,55,0.3)] hover:scale-[1.01] transition-all flex justify-center items-center gap-2"
                 >
                   <Download className="w-4 h-4" />
