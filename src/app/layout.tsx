@@ -13,9 +13,10 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "AddSubtitles - Free Auto Subtitle Generator & Video Editor",
-  description: "Automated video subtitles, karaoke captions, and translation over 150+ languages without watermark",
+  title: "AddSubtitles – AI Subtitle Generator & Video Editor for TikTok, Shorts & Reels",
+  description: "Automatically add subtitles, remove silences, filter filler words, and apply viral word-by-word animations. The fastest browser-based AI video editor for creators. No credit card required.",
 };
+
 
 import AuthProvider from "@/providers/AuthProvider";
 

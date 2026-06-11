@@ -23,8 +23,20 @@ export interface ExportOptions {
   fontColor: string;
   lineSpacing: number;
   fontAlign: string;
-  outline: string;
-  shadow: string;
+  outlineWidth: number;
+  outlineColor: string;
+  isOutlineTransparent: boolean;
+  shadowDistance: number;
+  shadowBlur: number;
+  shadowAngle: number;
+  shadowColor: string;
+  isShadowTransparent: boolean;
+  highlightBgColor: string;
+  highlightTextColor: string;
+  isHighlightBgTransparent: boolean;
+  isHighlightTextTransparent: boolean;
+  wordColor: string;
+  isWordColorTransparent: boolean;
   showPunctuation: boolean;
   maxLines: number;
   maxWordsPerLine: string;
@@ -103,7 +115,9 @@ const hexToRgba = (hex: string, opacity: number) => {
 const SubtitleSnapshot = ({ options, sub, currentTime }: { options: ExportOptions, sub: Subtitle, currentTime: number }) => {
   const {
     templateClassName, templateStyle, subtitleFontSize, subtitleStyle, fontFamily, fontColor, lineSpacing, fontAlign,
-    outline, shadow, showPunctuation, maxLines, maxWordsPerLine, bgColor, bgOpacity, bgStyle, bgRadius, bgPaddingX, bgPaddingY,
+    outlineWidth, outlineColor, isOutlineTransparent, shadowDistance, shadowBlur, shadowAngle, shadowColor, isShadowTransparent,
+    highlightBgColor, highlightTextColor, isHighlightBgTransparent, isHighlightTextTransparent, wordColor, isWordColorTransparent,
+    showPunctuation, maxLines, maxWordsPerLine, bgColor, bgOpacity, bgStyle, bgRadius, bgPaddingX, bgPaddingY,
     isBgTransparent, randomRotate, subtitleAnim, wordAnim, subtitleBounds, videoWidth, videoHeight
   } = options;
 
@@ -183,8 +197,8 @@ const SubtitleSnapshot = ({ options, sub, currentTime }: { options: ExportOption
             fontStyle: subtitleStyle.italic ? 'italic' : (templateStyle.fontStyle || 'normal'),
             textTransform: subtitleStyle.allCaps ? 'uppercase' : (templateStyle.textTransform || 'none'),
             textAlign: fontAlign as any,
-            ...(outline !== 'None' ? { WebkitTextStroke: outline === 'Thin' ? `${2 * scaleRatio}px black` : `${4 * scaleRatio}px black` } : {}),
-            ...(shadow !== 'None' ? { textShadow: shadow === 'Soft' ? `0px ${4 * scaleRatio}px ${8 * scaleRatio}px rgba(0,0,0,0.75)` : `${2 * scaleRatio}px ${2 * scaleRatio}px 0px black, ${3 * scaleRatio}px ${3 * scaleRatio}px 0px black` } : {}),
+            ...(!isOutlineTransparent ? { WebkitTextStroke: `${(outlineWidth / 100) * 20 * scaleRatio}px ${outlineColor}` } : {}),
+            ...(!isShadowTransparent ? { textShadow: `${Math.cos(shadowAngle * Math.PI / 180) * (shadowDistance / 100) * 30 * scaleRatio}px ${Math.sin(shadowAngle * Math.PI / 180) * (shadowDistance / 100) * 30 * scaleRatio}px ${(shadowBlur / 100) * 30 * scaleRatio}px ${shadowColor}` } : {}),
             WebkitLineClamp: maxLines > 0 ? maxLines : undefined,
             display: maxLines > 0 ? '-webkit-box' : 'block',
             WebkitBoxOrient: maxLines > 0 ? 'vertical' : undefined,
@@ -210,11 +224,31 @@ const SubtitleSnapshot = ({ options, sub, currentTime }: { options: ExportOption
                   if (wordAnim === 'Reveal') {
                     wordClasses += globalIdx <= activeWordIndex ? "opacity-100" : "opacity-0";
                   } else if (wordAnim === 'Karaoke') {
-                    wordClasses += globalIdx === activeWordIndex ? "text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]" : "";
+                    if (globalIdx === activeWordIndex && !isWordColorTransparent) {
+                      wordClasses += ` !text-[${wordColor}] drop-shadow-[0_0_8px_${wordColor}CC]`;
+                    }
+                  } else if (wordAnim === 'Alternating') {
+                    if (globalIdx === activeWordIndex) {
+                      wordClasses += " text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]";
+                    }
                   } else if (wordAnim === 'Highlight') {
-                    wordClasses += globalIdx === activeWordIndex ? "bg-amber-500 text-[#0d142d] px-1 rounded-sm" : "";
+                    if (globalIdx === activeWordIndex) {
+                      wordClasses += " px-1 rounded-sm";
+                    }
                   } else if (wordAnim === 'Scale') {
-                    wordClasses += globalIdx === activeWordIndex ? "scale-[1.2] text-amber-400" : "";
+                    if (globalIdx === activeWordIndex) {
+                      wordClasses += " scale-[1.2] text-amber-400";
+                    }
+                  }
+
+                  let wordStyles: React.CSSProperties = {};
+                  if (wordAnim === 'Karaoke' && globalIdx === activeWordIndex && !isWordColorTransparent) {
+                     wordStyles = { color: wordColor, filter: `drop-shadow(0 0 8px ${wordColor}CC)` };
+                  } else if (wordAnim === 'Highlight' && globalIdx === activeWordIndex) {
+                     wordStyles = { 
+                       backgroundColor: isHighlightBgTransparent ? 'transparent' : highlightBgColor, 
+                       color: isHighlightTextTransparent ? 'inherit' : highlightTextColor 
+                     };
                   }
 
                   const isFiller = options.filterFillerWords && w.match(/\b(um|uh|ums|uhs)\b/i);
@@ -223,7 +257,7 @@ const SubtitleSnapshot = ({ options, sub, currentTime }: { options: ExportOption
                   }
 
                   return (
-                    <span key={globalIdx} className={wordClasses}>
+                    <span key={globalIdx} className={wordClasses} style={wordStyles}>
                       {w}
                     </span>
                   );
