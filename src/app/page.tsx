@@ -376,14 +376,31 @@ function EditorPage() {
         setAudioExtractProgress(100);
       }
 
-      // 3. Upload Blob to Backend
+      // 3. Upload to Cloudinary
+      const sigRes = await fetch(`${apiUrl}/projects/cloudinary-signature`);
+      if (!sigRes.ok) throw new Error("Failed to get upload signature");
+      const { signature, timestamp, apiKey, cloudName } = await sigRes.json();
+
       const formData = new FormData();
-      formData.append('audioFile', uploadBlob, uploadName);
-      const uploadRes = await fetch(`${apiUrl}/projects/${project.id}/upload`, {
+      formData.append('file', uploadBlob, uploadName);
+      formData.append('api_key', apiKey);
+      formData.append('timestamp', timestamp);
+      formData.append('signature', signature);
+
+      const cloudinaryRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, {
         method: 'POST',
         body: formData,
       });
-      if (!uploadRes.ok) throw new Error("Upload failed");
+      if (!cloudinaryRes.ok) throw new Error("Cloudinary upload failed");
+      const cloudinaryData = await cloudinaryRes.json();
+
+      // 4. Update Backend
+      const uploadRes = await fetch(`${apiUrl}/projects/${project.id}/upload`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ videoUrl: cloudinaryData.secure_url }), // video url is our audio url
+      });
+      if (!uploadRes.ok) throw new Error("Failed to save URL to backend");
 
       // 4. Update UI State
       setIsProcessingSubtitles(true);

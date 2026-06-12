@@ -32,13 +32,12 @@ export async function extractAudioToWav(videoFile: File, onProgress?: (p: number
 }
 
 function audioBufferToWav(buffer: AudioBuffer): Blob {
-  const numOfChan = buffer.numberOfChannels;
+  // Force 1 channel (mono) downmix to minimize file size for STT
+  const numOfChan = 1; 
   const length = buffer.length * numOfChan * 2 + 44;
   const outBuffer = new ArrayBuffer(length);
   const view = new DataView(outBuffer);
   const channels = [];
-  let i;
-  let sample;
   let offset = 0;
   let pos = 0;
 
@@ -59,18 +58,24 @@ function audioBufferToWav(buffer: AudioBuffer): Blob {
   writeString('data'); // "data" - chunk
   setUint32(length - 44); // chunk length (total length minus 44 bytes of header)
 
-  // write interleaved data
-  for (i = 0; i < buffer.numberOfChannels; i++) {
+  // Get all channels
+  for (let i = 0; i < buffer.numberOfChannels; i++) {
     channels.push(buffer.getChannelData(i));
   }
 
+  // write interleaved data (downmixing all channels to mono)
   while (pos < buffer.length) {
-    for (i = 0; i < numOfChan; i++) {
-      sample = Math.max(-1, Math.min(1, channels[i][pos])); // clamp
-      sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767) | 0; // scale to 16-bit signed int
-      view.setInt16(offset, sample, true); // write 16-bit sample
-      offset += 2;
+    let sample = 0;
+    for (let i = 0; i < buffer.numberOfChannels; i++) {
+      sample += channels[i][pos];
     }
+    // Average all channels to prevent clipping when downmixing
+    sample /= buffer.numberOfChannels;
+
+    sample = Math.max(-1, Math.min(1, sample)); // clamp
+    sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767) | 0; // scale to 16-bit signed int
+    view.setInt16(offset, sample, true); // write 16-bit sample
+    offset += 2;
     pos++;
   }
 
