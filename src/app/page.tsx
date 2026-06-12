@@ -130,7 +130,7 @@ export interface TimelineSegment {
 
 function EditorPage() {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(14.7);
+  const [currentTime, setCurrentTime] = useState(0);
   const [totalDuration, setTotalDuration] = useState(52.1);
   const [activeTab, setActiveTab] = useState("");
   const [activeStyleFilter, setActiveStyleFilter] = useState("All");
@@ -2725,6 +2725,8 @@ function EditorPage() {
                 onLoadedMetadata={() => {
                   if (videoRef.current) {
                     setTotalDuration(videoRef.current.duration);
+                    videoRef.current.currentTime = 0;
+                    setCurrentTime(0);
                     // Adapt the canvas to perfectly fit the uploaded video's aspect ratio
                     if (videoRef.current.videoWidth && videoRef.current.videoHeight) {
                       setCanvasAspectRatio(`${videoRef.current.videoWidth}/${videoRef.current.videoHeight}`);
