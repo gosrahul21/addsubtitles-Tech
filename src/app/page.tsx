@@ -3159,9 +3159,9 @@ function EditorPage() {
                 step="1"
                 value={timelineZoom}
                 onChange={(e) => setTimelineZoom(Number(e.target.value))}
-                className="w-24 accent-amber-500 h-1 bg-zinc-750 rounded-lg appearance-none cursor-pointer"
+                className="w-24 accent-amber-500 h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer"
               />
-              <span className="text-[10px] text-zinc-400 font-mono w-12 text-right">{timelineZoom} px/s</span>
+              <span className="text-[10px] text-zinc-400 font-mono w-14 text-right whitespace-nowrap">{timelineZoom} px/s</span>
             </div>
             <button
               onClick={() => setTimelineZoom(prev => Math.min(150, prev + 10))}
