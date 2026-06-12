@@ -1281,27 +1281,7 @@ function EditorPage() {
             <span className="hidden md:inline">{isExporting ? `${exportStatus} ${Math.round(exportProgress)}%` : 'Export'}</span>
             <Download className="w-4 h-4 md:hidden" />
           </button>
-          <div className="hidden md:flex items-center gap-1 ml-4 border-l border-[#253966] pl-4">
-            <button
-              onClick={handleUndo}
-              disabled={historyIndex <= 0}
-              className={`p-1.5 rounded transition-all ${historyIndex <= 0 ? 'text-zinc-600 cursor-not-allowed opacity-55' : 'text-zinc-400 hover:text-white hover:bg-[#16223f]'
-                }`}
-              title="Undo"
-            >
-              <RotateCcw className="w-4 h-4" />
-            </button>
-            <button
-              onClick={handleRedo}
-              disabled={historyIndex >= history.length - 1}
-              className={`p-1.5 rounded transition-all ${historyIndex >= history.length - 1 ? 'text-zinc-600 cursor-not-allowed opacity-55' : 'text-zinc-400 hover:text-white hover:bg-[#16223f]'
-                }`}
-              title="Redo"
-            >
-              <RotateCw className="w-4 h-4" />
-            </button>
           </div>
-        </div>
 
         {/* Central Logo - Desktop Only */}
         <Logo size="md" className="hidden md:flex absolute left-1/2 -translate-x-1/2" />
@@ -3488,12 +3468,12 @@ function EditorPage() {
 
           {/* Playback Controls */}
           <div className="flex items-center justify-between">
-            {/* Left: Volume (Hidden on Mobile) */}
-            <div className="hidden md:flex items-center gap-3 w-32">
+            {/* Left: Volume (Icon visible on Mobile, Slider hidden) */}
+            <div className="flex items-center gap-2 md:gap-3 w-auto md:w-32">
               <button onClick={() => setIsMuted(!isMuted)} className="text-[#a0a0a0] hover:text-white transition-colors">
                 {isMuted || volume === 0 ? <VolumeX className="w-4 h-4 shrink-0" /> : <Volume2 className="w-4 h-4 shrink-0" />}
               </button>
-              <div className="relative w-full h-4 flex items-center group cursor-pointer">
+              <div className="hidden md:flex relative w-full h-4 items-center group cursor-pointer">
                 <div className="absolute left-0 right-0 h-1 bg-[#404040] rounded-full pointer-events-none">
                   <div className="absolute left-0 top-0 bottom-0 bg-white rounded-full transition-colors" style={{ width: `${isMuted ? 0 : volume}%` }} />
                 </div>
@@ -3515,6 +3495,14 @@ function EditorPage() {
 
             {/* Center: Playback */}
             <div className="flex items-center gap-2 md:gap-5 shrink-0 min-w-[60px] md:min-w-0 justify-start md:justify-center">
+              <div className="flex items-center gap-1 mr-1 md:mr-3 border-r border-[#404040] pr-2 md:pr-4">
+                <button onClick={handleUndo} disabled={historyIndex <= 0} className={`p-1 rounded transition-all ${historyIndex <= 0 ? 'text-zinc-600 opacity-55 cursor-not-allowed' : 'text-zinc-400 hover:text-white'}`}>
+                  <RotateCcw className="w-4 h-4" />
+                </button>
+                <button onClick={handleRedo} disabled={historyIndex >= history.length - 1} className={`p-1 rounded transition-all ${historyIndex >= history.length - 1 ? 'text-zinc-600 opacity-55 cursor-not-allowed' : 'text-zinc-400 hover:text-white'}`}>
+                  <RotateCw className="w-4 h-4" />
+                </button>
+              </div>
               <button className="text-[#a0a0a0] hover:text-white transition-colors"><SkipBack className="w-4.5 h-4.5" /></button>
               <button onClick={() => setIsPlaying(!isPlaying)} className="w-9 h-9 bg-white rounded-full flex items-center justify-center hover:scale-105 transition-transform shadow-md shrink-0">
                 {isPlaying ? <Pause className="w-4 h-4 fill-black text-black" /> : <Play className="w-4 h-4 fill-black text-black translate-x-0.5" />}
