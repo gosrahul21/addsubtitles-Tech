@@ -1056,8 +1056,8 @@ function EditorPage() {
         if (project.status === 'COMPLETED') {
           clearInterval(interval);
           setIsProcessingSubtitles(false);
-          if (project.subtitles && project.subtitles.length > 0) {
-            const segments = project.subtitles.map((sub: any) => ({
+          if (project.subtitle?.subtitlesJson && project.subtitle.subtitlesJson.length > 0) {
+            const segments = project.subtitle.subtitlesJson.map((sub: any) => ({
               start: sub.timestampStart,
               end: sub.timestampEnd,
               label: sub.text,
