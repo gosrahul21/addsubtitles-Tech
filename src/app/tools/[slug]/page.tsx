@@ -71,6 +71,9 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
     body: "This tool is part of the AddSubtitles free toolset for creators.",
   };
 
+  // For the silence removal tool, we skip subtitle generation and auto-enable silence removal
+  const editorHref = slug === 'remove-silences-online' ? '/?subtitles=false&removeSilences=true' : '/';
+
   return (
     <div className="min-h-screen bg-[#070b19] text-white flex flex-col">
       {/* Nav */}
@@ -79,7 +82,7 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
           <Logo size="md" />
         </Link>
         <Link
-          href="/editor"
+          href="/"
           className="subplus-button px-5 py-2 rounded-lg text-sm font-bold flex items-center gap-1.5"
         >
           Try Free <ArrowRight className="w-3.5 h-3.5" />
@@ -94,7 +97,7 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
         <h1 className="text-4xl md:text-5xl font-black font-heading mb-6">{meta.h1}</h1>
         <p className="text-zinc-400 text-lg leading-relaxed mb-10">{meta.body}</p>
         <Link
-          href="/editor"
+          href={editorHref}
           className="subplus-button px-10 py-4 rounded-xl text-base font-black flex items-center gap-2 shadow-[0_0_30px_rgba(212,175,55,0.2)]"
         >
           <Zap className="w-5 h-5" />

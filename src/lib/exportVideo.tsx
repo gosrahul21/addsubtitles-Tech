@@ -523,7 +523,10 @@ export async function exportVideo(
 
         if (removeSilences && silenceCuts && silenceCuts.length > 0) {
            const inCut = silenceCuts.some(cut => seconds >= cut.start && seconds < cut.end);
-           if (inCut) return null;
+           if (inCut) {
+             if (sample.close) sample.close();
+             return null;
+           }
            
            let shiftedTime = seconds;
            for (const cut of silenceCuts) {
@@ -541,12 +544,8 @@ export async function exportVideo(
         }
 
         if (removeSilences) {
-           const shiftedSample: any = (sample as any).clone();
-           shiftedSample.setTimestamp(typeof sample.timestamp === 'number' && sample.timestamp > 10000 ? seconds * 1000000 : seconds);
-           
-           // Wrap the drawn canvas into a new video sample that mediabunny understands
-           // For video, we just return the offscreen canvas as image source, but since we modified 
-           // the timestamp above, we can return a new VideoSample constructed properly
+           // We are returning a new VideoSample, so close the original
+           if (sample.close) sample.close();
            return new VideoSample(offscreenCanvas as any, { 
              timestamp: typeof sample.timestamp === 'number' && sample.timestamp > 10000 ? seconds * 1000000 : seconds,
              duration: sample.duration 
@@ -565,6 +564,8 @@ export async function exportVideo(
           // Optionally, if we had an Image object for the logo we could draw it here too.
         }
 
+        // We are returning offscreenCanvas, so close the original sample
+        if (sample.close) sample.close();
         return offscreenCanvas;
       }
     },
@@ -574,7 +575,10 @@ export async function exportVideo(
 
         if (removeSilences && silenceCuts && silenceCuts.length > 0) {
            const inCut = silenceCuts.some(cut => seconds >= cut.start && seconds < cut.end);
-           if (inCut) return null;
+           if (inCut) {
+             if ((audioSample as any).close) (audioSample as any).close();
+             return null;
+           }
            
            let shiftedTime = seconds;
            for (const cut of silenceCuts) {
@@ -585,6 +589,7 @@ export async function exportVideo(
            
            const shiftedSample: any = (audioSample as any).clone();
            shiftedSample.setTimestamp(typeof audioSample.timestamp === 'number' && audioSample.timestamp > 10000 ? shiftedTime * 1000000 : shiftedTime);
+           if ((audioSample as any).close) (audioSample as any).close();
            return shiftedSample as AudioSample;
         }
         return audioSample;
