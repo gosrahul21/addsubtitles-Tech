@@ -1147,21 +1147,23 @@ function EditorPage() {
         {/* Mobile: Logo left */}
         <Logo size="sm" className="md:hidden" />
 
-        {/* Desktop: Undo/Redo & Utility Actions */}
-        <div className="hidden md:flex items-center gap-2">
+        {/* Desktop & Mobile: Utility Actions */}
+        <div className="flex items-center gap-1.5 md:gap-2">
           <button
             onClick={() => setShowUploadModal(true)}
-            className="subplus-button py-1 px-2 rounded-md shadow-md flex items-center gap-1.5"
+            className="subplus-button py-1.5 px-2 md:px-3 rounded-md shadow-md flex items-center gap-1.5"
           >
-            New Video
+            <span className="hidden md:inline">New Video</span>
+            <Plus className="w-4 h-4 md:hidden" />
           </button>
 
           <div className="relative">
             <button
               onClick={() => setShowProjectMenu(!showProjectMenu)}
-              className="flex items-center gap-1.5 px-4 py-1.5 rounded-md bg-[#16223f] border border-[#253966] text-sm text-[#ccd6e8] hover:bg-[#1f2f54] transition-all font-medium"
+              className="flex items-center gap-1.5 px-2 md:px-4 py-1.5 rounded-md bg-[#16223f] border border-[#253966] text-sm text-[#ccd6e8] hover:bg-[#1f2f54] transition-all font-medium"
             >
-              Project
+              <span className="hidden md:inline">Project</span>
+              <FileVideo className="w-4 h-4 md:hidden" />
             </button>
             {showProjectMenu && (
               <div className="absolute top-full left-0 mt-2 w-48 bg-[#0d142d] border border-[#1e2a4a] rounded-lg shadow-xl shadow-black/50 z-50 overflow-hidden flex flex-col">
@@ -1260,11 +1262,12 @@ function EditorPage() {
               setExportStatus("");
               setExportProgress(0);
             }}
-            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-md ${isExporting ? 'bg-amber-500 text-[#0d142d]' : 'bg-[#16223f] text-[#ccd6e8] hover:bg-[#1f2f54] hover:text-white'} border border-[#253966] text-sm transition-all font-medium whitespace-nowrap overflow-hidden`}
+            className={`flex items-center gap-1.5 px-2.5 md:px-4 py-1.5 rounded-md ${isExporting ? 'bg-amber-500 text-[#0d142d]' : 'bg-[#16223f] text-[#ccd6e8] hover:bg-[#1f2f54] hover:text-white'} border border-[#253966] text-sm transition-all font-medium whitespace-nowrap overflow-hidden`}
           >
-            {isExporting ? `${exportStatus} ${Math.round(exportProgress)}%` : 'Export'}
+            <span className="hidden md:inline">{isExporting ? `${exportStatus} ${Math.round(exportProgress)}%` : 'Export'}</span>
+            <Download className="w-4 h-4 md:hidden" />
           </button>
-          <div className="flex items-center gap-1 ml-4 border-l border-[#253966] pl-4">
+          <div className="hidden md:flex items-center gap-1 ml-4 border-l border-[#253966] pl-4">
             <button
               onClick={handleUndo}
               disabled={historyIndex <= 0}
@@ -3469,8 +3472,8 @@ function EditorPage() {
 
           {/* Playback Controls */}
           <div className="flex items-center justify-between">
-            {/* Left: Volume */}
-            <div className="flex items-center gap-3 w-32">
+            {/* Left: Volume (Hidden on Mobile) */}
+            <div className="hidden md:flex items-center gap-3 w-32">
               <button onClick={() => setIsMuted(!isMuted)} className="text-[#a0a0a0] hover:text-white transition-colors">
                 {isMuted || volume === 0 ? <VolumeX className="w-4 h-4 shrink-0" /> : <Volume2 className="w-4 h-4 shrink-0" />}
               </button>
@@ -3495,14 +3498,14 @@ function EditorPage() {
             </div>
 
             {/* Center: Playback */}
-            <div className="flex items-center gap-5">
+            <div className="flex items-center gap-2 md:gap-5 flex-1 md:flex-none justify-start md:justify-center">
               <button className="text-[#a0a0a0] hover:text-white transition-colors"><SkipBack className="w-4.5 h-4.5" /></button>
               <button onClick={() => setIsPlaying(!isPlaying)} className="w-9 h-9 bg-white rounded-full flex items-center justify-center hover:scale-105 transition-transform shadow-md shrink-0">
                 {isPlaying ? <Pause className="w-4 h-4 fill-black text-black" /> : <Play className="w-4 h-4 fill-black text-black translate-x-0.5" />}
               </button>
               <button className="text-[#a0a0a0] hover:text-white transition-colors"><SkipForward className="w-4.5 h-4.5" /></button>
 
-              <span className="text-[11px] font-mono text-[#a0a0a0] font-medium tracking-wide ml-2 shrink-0">
+              <span className="text-[10px] md:text-[11px] font-mono text-[#a0a0a0] font-medium tracking-wide ml-1 md:ml-2 shrink-0 truncate">
                 {Math.floor(currentTime / 60)}:{(Math.floor(currentTime) % 60).toString().padStart(2, '0')}.{Math.floor((currentTime % 1) * 10)} / {Math.floor(totalDuration / 60)}:{(Math.floor(totalDuration) % 60).toString().padStart(2, '0')}.{Math.floor((totalDuration % 1) * 10)}
               </span>
             </div>
@@ -3524,7 +3527,7 @@ function EditorPage() {
                   {playbackSpeed.toFixed(1)}x
                 </button>
               </div>
-              <button className="p-1.5 bg-[#2a2a2a] border border-[#404040] text-[#a0a0a0] rounded hover:text-white hover:bg-[#3a3a3a] transition-colors">
+              <button className="hidden md:flex p-1.5 bg-[#2a2a2a] border border-[#404040] text-[#a0a0a0] rounded hover:text-white hover:bg-[#3a3a3a] transition-colors">
                 <Keyboard className="w-3.5 h-3.5" />
               </button>
             </div>
