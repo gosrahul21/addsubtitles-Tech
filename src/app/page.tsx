@@ -529,7 +529,7 @@ function EditorPage() {
 
     // Auto-scroll timeline when dragging near edges
     const edgeThreshold = 40;
-    const scrollSpeed = 25;
+    const scrollSpeed = 6;
     const scrollMax = timelineRef.current.scrollWidth - rect.width;
     let newScrollLeft = timelineRef.current.scrollLeft;
 
