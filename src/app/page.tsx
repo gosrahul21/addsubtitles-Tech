@@ -527,7 +527,21 @@ function EditorPage() {
       clientX = (e as MouseEvent).clientX;
     }
 
-    const x = Math.max(0, Math.min(clientX - rect.left + timelineRef.current.scrollLeft, trackWidth));
+    // Auto-scroll timeline when dragging near edges
+    const edgeThreshold = 40;
+    const scrollSpeed = 25;
+    const scrollMax = timelineRef.current.scrollWidth - rect.width;
+    let newScrollLeft = timelineRef.current.scrollLeft;
+
+    if (clientX - rect.left < edgeThreshold && newScrollLeft > 0) {
+      timelineRef.current.scrollLeft = Math.max(0, newScrollLeft - scrollSpeed);
+      newScrollLeft = timelineRef.current.scrollLeft;
+    } else if (rect.right - clientX < edgeThreshold && newScrollLeft < scrollMax) {
+      timelineRef.current.scrollLeft = Math.min(scrollMax, newScrollLeft + scrollSpeed);
+      newScrollLeft = timelineRef.current.scrollLeft;
+    }
+
+    const x = Math.max(0, Math.min(clientX - rect.left + newScrollLeft, trackWidth));
     const percentage = x / trackWidth;
     const newTime = percentage * totalDuration;
 
@@ -1545,7 +1559,7 @@ function EditorPage() {
                               setSelectedItem(null);
                             }
                           }}
-                          className="opacity-0 group-hover/card:opacity-100 p-1 text-zinc-400 hover:text-red-500 rounded transition-opacity"
+                          className="opacity-100 md:opacity-0 md:group-hover/card:opacity-100 p-1 text-zinc-400 hover:text-red-500 rounded transition-opacity"
                           title="Delete Subtitle"
                         >
                           <Trash className="w-3.5 h-3.5" />
@@ -3128,7 +3142,7 @@ function EditorPage() {
           <div className="flex items-center gap-3">
             {selectedItem && (
               <span className="text-[10px] text-amber-400/80 italic animate-pulse">
-                Selected: {selectedItem.type === 'subtitle' ? 'Subtitle' : 'Video'}. Press Delete or Backspace key to remove.
+                Selected: {selectedItem.type === 'subtitle' ? 'Subtitle' : 'Video'}. <span className="hidden md:inline">Press Delete or Backspace key to remove.</span>
               </span>
             )}
           </div>
@@ -3198,15 +3212,7 @@ function EditorPage() {
           {/* Right-side Timeline Workspace */}
           <div
             ref={timelineRef}
-            onMouseDown={(e) => {
-              setIsDraggingTimeline(true);
-              handleTimelineDrag(e);
-            }}
-            onTouchStart={(e) => {
-              setIsDraggingTimeline(true);
-              handleTimelineDrag(e);
-            }}
-            className="flex-1 relative flex flex-col bg-[#070b19] overflow-x-auto overflow-y-hidden cursor-ew-resize animate-in fade-in duration-300"
+            className="flex-1 relative flex flex-col bg-[#070b19] overflow-x-auto overflow-y-hidden animate-in fade-in duration-300"
           >
             {/* Scalable Track Wrapper */}
             <div
@@ -3214,7 +3220,17 @@ function EditorPage() {
               className="relative shrink-0 flex flex-col h-full"
             >
               {/* Time Ticks Header (Ruler) */}
-              <div className="h-8 bg-[#0a0f24] border-b border-[#1e2a4a]/50 relative w-full shrink-0 flex items-end">
+              <div 
+                onMouseDown={(e) => {
+                  setIsDraggingTimeline(true);
+                  handleTimelineDrag(e);
+                }}
+                onTouchStart={(e) => {
+                  setIsDraggingTimeline(true);
+                  handleTimelineDrag(e);
+                }}
+                className="h-8 bg-[#0a0f24] border-b border-[#1e2a4a]/50 relative w-full shrink-0 flex items-end cursor-ew-resize"
+              >
                 {Array.from({ length: Math.ceil(totalDuration) }).map((_, i) => {
                   const interval = timelineZoom < 15 ? 10 : timelineZoom < 35 ? 5 : 2;
                   const showLabel = i % interval === 0;
