@@ -13,12 +13,12 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "AddSubtitles - AI Subtitle Generator & Video Editor",
-  description: "Automatically add subtitles, remove silences, filter filler words, and apply viral word-by-word animations. The fastest browser-based AI video editor for creators.",
+  title: "AddSubtitles - Auto AI Subtitle Generator & Video Editor",
+  description: "Automatically add subtitles, captions, remove silences, filter filler words, and apply viral word-by-word animations. The fastest browser-based AI video editor for creators.",
   applicationName: "AddSubtitles",
   openGraph: {
-    title: "AddSubtitles - AI Subtitle Generator & Video Editor",
-    description: "Automatically add subtitles, remove silences, filter filler words, and apply viral word-by-word animations.",
+    title: "AddSubtitles - Auto AI Subtitle Generator & Video Editor",
+    description: "Automatically add subtitles, captions, remove silences, filter filler words, and apply viral word-by-word animations.",
     url: "https://www.addsubtitles.tech",
     siteName: "AddSubtitles",
     locale: "en_US",
@@ -26,8 +26,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "AddSubtitles - AI Subtitle Generator",
-    description: "Automatically add subtitles, remove silences, filter filler words, and apply viral word-by-word animations.",
+    title: "AddSubtitles - Auto AI Subtitle Generator",
+    description: "Automatically add subtitles, captions, remove silences, filter filler words, and apply viral word-by-word animations.",
   },
   appleWebApp: {
     title: "AddSubtitles",
