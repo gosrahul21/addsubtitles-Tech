@@ -1188,37 +1188,39 @@ function EditorPage() {
             <Plus className="w-4 h-4 md:hidden" />
           </button>
 
-          <div className="relative">
-            <button
-              onClick={() => setShowProjectMenu(!showProjectMenu)}
-              className="flex items-center gap-1.5 px-2 md:px-4 py-1.5 rounded-md bg-[#16223f] border border-[#253966] text-sm text-[#ccd6e8] hover:bg-[#1f2f54] transition-all font-medium"
-            >
-              <span className="hidden md:inline">Project</span>
-              <FileVideo className="w-4 h-4 md:hidden" />
-            </button>
-            {showProjectMenu && (
-              <div className="absolute top-full left-0 mt-2 w-48 bg-[#0d142d] border border-[#1e2a4a] rounded-lg shadow-xl shadow-black/50 z-50 overflow-hidden flex flex-col">
-                <button
-                  onClick={() => { setShowProjectMenu(false); setShowUploadModal(true); }}
-                  className="px-4 py-2.5 text-left text-sm text-zinc-300 hover:text-white hover:bg-[#16223f] transition-colors border-b border-[#1e2a4a]/50"
-                >
-                  New Project
-                </button>
-                <button
-                  onClick={() => { setShowProjectMenu(false); setShowOpenProjectModal(true); }}
-                  className="px-4 py-2.5 text-left text-sm text-zinc-300 hover:text-white hover:bg-[#16223f] transition-colors border-b border-[#1e2a4a]/50"
-                >
-                  Open Project...
-                </button>
-                <button onClick={() => setShowProjectMenu(false)} className="px-4 py-2.5 text-left text-sm text-zinc-300 hover:text-white hover:bg-[#16223f] transition-colors border-b border-[#1e2a4a]/50">
-                  Save Project
-                </button>
-                <button onClick={() => setShowProjectMenu(false)} className="px-4 py-2.5 text-left text-sm text-zinc-300 hover:text-white hover:bg-[#16223f] transition-colors">
-                  Project Settings
-                </button>
-              </div>
-            )}
-          </div>
+          {user && (
+            <div className="relative">
+              <button
+                onClick={() => setShowProjectMenu(!showProjectMenu)}
+                className="flex items-center gap-1.5 px-2 md:px-4 py-1.5 rounded-md bg-[#16223f] border border-[#253966] text-sm text-[#ccd6e8] hover:bg-[#1f2f54] transition-all font-medium"
+              >
+                <span className="hidden md:inline">Project</span>
+                <FileVideo className="w-4 h-4 md:hidden" />
+              </button>
+              {showProjectMenu && (
+                <div className="absolute top-full left-0 mt-2 w-48 bg-[#0d142d] border border-[#1e2a4a] rounded-lg shadow-xl shadow-black/50 z-50 overflow-hidden flex flex-col">
+                  <button
+                    onClick={() => { setShowProjectMenu(false); setShowUploadModal(true); }}
+                    className="px-4 py-2.5 text-left text-sm text-zinc-300 hover:text-white hover:bg-[#16223f] transition-colors border-b border-[#1e2a4a]/50"
+                  >
+                    New Project
+                  </button>
+                  <button
+                    onClick={() => { setShowProjectMenu(false); setShowOpenProjectModal(true); }}
+                    className="px-4 py-2.5 text-left text-sm text-zinc-300 hover:text-white hover:bg-[#16223f] transition-colors border-b border-[#1e2a4a]/50"
+                  >
+                    Open Project...
+                  </button>
+                  <button onClick={() => setShowProjectMenu(false)} className="px-4 py-2.5 text-left text-sm text-zinc-300 hover:text-white hover:bg-[#16223f] transition-colors border-b border-[#1e2a4a]/50">
+                    Save Project
+                  </button>
+                  <button onClick={() => setShowProjectMenu(false)} className="px-4 py-2.5 text-left text-sm text-zinc-300 hover:text-white hover:bg-[#16223f] transition-colors">
+                    Project Settings
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
           <button
             disabled={!videoFile || isExporting}
             onClick={async () => {
