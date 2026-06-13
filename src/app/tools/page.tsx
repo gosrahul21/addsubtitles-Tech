@@ -32,6 +32,51 @@ const TOOLS = [
     tags: ["AI", "Free", "No Watermark"],
   },
   {
+    slug: "mp4-subtitle-generator",
+    icon: Play,
+    label: "MP4 Subtitle Generator",
+    badge: "MP4",
+    badgeColor: "blue",
+    short: "Generate accurate subtitles for MP4 videos instantly using AI.",
+    tags: ["MP4", "AI", "Free"],
+  },
+  {
+    slug: "mkv-subtitle-generator",
+    icon: Captions,
+    label: "MKV Subtitle Generator",
+    badge: "MKV",
+    badgeColor: "violet",
+    short: "Auto-generate subtitles for MKV files and download as SRT or burn-in.",
+    tags: ["MKV", "SRT", "Free"],
+  },
+  {
+    slug: "mov-subtitle-generator",
+    icon: Captions,
+    label: "MOV Subtitle Generator",
+    badge: "MOV",
+    badgeColor: "emerald",
+    short: "Add subtitles to QuickTime MOV files right in your browser.",
+    tags: ["MOV", "AI", "Browser"],
+  },
+  {
+    slug: "avi-subtitle-generator",
+    icon: Captions,
+    label: "AVI Subtitle Generator",
+    badge: "AVI",
+    badgeColor: "red",
+    short: "Generate subtitles for AVI videos for free. No software needed.",
+    tags: ["AVI", "Free", "Online"],
+  },
+  {
+    slug: "webm-subtitle-generator",
+    icon: Captions,
+    label: "WebM Subtitle Generator",
+    badge: "WebM",
+    badgeColor: "indigo",
+    short: "Add AI-generated captions to WebM video files in seconds.",
+    tags: ["WebM", "AI", "Free"],
+  },
+  {
     slug: "tiktok-subtitle-generator",
     icon: Play,
     label: "TikTok Subtitle Generator",
@@ -147,7 +192,7 @@ export default function ToolsPage() {
         <div className="max-w-3xl mx-auto">
           <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold px-4 py-1.5 rounded-full mb-6">
             <Sparkles className="w-3.5 h-3.5" />
-            8 Free AI Video Tools
+            13 Free AI Video Tools
           </div>
           <h1 className="text-4xl md:text-6xl font-black font-heading mb-5 leading-[1.1]">
             Every Tool You Need to{" "}
@@ -166,7 +211,7 @@ export default function ToolsPage() {
         {/* Stats bar */}
         <div className="grid grid-cols-3 gap-4 mb-12 p-6 rounded-2xl border border-[#1e2a4a] bg-[#0d142d]/50">
           {[
-            { value: "8", label: "Free Tools" },
+          { value: "13", label: "Free Tools" },
             { value: "50+", label: "Languages Supported" },
             { value: "100%", label: "Browser-Based" },
           ].map((s) => (
@@ -233,7 +278,7 @@ export default function ToolsPage() {
             Try Everything for Free
           </h2>
           <p className="text-zinc-400 mb-8 max-w-md mx-auto text-sm leading-relaxed">
-            All 8 tools are baked into a single editor. Upload once, use everything — subtitles, silence removal, emoji overlay, translation, and more.
+          All 13 tools are baked into a single editor. Upload once, use everything — subtitles, silence removal, emoji overlay, translation, and more.
           </p>
           <Link
             href="/"
