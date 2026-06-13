@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Outfit } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 const inter = Inter({
@@ -49,7 +50,20 @@ export default function RootLayout({
         <AuthProvider>
           {children}
         </AuthProvider>
+        <Script id="crisp-widget" strategy="afterInteractive">
+          {`
+            window.$crisp=[];
+            window.CRISP_WEBSITE_ID="af36db37-5866-48e8-8831-d104b0d87abb";
+            (function(){
+              d=document;s=d.createElement("script");
+              s.src="https://client.crisp.chat/l.js";
+              s.async=1;
+              d.getElementsByTagName("head")[0].appendChild(s);
+            })();
+          `}
+        </Script>
       </body>
+
     </html>
   );
 }
