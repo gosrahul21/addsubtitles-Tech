@@ -200,12 +200,14 @@ function EditorPage() {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showOpenProjectModal, setShowOpenProjectModal] = useState(false);
+  const [userProjects, setUserProjects] = useState<any[]>([]);
+  const [isLoadingProjects, setIsLoadingProjects] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showDownloadModal, setShowDownloadModal] = useState(false);
   const [exportedVideoUrl, setExportedVideoUrl] = useState<string | null>(null);
   const [uploadLanguage, setUploadLanguage] = useState("English (US)");
-  const [subtitleFontSize, setSubtitleFontSize] = useState(24);
+  const [subtitleFontSize, setSubtitleFontSize] = useState(25);
   const [showSubtitleMoreOptions, setShowSubtitleMoreOptions] = useState(false);
   const [subtitleStyle, setSubtitleStyle] = useState({ bold: false, italic: false, allCaps: false });
 
@@ -224,7 +226,7 @@ function EditorPage() {
       shadow: 'None',
       subtitleAnim: 'Pop',
       wordAnim: 'Karaoke',
-      subtitleFontSize: 24,
+      subtitleFontSize: 25,
       maxLines: 2,
       maxWordsPerLine: "Auto",
       highlightBgColor: '#F59E0B',
@@ -239,13 +241,13 @@ function EditorPage() {
         overrides = { bgStyle: 'Fill', bgColor: '#000000', outline: 'None', shadow: 'None', subtitleStyle: { bold: true, italic: false, allCaps: false }, fontFamily: 'Inter' };
         break;
       case 'BANGERS':
-        overrides = { fontColor: '#FFFFFF', fontFamily: 'Impact', outline: 'Hard', shadow: 'Hard', subtitleStyle: { bold: true, italic: true, allCaps: true }, subtitleFontSize: 86, maxLines: 1, maxWordsPerLine: "3", wordAnim: 'Karaoke', wordColor: '#EAB308' };
+        overrides = { fontColor: '#FFFFFF', fontFamily: 'Impact', outline: 'Hard', shadow: 'Hard', subtitleStyle: { bold: true, italic: true, allCaps: true }, subtitleFontSize: 25, maxLines: 1, maxWordsPerLine: "3", wordAnim: 'Karaoke', wordColor: '#EAB308' };
         break;
       case 'STREET':
         overrides = { fontFamily: 'Impact', outline: 'Hard', shadow: 'Soft', subtitleStyle: { bold: true, italic: false, allCaps: true }, wordAnim: 'None' };
         break;
       case 'BEAST':
-        overrides = { fontColor: '#FFFFFF', fontFamily: 'Montserrat', outline: 'Hard', shadow: 'Hard', subtitleStyle: { bold: true, italic: true, allCaps: true }, subtitleFontSize: 85, wordAnim: 'Karaoke', wordColor: '#EAB308' };
+        overrides = { fontColor: '#FFFFFF', fontFamily: 'Montserrat', outline: 'Hard', shadow: 'Hard', subtitleStyle: { bold: true, italic: true, allCaps: true }, subtitleFontSize: 25, wordAnim: 'Karaoke', wordColor: '#EAB308' };
         break;
       case 'Clean':
         overrides = { fontFamily: 'Montserrat', shadow: 'None' };
@@ -257,7 +259,7 @@ function EditorPage() {
         overrides = { fontColor: '#EF4444', fontFamily: 'Montserrat', outline: 'Soft', shadow: 'Hard', subtitleStyle: { bold: true, italic: false, allCaps: true } };
         break;
       case 'BEN':
-        overrides = { fontColor: '#FFFFFF', fontFamily: 'Impact', outline: 'Hard', shadow: 'Hard', subtitleStyle: { bold: true, italic: false, allCaps: true }, subtitleFontSize: 85, wordAnim: 'Alternating' };
+        overrides = { fontColor: '#FFFFFF', fontFamily: 'Impact', outline: 'Hard', shadow: 'Hard', subtitleStyle: { bold: true, italic: false, allCaps: true }, subtitleFontSize: 25, wordAnim: 'Alternating' };
         break;
       case 'Default':
       default:
@@ -318,7 +320,7 @@ function EditorPage() {
   const [exportProgress, setExportProgress] = useState(0);
   const [silenceCuts, setSilenceCuts] = useState<SilenceInterval[]>([]);
   const [removeSilences, setRemoveSilences] = useState(false);
-
+  const { user, setUser, loading } = useAuth();
   useEffect(() => {
     const paramSub = searchParams.get('subtitles');
     if (paramSub === 'false') setSubtitlesEnabled(false);
@@ -329,6 +331,21 @@ function EditorPage() {
       setShowUploadModal(true);
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    if (showOpenProjectModal && user) {
+      setIsLoadingProjects(true);
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+      fetch(`${apiUrl}/projects`, { credentials: 'include' })
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) setUserProjects(data);
+        })
+        .catch(err => console.error("Failed to load projects", err))
+        .finally(() => setIsLoadingProjects(false));
+    }
+  }, [showOpenProjectModal, user]);
+
   const [isGeneratingHooks, setIsGeneratingHooks] = useState(false);
   const [generatedHooks, setGeneratedHooks] = useState<string[]>([]);
   const [targetLanguage, setTargetLanguage] = useState("Spanish");
@@ -376,7 +393,7 @@ function EditorPage() {
         setAudioExtractProgress(100);
       }
 
-      // 3. Upload to Cloudinary
+      // 3. Upload Audio to Cloudinary
       const sigRes = await fetch(`${apiUrl}/projects/cloudinary-signature`);
       if (!sigRes.ok) throw new Error("Failed to get upload signature");
       const { signature, timestamp, apiKey, cloudName } = await sigRes.json();
@@ -393,12 +410,39 @@ function EditorPage() {
       });
       if (!cloudinaryRes.ok) throw new Error("Cloudinary upload failed");
       const cloudinaryData = await cloudinaryRes.json();
+      const audioUrl = cloudinaryData.secure_url;
 
-      // 4. Update Backend
+      // 4. Save temp audio URL
+      await fetch(`${apiUrl}/projects/${project.id}/audio`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ audioUrl }),
+      });
+
+      // 5. Upload Original Video if user is logged in
+      let finalVideoUrl = audioUrl;
+      if (user) {
+        const videoFormData = new FormData();
+        videoFormData.append('file', videoFile, videoFile.name);
+        videoFormData.append('api_key', apiKey);
+        videoFormData.append('timestamp', timestamp);
+        videoFormData.append('signature', signature);
+
+        const vidCloudinaryRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, {
+          method: 'POST',
+          body: videoFormData,
+        });
+        if (vidCloudinaryRes.ok) {
+          const vidData = await vidCloudinaryRes.json();
+          finalVideoUrl = vidData.secure_url;
+        }
+      }
+
+      // 6. Update Backend with videoUrl and trigger processing
       const uploadRes = await fetch(`${apiUrl}/projects/${project.id}/upload`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ videoUrl: cloudinaryData.secure_url }), // video url is our audio url
+        body: JSON.stringify({ videoUrl: finalVideoUrl }), 
       });
       if (!uploadRes.ok) throw new Error("Failed to save URL to backend");
 
@@ -833,7 +877,7 @@ function EditorPage() {
     return () => clearInterval(interval);
   }, [isPlaying, totalDuration, videoSrc]);
 
-  const { user, setUser, loading } = useAuth();
+
 
   const [customPresets, setCustomPresets] = useState<Array<{ id: string; name: string; styleJson: any }>>([]);
   const [isProcessingSubtitles, setIsProcessingSubtitles] = useState(false);
@@ -3053,10 +3097,6 @@ function EditorPage() {
                         textAlign: fontAlign as any,
                         WebkitTextStroke: `${(outlineWidth / 100) * 20}px ${outlineColor}`,
                         ...(!isShadowTransparent ? { textShadow: `${Math.cos(shadowAngle * Math.PI / 180) * (shadowDistance / 100) * 30}px ${Math.sin(shadowAngle * Math.PI / 180) * (shadowDistance / 100) * 30}px ${(shadowBlur / 100) * 30}px ${shadowColor}` } : {}),
-                        WebkitLineClamp: (maxLines > 0 && maxWordsPerLine === 'Auto') ? maxLines : undefined,
-                        display: (maxLines > 0 && maxWordsPerLine === 'Auto') ? '-webkit-box' : 'block',
-                        WebkitBoxOrient: (maxLines > 0 && maxWordsPerLine === 'Auto') ? 'vertical' : undefined,
-                        overflow: (maxLines > 0 && maxWordsPerLine === 'Auto') ? 'hidden' : 'visible',
                         backgroundColor: 'transparent',
                         width: bgStyle === 'Fill' ? '100%' : 'auto',
                         transform: randomRotate ? `rotate(${(Math.round(activeSub.start * 13) % 5) - 2}deg)` : (templateStyle.transform || 'none'),
@@ -3080,10 +3120,6 @@ function EditorPage() {
                       textTransform: subtitleStyle.allCaps ? 'uppercase' : (templateStyle.textTransform || 'none'),
                       textAlign: fontAlign as any,
                       ...(isOutlineTransparent && !isShadowTransparent ? { textShadow: `${Math.cos(shadowAngle * Math.PI / 180) * (shadowDistance / 100) * 30}px ${Math.sin(shadowAngle * Math.PI / 180) * (shadowDistance / 100) * 30}px ${(shadowBlur / 100) * 30}px ${shadowColor}` } : {}),
-                        WebkitLineClamp: (maxLines > 0 && maxWordsPerLine === 'Auto') ? maxLines : undefined,
-                        display: (maxLines > 0 && maxWordsPerLine === 'Auto') ? '-webkit-box' : 'block',
-                        WebkitBoxOrient: (maxLines > 0 && maxWordsPerLine === 'Auto') ? 'vertical' : undefined,
-                        overflow: (maxLines > 0 && maxWordsPerLine === 'Auto') ? 'hidden' : 'visible',
                       backgroundColor: bgStyle === 'Fill' && !isBgTransparent ? backgroundColor : (templateStyle.backgroundColor || 'transparent'),
                       borderRadius: `${bgRadius}px`,
                       padding: bgStyle === 'Fill' && !isBgTransparent ? `${bgPaddingY}px ${bgPaddingX}px` : (templateStyle.padding || '0'),
@@ -3688,32 +3724,36 @@ function EditorPage() {
             </div>
 
             <div className="p-6 flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-[#1e2a4a]">
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {[
-                  { title: "Podcast Highlights", date: "2 days ago", duration: "0:52" },
-                  { title: "TikTok Edit #1", date: "Last week", duration: "1:15" },
-                  { title: "Product Demo Video", date: "2 weeks ago", duration: "3:45" },
-                  { title: "YouTube Intro", date: "Last month", duration: "0:20" },
-                  { title: "Client Presentation", date: "Last month", duration: "5:30" }
-                ].map((proj, idx) => (
-                  <div
-                    key={idx}
-                    className="flex flex-col bg-[#0d132d] border border-[#1e2a4a] rounded-lg overflow-hidden hover:border-amber-400/50 hover:shadow-[0_0_15px_rgba(251,191,36,0.1)] transition-all cursor-pointer group"
-                    onClick={() => setShowOpenProjectModal(false)}
-                  >
-                    <div className="h-32 bg-[#16223f] flex items-center justify-center group-hover:bg-[#1a294d] transition-colors relative">
-                      <FileVideo className="w-10 h-10 text-zinc-600 group-hover:text-amber-400/80 transition-colors" />
-                      <span className="absolute bottom-2 right-2 bg-black/70 px-1.5 py-0.5 rounded text-[10px] text-zinc-300 font-mono font-bold">
-                        {proj.duration}
-                      </span>
+              {isLoadingProjects ? (
+                <div className="flex items-center justify-center h-full text-zinc-400">Loading projects...</div>
+              ) : userProjects.length === 0 ? (
+                <div className="flex items-center justify-center h-full text-zinc-500">No projects found. Create one!</div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  {userProjects.map((proj) => (
+                    <div
+                      key={proj.id}
+                      className="flex flex-col bg-[#0d132d] border border-[#1e2a4a] rounded-lg overflow-hidden hover:border-amber-400/50 hover:shadow-[0_0_15px_rgba(251,191,36,0.1)] transition-all cursor-pointer group"
+                      onClick={() => {
+                        setShowOpenProjectModal(false);
+                        setActiveProjectId(proj.id);
+                        pollProjectStatus(proj.id);
+                      }}
+                    >
+                      <div className="h-32 bg-[#16223f] flex items-center justify-center group-hover:bg-[#1a294d] transition-colors relative">
+                        <FileVideo className="w-10 h-10 text-zinc-600 group-hover:text-amber-400/80 transition-colors" />
+                        <span className="absolute bottom-2 right-2 bg-black/70 px-1.5 py-0.5 rounded text-[10px] text-zinc-300 font-mono font-bold">
+                          {new Date(proj.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <div className="p-3 flex flex-col">
+                        <span className="text-sm font-semibold text-white truncate">{proj.name || 'Untitled Project'}</span>
+                        <span className="text-xs text-zinc-500 mt-1 capitalize">{proj.status.toLowerCase()}</span>
+                      </div>
                     </div>
-                    <div className="p-3 flex flex-col">
-                      <span className="text-sm font-semibold text-white truncate">{proj.title}</span>
-                      <span className="text-xs text-zinc-500 mt-1">{proj.date}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="flex items-center justify-end p-4 border-t border-[#1e2a4a]/50 bg-[#070b19]">

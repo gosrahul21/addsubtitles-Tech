@@ -32,16 +32,70 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   // Attempt to load the user session on mount
   useEffect(() => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-    axios.get(`${apiUrl}/users/me`, { withCredentials: true })
-      .then(res => {
+    
+    // 1. Axios Interceptor for 401s
+    const reqInterceptor = axios.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        const originalRequest = error.config;
+        if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url?.includes('/auth/refresh')) {
+          originalRequest._retry = true;
+          try {
+            await axios.post(`${apiUrl}/auth/refresh`, {}, { withCredentials: true });
+            return axios(originalRequest);
+          } catch (refreshError) {
+            setUser(null);
+            return Promise.reject(refreshError);
+          }
+        }
+        return Promise.reject(error);
+      }
+    );
+
+    // 2. Fetch Interceptor for 401s
+    const originalFetch = window.fetch;
+    window.fetch = async (...args) => {
+      let response = await originalFetch(...args);
+      const url = args[0] as string;
+      
+      if (response.status === 401 && typeof url === 'string' && url.includes(apiUrl) && !url.includes('/auth/refresh')) {
+        try {
+          await axios.post(`${apiUrl}/auth/refresh`, {}, { withCredentials: true });
+          
+          // Re-create the request if it was consumed, otherwise just re-run
+          const req = new Request(args[0], args[1]);
+          response = await originalFetch(req);
+        } catch (e) {
+          setUser(null);
+        }
+      }
+      return response;
+    };
+
+    const initializeAuth = async () => {
+      try {
+        // Proactively refresh the token on app load
+        await axios.post(`${apiUrl}/auth/refresh`, {}, { withCredentials: true });
+      } catch (err) {
+        // If refresh fails (e.g. no session), we just continue and let /users/me fail
+      }
+
+      try {
+        const res = await axios.get(`${apiUrl}/users/me`, { withCredentials: true });
         setUser(res.data);
-      })
-      .catch(() => {
+      } catch (err) {
         setUser(null);
-      })
-      .finally(() => {
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    initializeAuth();
+
+    return () => {
+      axios.interceptors.response.eject(reqInterceptor);
+      window.fetch = originalFetch;
+    };
   }, []);
 
   const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '1234567890-mock-client-id.apps.googleusercontent.com';
