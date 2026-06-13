@@ -324,7 +324,7 @@ function EditorPage() {
   useEffect(() => {
     const paramSub = searchParams.get('subtitles');
     if (paramSub === 'false') setSubtitlesEnabled(false);
-    
+
     const paramSilences = searchParams.get('removeSilences');
     if (paramSilences === 'true') {
       setRemoveSilences(true);
@@ -372,7 +372,7 @@ function EditorPage() {
       });
       if (!createRes.ok) throw new Error("Failed to create project");
       const project = await createRes.json();
-      
+
       // If they opted to enable subtitles from the sidebar, officially enable them now
       if (pendingSubtitleEnable) {
         setSubtitlesEnabled(true);
@@ -442,7 +442,7 @@ function EditorPage() {
       const uploadRes = await fetch(`${apiUrl}/projects/${project.id}/upload`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ videoUrl: finalVideoUrl }), 
+        body: JSON.stringify({ videoUrl: finalVideoUrl }),
       });
       if (!uploadRes.ok) throw new Error("Failed to save URL to backend");
 
@@ -1344,7 +1344,7 @@ function EditorPage() {
             <span className="hidden md:inline">{isExporting ? `${exportStatus} ${Math.round(exportProgress)}%` : 'Export'}</span>
             <Download className="w-4 h-4 md:hidden" />
           </button>
-          </div>
+        </div>
 
         {/* Central Logo - Desktop Only */}
         <Logo size="md" className="hidden md:flex absolute left-1/2 -translate-x-1/2" />
@@ -1512,14 +1512,12 @@ function EditorPage() {
                     }
                   }}
                   title={subtitlesEnabled || pendingSubtitleEnable ? 'Disable Subtitles' : 'Enable Subtitles'}
-                  className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 focus:outline-none ${
-                    (subtitlesEnabled || pendingSubtitleEnable) ? 'bg-amber-400' : 'bg-[#253966]'
-                  }`}
+                  className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 focus:outline-none ${(subtitlesEnabled || pendingSubtitleEnable) ? 'bg-amber-400' : 'bg-[#253966]'
+                    }`}
                 >
                   <span
-                    className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform duration-200 ${
-                      (subtitlesEnabled || pendingSubtitleEnable) ? 'translate-x-4' : 'translate-x-1'
-                    }`}
+                    className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform duration-200 ${(subtitlesEnabled || pendingSubtitleEnable) ? 'translate-x-4' : 'translate-x-1'
+                      }`}
                   />
                 </button>
                 <button className="text-zinc-400 hover:text-white transition-colors p-1.5 rounded-md hover:bg-[#16223f]">
@@ -1904,9 +1902,9 @@ function EditorPage() {
                       <div className="bg-[#16223f] px-2 py-1 rounded text-zinc-300 text-xs w-12 text-center">{shadowAngle}°</div>
                       <div className="relative flex-1 h-4 flex items-center group">
                         <div className="absolute left-0 right-0 h-1 bg-[#1e2a4a] rounded-full pointer-events-none">
-                          <div className="absolute left-0 top-0 bottom-0 bg-amber-400 rounded-full" style={{ width: `${(shadowAngle/360)*100}%` }} />
+                          <div className="absolute left-0 top-0 bottom-0 bg-amber-400 rounded-full" style={{ width: `${(shadowAngle / 360) * 100}%` }} />
                         </div>
-                        <div className="absolute w-3 h-3 bg-white rounded-full shadow-md pointer-events-none group-active:scale-110 transition-transform" style={{ left: `calc(${(shadowAngle/360)*100}% - 6px)` }} />
+                        <div className="absolute w-3 h-3 bg-white rounded-full shadow-md pointer-events-none group-active:scale-110 transition-transform" style={{ left: `calc(${(shadowAngle / 360) * 100}% - 6px)` }} />
                         <input type="range" min="0" max="360" value={shadowAngle} onChange={(e) => setShadowAngle(Number(e.target.value))} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                       </div>
                     </div>
@@ -2969,7 +2967,7 @@ function EditorPage() {
               }
 
               const wordDuration = (activeSub.end - activeSub.start) / Math.max(1, words.length);
-              
+
               let activeWordIndex = -1;
               if (activeSub.words && activeSub.words.length === words.length) {
                 // Precise word-level timings from backend
@@ -3002,13 +3000,13 @@ function EditorPage() {
               const limit = maxWordsPerLine !== 'Auto' ? parseInt(maxWordsPerLine, 10) : words.length;
               let activeChunkIdx = 0;
               if (activeWordIndex >= 0) {
-                 activeChunkIdx = Math.floor(activeWordIndex / limit);
+                activeChunkIdx = Math.floor(activeWordIndex / limit);
               }
-              
+
               let visibleChunks = chunkedWords.map((chunk, idx) => ({ chunk, originalChunkIdx: idx }));
               if (maxLines > 0 && maxWordsPerLine !== 'Auto') {
-                 const startChunkIdx = Math.floor(activeChunkIdx / maxLines) * maxLines;
-                 visibleChunks = visibleChunks.slice(startChunkIdx, startChunkIdx + maxLines);
+                const startChunkIdx = Math.floor(activeChunkIdx / maxLines) * maxLines;
+                visibleChunks = visibleChunks.slice(startChunkIdx, startChunkIdx + maxLines);
               }
 
               const renderTextChunks = (isStrokeLayer: boolean) => (
@@ -3257,7 +3255,7 @@ function EditorPage() {
               className="relative shrink-0 flex flex-col h-full"
             >
               {/* Time Ticks Header (Ruler) */}
-              <div 
+              <div
                 onMouseDown={(e) => {
                   setIsDraggingTimeline(true);
                   handleTimelineDrag(e);
@@ -3524,13 +3522,13 @@ function EditorPage() {
           </div>
 
           {/* Playback Controls */}
-          <div className="flex items-center justify-between">
+          <div className="grid grid-cols-[1fr_auto_1fr] items-center">
             {/* Left: Volume (Icon visible on Mobile, Slider hidden) */}
-            <div className="flex items-center gap-2 md:gap-3 w-auto md:w-32">
+            <div className="flex items-center gap-2 md:gap-3 justify-start">
               <button onClick={() => setIsMuted(!isMuted)} className="text-[#a0a0a0] hover:text-white transition-colors">
                 {isMuted || volume === 0 ? <VolumeX className="w-4 h-4 shrink-0" /> : <Volume2 className="w-4 h-4 shrink-0" />}
               </button>
-              <div className="hidden md:flex relative w-full h-4 items-center group cursor-pointer">
+              <div className="hidden md:flex relative w-24 lg:w-32 h-4 items-center group cursor-pointer">
                 <div className="absolute left-0 right-0 h-1 bg-[#404040] rounded-full pointer-events-none">
                   <div className="absolute left-0 top-0 bottom-0 bg-white rounded-full transition-colors" style={{ width: `${isMuted ? 0 : volume}%` }} />
                 </div>
@@ -3551,7 +3549,7 @@ function EditorPage() {
             </div>
 
             {/* Center: Playback */}
-            <div className="flex items-center gap-2 md:gap-5 shrink-0 min-w-[60px] md:min-w-0 justify-start md:justify-center">
+            <div className="flex items-center gap-2 md:gap-5 justify-center">
               <div className="flex items-center gap-1 mr-1 md:mr-3 border-r border-[#404040] pr-2 md:pr-4">
                 <button onClick={handleUndo} disabled={historyIndex <= 0} className={`p-1 rounded transition-all ${historyIndex <= 0 ? 'text-zinc-600 opacity-55 cursor-not-allowed' : 'text-zinc-400 hover:text-white'}`}>
                   <RotateCcw className="w-4 h-4" />
@@ -3572,7 +3570,7 @@ function EditorPage() {
             </div>
 
             {/* Right: Tools */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 justify-end md:pr-14">
               <div className="relative">
                 <select
                   value={playbackSpeed}
@@ -3588,9 +3586,6 @@ function EditorPage() {
                   {playbackSpeed.toFixed(1)}x
                 </button>
               </div>
-              <button className="hidden md:flex p-1.5 bg-[#2a2a2a] border border-[#404040] text-[#a0a0a0] rounded hover:text-white hover:bg-[#3a3a3a] transition-colors">
-                <Keyboard className="w-3.5 h-3.5" />
-              </button>
             </div>
           </div>
         </div>
