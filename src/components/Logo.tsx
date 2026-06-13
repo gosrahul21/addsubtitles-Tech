@@ -25,13 +25,13 @@ export default function Logo({ className = '', size = 'md' }: LogoProps) {
   };
 
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
+    <div className={`flex items-center gap-1 md:gap-2 ${className}`}>
       <div className={`bg-gradient-to-tr from-amber-400 to-amber-600 ${paddingSizes[size]} rounded-md shadow-md shadow-amber-500/10`}>
         <svg className={`${iconSizes[size]} text-[#0d142d]`} fill="currentColor" viewBox="0 0 24 24">
           <path d="M12 2L2 22h20L12 2zm0 4.8L18.4 19H5.6L12 6.8z" />
         </svg>
       </div>
-      <span className={`${textSizes[size]} font-bold tracking-tight bg-gradient-to-r from-white via-zinc-100 to-zinc-300 bg-clip-text text-transparent font-heading`}>
+      <span className={`${textSizes[size]} hidden md:block font-bold tracking-tight bg-gradient-to-r from-white via-zinc-100 to-zinc-300 bg-clip-text text-transparent font-heading`}>
         Add<span className="text-amber-400 font-semibold">Subtitles</span>
       </span>
     </div>

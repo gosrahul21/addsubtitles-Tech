@@ -206,7 +206,7 @@ function EditorPage() {
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showDownloadModal, setShowDownloadModal] = useState(false);
   const [exportedVideoUrl, setExportedVideoUrl] = useState<string | null>(null);
-  const [uploadLanguage, setUploadLanguage] = useState("English (US)");
+  const [uploadLanguage, setUploadLanguage] = useState("en-US");
   const [subtitleFontSize, setSubtitleFontSize] = useState(25);
   const [showSubtitleMoreOptions, setShowSubtitleMoreOptions] = useState(false);
   const [subtitleStyle, setSubtitleStyle] = useState({ bold: false, italic: false, allCaps: false });
@@ -1348,9 +1348,9 @@ function EditorPage() {
         <Logo size="md" className="hidden md:flex absolute left-1/2 -translate-x-1/2" />
 
         {/* User Account / SubPlus CTA */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 md:gap-3">
           {!loading && !user && (
-            <div className="relative hidden sm:block">
+            <div className="relative">
               <GoogleLogin
                 onSuccess={handleGoogleSuccess}
                 onError={() => console.error('Login Failed')}
@@ -1362,16 +1362,16 @@ function EditorPage() {
             </div>
           )}
           {!loading && user && (
-            <div className="relative hidden sm:block">
+            <div className="relative">
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-[#16223f] border border-[#253966] hover:bg-[#1f2f54] text-xs font-semibold tracking-wide text-zinc-200 transition-all"
+                className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1.5 rounded-md bg-[#16223f] border border-[#253966] hover:bg-[#1f2f54] text-xs font-semibold tracking-wide text-zinc-200 transition-all"
               >
-                <div className="w-5 h-5 bg-gradient-to-tr from-amber-400 to-amber-600 rounded-full flex items-center justify-center text-[#0d142d] font-bold shadow-md">
+                <div className="w-4 h-4 md:w-5 md:h-5 bg-gradient-to-tr from-amber-400 to-amber-600 rounded-full flex items-center justify-center text-[#0d142d] font-bold shadow-md text-[10px] md:text-xs">
                   {user.email[0].toUpperCase()}
                 </div>
-                {user.email.split('@')[0]}
-                <ChevronDown className="w-3.5 h-3.5 ml-1" />
+                <span className="hidden md:inline">{user.email.split('@')[0]}</span>
+                <ChevronDown className="w-3.5 h-3.5" />
               </button>
               {showUserMenu && (
                 <div className="absolute top-full right-0 mt-2 w-40 bg-[#0d142d] border border-[#1e2a4a] rounded-lg shadow-xl shadow-black/50 z-50 overflow-hidden flex flex-col">
@@ -1395,7 +1395,7 @@ function EditorPage() {
             </div>
           )}
           {loading && (
-            <div className="relative hidden sm:block w-24 h-8 bg-[#16223f] animate-pulse rounded-md border border-[#253966]"></div>
+            <div className="relative w-20 md:w-24 h-8 bg-[#16223f] animate-pulse rounded-md border border-[#253966]"></div>
           )}
           {user?.subscriptionTier === 'FREE' ? (
             <button onClick={() => setShowUpgradeModal(true)} className="subplus-button rounded-md py-1 px-2 shadow-md text-[10px] md:text-xs uppercase tracking-wider whitespace-nowrap">
@@ -3639,13 +3639,56 @@ function EditorPage() {
                       onChange={(e) => setUploadLanguage(e.target.value)}
                       className="w-full appearance-none bg-[#0d132d] border border-[#253966] rounded-lg px-4 py-3 text-sm text-zinc-200 outline-none focus:border-amber-400/50 transition-colors cursor-pointer font-medium"
                     >
-                      <option value="English (US)">English (US)</option>
-                      <option value="English (UK)">English (UK)</option>
-                      <option value="Spanish">Spanish</option>
-                      <option value="French">French</option>
-                      <option value="German">German</option>
-                      <option value="Hindi">Hindi</option>
-                      <option value="Auto-Detect">Auto-Detect</option>
+                      <optgroup label="── Popular ──">
+                        <option value="en-US">🇺🇸 English (US)</option>
+                        <option value="en-GB">🇬🇧 English (UK)</option>
+                        <option value="en-AU">🇦🇺 English (Australia)</option>
+                        <option value="en-IN">🇮🇳 English (India)</option>
+                        <option value="hi">🇮🇳 Hindi — हिन्दी</option>
+                        <option value="es">🇪🇸 Spanish — Español</option>
+                        <option value="es-419">🌎 Spanish (Latin Am)</option>
+                        <option value="fr">🇫🇷 French — Français</option>
+                        <option value="fr-CA">🇨🇦 French (Canada)</option>
+                        <option value="de">🇩🇪 German — Deutsch</option>
+                        <option value="it">🇮🇹 Italian — Italiano</option>
+                        <option value="pt">🇵🇹 Portuguese — Português</option>
+                        <option value="pt-BR">🇧🇷 Portuguese (Brazil)</option>
+                        <option value="ja">🇯🇵 Japanese — 日本語</option>
+                        <option value="ko">🇰🇷 Korean — 한국어</option>
+                        <option value="zh-CN">🇨🇳 Chinese (Simplified)</option>
+                        <option value="zh-TW">🇹🇼 Chinese (Traditional)</option>
+                        <option value="ar">🇸🇦 Arabic — العربية</option>
+                        <option value="ru">🇷🇺 Russian — Русский</option>
+                        <option value="tr">🇹🇷 Turkish — Türkçe</option>
+                        <option value="multi">🌐 Auto-Detect (Multi)</option>
+                      </optgroup>
+                      <optgroup label="── More Languages ──">
+                        <option value="bg">Bulgarian — Български</option>
+                        <option value="ca">Catalan — Català</option>
+                        <option value="cs">Czech — Čeština</option>
+                        <option value="da-DK">Danish — Dansk</option>
+                        <option value="nl">Dutch — Nederlands</option>
+                        <option value="et">Estonian — Eesti</option>
+                        <option value="fi">Finnish — Suomi</option>
+                        <option value="fl">Flemish — Vlaams</option>
+                        <option value="el">Greek — Ελληνικά</option>
+                        <option value="hr">Croatian — Hrvatski</option>
+                        <option value="hu">Hungarian — Magyar</option>
+                        <option value="id">Indonesian — Bahasa Indonesia</option>
+                        <option value="lv">Latvian — Latviešu</option>
+                        <option value="lt">Lithuanian — Lietuvių</option>
+                        <option value="ms">Malay — Bahasa Melayu</option>
+                        <option value="no">Norwegian — Norsk</option>
+                        <option value="pl">Polish — Polski</option>
+                        <option value="ro">Romanian — Română</option>
+                        <option value="sk">Slovak — Slovenčina</option>
+                        <option value="sl">Slovenian — Slovenščina</option>
+                        <option value="sv-SE">Swedish — Svenska</option>
+                        <option value="ta">Tamil — தமிழ்</option>
+                        <option value="th">Thai — ภาษาไทย</option>
+                        <option value="uk">Ukrainian — Українська</option>
+                        <option value="vi">Vietnamese — Tiếng Việt</option>
+                      </optgroup>
                     </select>
                     <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" />
                   </div>

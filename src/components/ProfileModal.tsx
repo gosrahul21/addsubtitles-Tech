@@ -155,16 +155,16 @@ export default function ProfileModal({ isOpen, onClose, onUpgrade, onLogout }: P
               </button>
             ))}
 
-            <div className="flex-1" />
+            <div className="flex-1 hidden md:block" />
 
             {/* Logout */}
             {onLogout && (
               <button
-                onClick={onLogout}
-                className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all text-left"
+                onClick={() => { onClose(); onLogout(); }}
+                className="flex items-center gap-2.5 px-3 py-2.5 mt-2 md:mt-0 rounded-lg text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all text-left"
               >
-                <LogOut className="w-4 h-4" />
-                Log Out
+                <LogOut className="w-4 h-4 shrink-0" />
+                <span className="hidden sm:inline">Log Out</span>
               </button>
             )}
           </aside>
