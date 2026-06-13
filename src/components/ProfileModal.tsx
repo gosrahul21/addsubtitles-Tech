@@ -120,11 +120,11 @@ export default function ProfileModal({ isOpen, onClose, onUpgrade, onLogout }: P
           </button>
         </div>
 
-        <div className="relative z-10 flex flex-1 overflow-hidden">
-          {/* Sidebar */}
-          <aside className="w-52 shrink-0 border-r border-[#1e2a4a]/70 flex flex-col p-3 gap-1">
-            {/* User info */}
-            <div className="px-3 py-3 mb-2">
+        <div className="relative z-10 flex flex-col md:flex-row flex-1 overflow-hidden">
+          {/* Sidebar / Topbar on mobile */}
+          <aside className="w-full md:w-52 shrink-0 border-b md:border-b-0 md:border-r border-[#1e2a4a]/70 flex flex-row md:flex-col p-3 gap-1 overflow-x-auto md:overflow-visible">
+            {/* User info - hidden on mobile nav to save space */}
+            <div className="hidden md:block px-3 py-3 mb-2">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 bg-gradient-to-tr from-amber-400 to-amber-600 rounded-full flex items-center justify-center text-[#0d142d] font-bold text-sm shadow-md shrink-0">
                   {user.email[0].toUpperCase()}
@@ -144,7 +144,7 @@ export default function ProfileModal({ isOpen, onClose, onUpgrade, onLogout }: P
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-left ${
+                className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-left whitespace-nowrap shrink-0 ${
                   activeTab === tab.id
                     ? 'bg-[#182747] text-white border border-[#253966]'
                     : 'text-zinc-400 hover:text-white hover:bg-[#111b34]'

@@ -1350,15 +1350,27 @@ function EditorPage() {
         {/* User Account / SubPlus CTA */}
         <div className="flex items-center gap-2 md:gap-3">
           {!loading && !user && (
-            <div className="relative">
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={() => console.error('Login Failed')}
-                theme="filled_black"
-                shape="rectangular"
-                text="signin_with"
-                size="medium"
-              />
+            <div className="relative flex items-center">
+              <div className="hidden md:block">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => console.error('Login Failed')}
+                  theme="filled_black"
+                  shape="pill"
+                  text="continue_with"
+                  size="medium"
+                />
+              </div>
+              <div className="md:hidden overflow-hidden rounded-full border border-[#253966] bg-black">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => console.error('Login Failed')}
+                  type="icon"
+                  theme="filled_black"
+                  shape="circle"
+                  size="medium"
+                />
+              </div>
             </div>
           )}
           {!loading && user && (
@@ -1490,11 +1502,11 @@ function EditorPage() {
       </aside>
 
       {/* 3. Main Video Canvas Container */}
-      <main className="col-start-1 md:col-start-2 row-start-2 bg-[#060a16] flex items-center justify-center p-4 md:p-8 relative overflow-hidden z-0 min-h-[250px]">
+      <main className="col-start-1 md:col-start-2 row-start-2 bg-[#060a16] flex items-center justify-center p-4 md:p-8 relative min-h-[250px] md:min-h-0">
 
         {/* Subtitles Overlay Panel */}
         {activeTab === "subtitles" && (
-          <div className="absolute left-0 right-0 bottom-0 top-auto h-[60%] w-full rounded-t-2xl md:rounded-none md:left-0 md:top-0 md:bottom-0 md:w-96 md:h-auto md:right-auto bg-[#090d1f]/95 backdrop-blur-xl border-t md:border-t-0 md:border-r border-[#1e2a4a]/50 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] md:shadow-[20px_0_40px_rgba(0,0,0,0.5)] z-50 flex flex-col transform transition-transform animate-in slide-in-from-bottom md:slide-in-from-left duration-300">
+          <div className="fixed left-0 right-0 bottom-[calc(64px+env(safe-area-inset-bottom))] top-auto h-[40vh] w-full rounded-t-2xl md:absolute md:rounded-none md:left-0 md:top-0 md:bottom-0 md:w-96 md:h-auto md:right-auto bg-[#090d1f]/95 backdrop-blur-xl border-t md:border-t-0 md:border-r border-[#1e2a4a]/50 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] md:shadow-[20px_0_40px_rgba(0,0,0,0.5)] z-50 flex flex-col transform transition-transform animate-in slide-in-from-bottom md:slide-in-from-left duration-300">
             <div className="flex items-center justify-between px-5 md:px-6 py-4 border-b border-[#1e2a4a]/50 shrink-0">
               <h3 className="text-sm font-bold text-white tracking-wide">Subtitles</h3>
               <div className="flex items-center gap-2">
@@ -1667,7 +1679,7 @@ function EditorPage() {
 
         {/* Font Overlay Panel */}
         {activeTab === "font" && (
-          <div className="absolute left-0 right-0 bottom-0 top-auto h-[60%] w-full rounded-t-2xl md:rounded-none md:left-0 md:top-0 md:bottom-0 md:w-96 md:h-auto md:right-auto bg-[#090d1f]/95 backdrop-blur-xl border-t md:border-t-0 md:border-r border-[#1e2a4a]/50 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] md:shadow-[20px_0_40px_rgba(0,0,0,0.5)] z-20 flex flex-col transform transition-transform animate-in slide-in-from-bottom md:slide-in-from-left duration-300">
+          <div className="fixed left-0 right-0 bottom-[calc(64px+env(safe-area-inset-bottom))] top-auto h-[40vh] w-full rounded-t-2xl md:absolute md:rounded-none md:left-0 md:top-0 md:bottom-0 md:w-96 md:h-auto md:right-auto bg-[#090d1f]/95 backdrop-blur-xl border-t md:border-t-0 md:border-r border-[#1e2a4a]/50 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] md:shadow-[20px_0_40px_rgba(0,0,0,0.5)] z-20 flex flex-col transform transition-transform animate-in slide-in-from-bottom md:slide-in-from-left duration-300">
             <div className="flex items-center justify-between px-5 md:px-6 py-4 border-b border-[#1e2a4a]/50 shrink-0">
               <h3 className="text-sm font-bold text-white tracking-wide">Font</h3>
               <button onClick={() => setActiveTab("")} className="text-zinc-500 hover:text-white transition-colors p-1 rounded-md hover:bg-[#16223f]">
@@ -1916,7 +1928,7 @@ function EditorPage() {
 
         {/* Styles Overlay Panel */}
         {activeTab === "styles" && (
-          <div className="absolute left-0 right-0 bottom-0 top-auto h-[60%] w-full rounded-t-2xl md:rounded-none md:left-0 md:top-0 md:bottom-0 md:w-96 md:h-auto md:right-auto bg-[#090d1f]/95 backdrop-blur-xl border-t md:border-t-0 md:border-r border-[#1e2a4a]/50 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] md:shadow-[20px_0_40px_rgba(0,0,0,0.5)] z-50 flex flex-col transform transition-transform animate-in slide-in-from-bottom md:slide-in-from-left duration-300">
+          <div className="fixed left-0 right-0 bottom-[calc(64px+env(safe-area-inset-bottom))] top-auto h-[40vh] w-full rounded-t-2xl md:absolute md:rounded-none md:left-0 md:top-0 md:bottom-0 md:w-96 md:h-auto md:right-auto bg-[#090d1f]/95 backdrop-blur-xl border-t md:border-t-0 md:border-r border-[#1e2a4a]/50 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] md:shadow-[20px_0_40px_rgba(0,0,0,0.5)] z-50 flex flex-col transform transition-transform animate-in slide-in-from-bottom md:slide-in-from-left duration-300">
             <div className="flex items-center justify-between px-5 md:px-6 py-4 border-b border-[#1e2a4a]/50 shrink-0">
               <h3 className="text-sm font-bold text-white tracking-wide">Styles</h3>
               <button onClick={() => setActiveTab("")} className="text-zinc-500 hover:text-white transition-colors p-1 rounded-md hover:bg-[#16223f]">
@@ -2056,7 +2068,7 @@ function EditorPage() {
 
         {/* Layout Overlay Panel */}
         {activeTab === "layout" && (
-          <div className="absolute left-0 right-0 bottom-0 top-auto h-[60%] w-full rounded-t-2xl md:rounded-none md:left-0 md:top-0 md:bottom-0 md:w-96 md:h-auto md:right-auto bg-[#090d1f]/95 backdrop-blur-xl border-t md:border-t-0 md:border-r border-[#1e2a4a]/50 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] md:shadow-[20px_0_40px_rgba(0,0,0,0.5)] z-50 flex flex-col transform transition-transform animate-in slide-in-from-bottom md:slide-in-from-left duration-300">
+          <div className="fixed left-0 right-0 bottom-[calc(64px+env(safe-area-inset-bottom))] top-auto h-[40vh] w-full rounded-t-2xl md:absolute md:rounded-none md:left-0 md:top-0 md:bottom-0 md:w-96 md:h-auto md:right-auto bg-[#090d1f]/95 backdrop-blur-xl border-t md:border-t-0 md:border-r border-[#1e2a4a]/50 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] md:shadow-[20px_0_40px_rgba(0,0,0,0.5)] z-50 flex flex-col transform transition-transform animate-in slide-in-from-bottom md:slide-in-from-left duration-300">
             <div className="flex items-center justify-between px-5 md:px-6 py-4 border-b border-[#1e2a4a]/50 shrink-0">
               <h3 className="text-sm font-bold text-white tracking-wide">Layout</h3>
               <button onClick={() => setActiveTab("")} className="text-zinc-500 hover:text-white transition-colors p-1 rounded-md hover:bg-[#16223f]">
@@ -2168,7 +2180,7 @@ function EditorPage() {
 
         {/* Background Overlay Panel */}
         {activeTab === "background" && (
-          <div className="absolute left-0 right-0 bottom-0 top-auto h-[60%] w-full rounded-t-2xl md:rounded-none md:left-0 md:top-0 md:bottom-0 md:w-96 md:h-auto md:right-auto bg-[#090d1f]/95 backdrop-blur-xl border-t md:border-t-0 md:border-r border-[#1e2a4a]/50 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] md:shadow-[20px_0_40px_rgba(0,0,0,0.5)] z-50 flex flex-col transform transition-transform animate-in slide-in-from-bottom md:slide-in-from-left duration-300">
+          <div className="fixed left-0 right-0 bottom-[calc(64px+env(safe-area-inset-bottom))] top-auto h-[40vh] w-full rounded-t-2xl md:absolute md:rounded-none md:left-0 md:top-0 md:bottom-0 md:w-96 md:h-auto md:right-auto bg-[#090d1f]/95 backdrop-blur-xl border-t md:border-t-0 md:border-r border-[#1e2a4a]/50 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] md:shadow-[20px_0_40px_rgba(0,0,0,0.5)] z-50 flex flex-col transform transition-transform animate-in slide-in-from-bottom md:slide-in-from-left duration-300">
             <div className="flex items-center justify-between px-5 md:px-6 py-4 border-b border-[#1e2a4a]/50 shrink-0">
               <h3 className="text-sm font-bold text-white tracking-wide">Background</h3>
               <button onClick={() => setActiveTab("")} className="text-zinc-500 hover:text-white transition-colors p-1 rounded-md hover:bg-[#16223f]">
@@ -2346,7 +2358,7 @@ function EditorPage() {
 
         {/* Canvas Overlay Panel */}
         {activeTab === "canvas" && (
-          <div className="absolute left-0 right-0 bottom-0 top-auto h-[60%] w-full rounded-t-2xl md:rounded-none md:left-0 md:top-0 md:bottom-0 md:w-96 md:h-auto md:right-auto bg-[#090d1f]/95 backdrop-blur-xl border-t md:border-t-0 md:border-r border-[#1e2a4a]/50 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] md:shadow-[20px_0_40px_rgba(0,0,0,0.5)] z-50 flex flex-col transform transition-transform animate-in slide-in-from-bottom md:slide-in-from-left duration-300">
+          <div className="fixed left-0 right-0 bottom-[calc(64px+env(safe-area-inset-bottom))] top-auto h-[40vh] w-full rounded-t-2xl md:absolute md:rounded-none md:left-0 md:top-0 md:bottom-0 md:w-96 md:h-auto md:right-auto bg-[#090d1f]/95 backdrop-blur-xl border-t md:border-t-0 md:border-r border-[#1e2a4a]/50 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] md:shadow-[20px_0_40px_rgba(0,0,0,0.5)] z-50 flex flex-col transform transition-transform animate-in slide-in-from-bottom md:slide-in-from-left duration-300">
             <div className="flex items-center justify-between px-5 md:px-6 py-4 border-b border-[#1e2a4a]/50 shrink-0">
               <h3 className="text-sm font-bold text-white tracking-wide">Canvas</h3>
               <button onClick={() => setActiveTab("")} className="text-zinc-500 hover:text-white transition-colors p-1 rounded-md hover:bg-[#16223f]">
@@ -2397,7 +2409,7 @@ function EditorPage() {
 
         {/* Magic Overlay Panel */}
         {activeTab === "magic" && (
-          <div className="absolute left-0 right-0 bottom-0 top-auto h-[60%] w-full rounded-t-2xl md:rounded-none md:left-0 md:top-0 md:bottom-0 md:w-96 md:h-auto md:right-auto bg-[#090d1f]/95 backdrop-blur-xl border-t md:border-t-0 md:border-r border-[#1e2a4a]/50 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] md:shadow-[20px_0_40px_rgba(0,0,0,0.5)] z-50 flex flex-col transform transition-transform animate-in slide-in-from-bottom md:slide-in-from-left duration-300">
+          <div className="fixed left-0 right-0 bottom-[calc(64px+env(safe-area-inset-bottom))] top-auto h-[40vh] w-full rounded-t-2xl md:absolute md:rounded-none md:left-0 md:top-0 md:bottom-0 md:w-96 md:h-auto md:right-auto bg-[#090d1f]/95 backdrop-blur-xl border-t md:border-t-0 md:border-r border-[#1e2a4a]/50 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] md:shadow-[20px_0_40px_rgba(0,0,0,0.5)] z-50 flex flex-col transform transition-transform animate-in slide-in-from-bottom md:slide-in-from-left duration-300">
             <div className="flex items-center justify-between px-5 md:px-6 py-4 border-b border-[#1e2a4a]/50 shrink-0">
               <h3 className="text-sm font-bold text-white tracking-wide">Magic AI Features</h3>
               <button onClick={() => setActiveTab("")} className="text-zinc-500 hover:text-white transition-colors p-1 rounded-md hover:bg-[#16223f]">
@@ -2560,7 +2572,7 @@ function EditorPage() {
 
         {/* Animation Overlay Panel */}
         {activeTab === "animate" && (
-          <div className="absolute left-0 right-0 bottom-0 top-auto h-[60%] w-full rounded-t-2xl md:rounded-none md:left-0 md:top-0 md:bottom-0 md:w-96 md:h-auto md:right-auto bg-[#090d1f]/95 backdrop-blur-xl border-t md:border-t-0 md:border-r border-[#1e2a4a]/50 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] md:shadow-[20px_0_40px_rgba(0,0,0,0.5)] z-50 flex flex-col transform transition-transform animate-in slide-in-from-bottom md:slide-in-from-left duration-300">
+          <div className="fixed left-0 right-0 bottom-[calc(64px+env(safe-area-inset-bottom))] top-auto h-[40vh] w-full rounded-t-2xl md:absolute md:rounded-none md:left-0 md:top-0 md:bottom-0 md:w-96 md:h-auto md:right-auto bg-[#090d1f]/95 backdrop-blur-xl border-t md:border-t-0 md:border-r border-[#1e2a4a]/50 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] md:shadow-[20px_0_40px_rgba(0,0,0,0.5)] z-50 flex flex-col transform transition-transform animate-in slide-in-from-bottom md:slide-in-from-left duration-300">
             <div className="flex items-center justify-between px-5 md:px-6 py-4 border-b border-[#1e2a4a]/50 shrink-0">
               <h3 className="text-sm font-bold text-white tracking-wide">Animation</h3>
               <button onClick={() => setActiveTab("")} className="text-zinc-500 hover:text-white transition-colors p-1 rounded-md hover:bg-[#16223f]">
