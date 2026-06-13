@@ -320,7 +320,7 @@ function EditorPage() {
   const [exportProgress, setExportProgress] = useState(0);
   const [silenceCuts, setSilenceCuts] = useState<SilenceInterval[]>([]);
   const [removeSilences, setRemoveSilences] = useState(false);
-  const { user, setUser, loading } = useAuth();
+  const { user, setUser, loading, logout } = useAuth();
   useEffect(() => {
     const paramSub = searchParams.get('subtitles');
     if (paramSub === 'false') setSubtitlesEnabled(false);
@@ -1149,9 +1149,7 @@ function EditorPage() {
   };
   const handleLogout = async () => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-      await axios.post(`${apiUrl}/auth/logout`, {}, { withCredentials: true });
-      setUser(null);
+      await logout();
       setShowUserMenu(false);
     } catch (err) {
       console.error("Logout failed", err);
