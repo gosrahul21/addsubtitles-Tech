@@ -1413,7 +1413,7 @@ function EditorPage() {
       </header>
 
       {/* 2. Left Side Navigation Panel (Bottom on Mobile) */}
-      <aside className="col-start-1 row-start-4 md:row-start-2 md:col-start-1 bg-[#090d1f] border-t md:border-t-0 md:border-r border-[#1e2a4a]/30 flex flex-row md:flex-col items-center justify-around md:justify-start py-2 px-1 md:px-0 md:py-2 gap-1 md:gap-1 z-10 overflow-x-auto md:overflow-x-hidden md:overflow-y-auto scrollbar-hide shrink-0 pb-safe w-full">
+      <aside className="col-start-1 row-start-4 md:row-start-2 md:col-start-1 bg-[#090d1f] border-t md:border-t-0 md:border-r border-[#1e2a4a]/30 flex flex-row md:flex-col items-center justify-start py-2 px-3 md:px-0 md:py-2 gap-1 z-10 overflow-x-auto md:overflow-x-hidden md:overflow-y-auto scrollbar-hide shrink-0 pb-safe w-full">
 
         <button
           onClick={() => setActiveTab("subtitles")}
@@ -1487,6 +1487,8 @@ function EditorPage() {
           <span className="text-[9px] md:text-[10px] font-semibold tracking-wider whitespace-nowrap">Canvas</span>
         </button>
 
+        {/* Spacer to prevent Crisp chat widget from hiding the last tab on mobile */}
+        <div className="shrink-0 w-[80px] md:hidden h-1" aria-hidden="true" />
       </aside>
 
       {/* 3. Main Video Canvas Container */}
