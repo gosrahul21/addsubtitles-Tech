@@ -6,7 +6,7 @@ import { GoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
 import { useAuth } from "@/providers/AuthProvider";
 import { SilenceInterval } from '@/lib/silenceDetection';
-import { generateHooksFromText, translateSubtitles } from '@/lib/magicServices';
+import { generateHooksFromText, translateSubtitles, generateEmojisFromSegments } from '@/lib/magicServices';
 import UpgradeModal from '@/components/UpgradeModal';
 import ProfileModal from '@/components/ProfileModal';
 import Logo from '@/components/Logo';
@@ -420,6 +420,7 @@ function EditorPage() {
   const [isTranslating, setIsTranslating] = useState(false);
   const [filterFillerWords, setFilterFillerWords] = useState(false);
   const [autoEmoji, setAutoEmoji] = useState(false);
+  const [isGeneratingEmojis, setIsGeneratingEmojis] = useState(false);
   const [pendingSubtitleEnable, setPendingSubtitleEnable] = useState(false);
 
   // Reusable upload and transcribe function
@@ -2576,12 +2577,31 @@ function EditorPage() {
               {/* Auto Emoji */}
               <div className="flex flex-col bg-[#0c1122] border border-[#1e2a4a] rounded-xl transition-all">
                 <div
-                  onClick={() => setAutoEmoji(!autoEmoji)}
+                  onClick={() => handleProFeature(async () => {
+                    const newValue = !autoEmoji;
+                    setAutoEmoji(newValue);
+                    if (newValue) {
+                      setIsGeneratingEmojis(true);
+                      const mapping = await generateEmojisFromSegments(timelineSegments);
+                      if (mapping.length > 0) {
+                        setTimelineSegments(prev => {
+                          const next = [...prev];
+                          mapping.forEach((m: any) => {
+                            if (next[m.segmentId]) {
+                              next[m.segmentId].label = `${m.emoji} ${next[m.segmentId].label}`;
+                            }
+                          });
+                          return next;
+                        });
+                      }
+                      setIsGeneratingEmojis(false);
+                    }
+                  })}
                   className="flex items-center justify-between p-4 cursor-pointer hover:bg-white/5 transition-all"
                 >
                   <div className="flex flex-col gap-1">
                     <span className="text-sm font-bold text-white flex items-center gap-2">
-                      ✨ Auto Emoji <Crown className="w-3.5 h-3.5 ml-1 text-amber-500" />
+                      ✨ Auto Emoji {isGeneratingEmojis && <Loader2 className="w-3.5 h-3.5 ml-1 animate-spin text-zinc-400" />} <Crown className="w-3.5 h-3.5 ml-1 text-amber-500" />
                     </span>
                   </div>
                   <div className={`w-10 h-5 rounded-full relative shadow-inner transition-colors ${autoEmoji ? 'bg-blue-600' : 'bg-[#16223f] border border-[#253966]'}`}>

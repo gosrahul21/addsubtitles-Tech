@@ -1,13 +1,30 @@
+import axios from 'axios';
+
 export const generateHooksFromText = async (text: string): Promise<string[]> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve([
-        "Stop Doing This IMMEDIATELY 🛑",
-        "The Secret No One Tells You 🤫",
-        "I Tested It So You Don't Have To 🚀",
-      ]);
-    }, 1500); // Simulate API latency
-  });
+  try {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    const response = await axios.post(`${apiUrl}/ai/generate-hooks`, { text }, { withCredentials: true });
+    return response.data.hooks || [];
+  } catch (error) {
+    console.error('Failed to generate hooks:', error);
+    // Fallback hooks if API fails
+    return [
+      "Stop Doing This IMMEDIATELY 🛑",
+      "The Secret No One Tells You 🤫",
+      "I Tested It So You Don't Have To 🚀",
+    ];
+  }
+};
+
+export const generateEmojisFromSegments = async (segments: any[]): Promise<any[]> => {
+  try {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    const response = await axios.post(`${apiUrl}/ai/generate-emojis`, { segments }, { withCredentials: true });
+    return response.data.emojis || [];
+  } catch (error) {
+    console.error('Failed to generate emojis:', error);
+    return [];
+  }
 };
 
 export const translateSubtitles = async (segments: any[], language: string): Promise<any[]> => {
