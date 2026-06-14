@@ -62,7 +62,11 @@ import {
   Keyboard,
   Trash,
   Plus,
-  Wand
+  Wand,
+  AlertTriangle,
+  Loader2,
+  CheckCircle,
+  Info
 } from "lucide-react";
 import { exportVideo } from '@/lib/exportVideo';
 import { HexColorPicker } from "react-colorful";
@@ -88,13 +92,33 @@ const getSubtitleStyles = (template: string) => {
       className = "tracking-tight drop-shadow-md";
       break;
     case 'Highlight':
-      className = "transform -rotate-2 shadow-lg";
+      className = "";
       break;
     case 'FIRE':
-      className = "tracking-widest";
+      className = "tracking-tight uppercase";
       break;
     case 'BEN':
       className = "tracking-tight";
+      break;
+    case 'NEON':
+      className = "tracking-wide uppercase";
+      break;
+    case 'HYPE':
+      className = "uppercase tracking-normal";
+      break;
+    case 'Simple':
+      className = "tracking-normal";
+      break;
+    case 'Corporate':
+    case 'Branded':
+      className = "tracking-tight";
+      break;
+    case 'Editorial':
+      className = "font-serif tracking-normal";
+      break;
+    case 'Pop Emoji':
+    case 'Float Emoji':
+      className = "tracking-normal";
       break;
     case 'Default':
     default:
@@ -136,6 +160,25 @@ function EditorPage() {
   const [bgColor, setBgColor] = useState("#ec4899");
   const [fontColor, setFontColor] = useState("#ffffff");
   const [activeColorPicker, setActiveColorPicker] = useState<string | null>(null);
+
+  // Generic Modal States
+  const [notification, setNotification] = useState<{ isOpen: boolean; title: string; message: string; type: 'success' | 'error' | 'info' }>({ isOpen: false, title: '', message: '', type: 'info' });
+  
+  const showNotification = (title: string, message: string, type: 'success' | 'error' | 'info' = 'info') => {
+    setNotification({ isOpen: true, title, message, type });
+  };
+
+  const [confirmDialog, setConfirmDialog] = useState<{ isOpen: boolean; title: string; message: string; onConfirm: () => void }>({ isOpen: false, title: '', message: '', onConfirm: () => {} });
+
+  const showConfirm = (title: string, message: string, onConfirm: () => void) => {
+    setConfirmDialog({ isOpen: true, title, message, onConfirm });
+  };
+
+  // Save Preset Modal State
+  const [isSavePresetModalOpen, setIsSavePresetModalOpen] = useState(false);
+  const [savePresetName, setSavePresetName] = useState("");
+  const [savePresetStatus, setSavePresetStatus] = useState<null | 'saving' | 'success' | 'error'>(null);
+  const [savePresetErrorMsg, setSavePresetErrorMsg] = useState("");
 
   // Layout State
   const [maxLines, setMaxLines] = useState(2);
@@ -255,10 +298,34 @@ function EditorPage() {
         overrides = { fontColor: '#FFFFFF', fontFamily: 'Montserrat', bgStyle: 'Wrap', bgColor: '#1A1C29', shadow: 'None', outline: 'None', subtitleStyle: { bold: true, italic: false, allCaps: false }, wordAnim: 'Highlight', highlightBgColor: '#FF6333', highlightTextColor: '#FFFFFF', wordColor: '#FFFFFF' };
         break;
       case 'FIRE':
-        overrides = { fontColor: '#EF4444', fontFamily: 'Montserrat', outline: 'Soft', shadow: 'Hard', subtitleStyle: { bold: true, italic: false, allCaps: true } };
+        overrides = { fontColor: '#FFFFFF', fontFamily: 'Oswald', outline: 'Hard', shadow: 'Hard', subtitleStyle: { bold: false, italic: false, allCaps: true }, wordAnim: 'Karaoke', wordColor: '#FF0000' };
         break;
       case 'BEN':
         overrides = { fontColor: '#FFFFFF', fontFamily: 'Impact', outline: 'Hard', shadow: 'Hard', subtitleStyle: { bold: true, italic: false, allCaps: true }, subtitleFontSize: 25, wordAnim: 'Alternating' };
+        break;
+      case 'NEON':
+        overrides = { fontColor: '#00FFCC', fontFamily: 'Montserrat', outline: 'None', shadow: 'Neon', subtitleStyle: { bold: true, italic: false, allCaps: true }, wordAnim: 'Karaoke', wordColor: '#FFFFFF' };
+        break;
+      case 'HYPE':
+        overrides = { fontColor: '#FFFFFF', fontFamily: 'Lilita One', bgStyle: 'Wrap', bgColor: 'transparent', shadow: 'Soft', outline: 'Thick', subtitleStyle: { bold: false, italic: false, allCaps: true }, wordAnim: 'Highlight', highlightBgColor: '#FF2A5F', highlightTextColor: '#FFFFFF', wordColor: '#FFFFFF' };
+        break;
+      case 'Simple':
+        overrides = { fontColor: '#FFFFFF', fontFamily: 'Inter', bgStyle: 'None', outline: 'None', shadow: 'Soft', subtitleStyle: { bold: true, italic: false, allCaps: false }, wordAnim: 'None' };
+        break;
+      case 'Corporate':
+        overrides = { fontColor: '#FFFFFF', fontFamily: 'Inter', bgStyle: 'Fill', bgColor: '#2563EB', outline: 'None', shadow: 'None', subtitleStyle: { bold: true, italic: false, allCaps: false }, wordAnim: 'None' };
+        break;
+      case 'Branded':
+        overrides = { fontColor: '#3B82F6', fontFamily: 'Montserrat', bgStyle: 'Fill', bgColor: '#FFFFFF', outline: 'None', shadow: 'Soft', subtitleStyle: { bold: true, italic: false, allCaps: false }, wordAnim: 'Highlight', highlightBgColor: '#DBEAFE', highlightTextColor: '#1D4ED8' };
+        break;
+      case 'Editorial':
+        overrides = { fontColor: '#000000', fontFamily: 'Inter', bgStyle: 'Fill', bgColor: '#C2F05A', outline: 'None', shadow: 'None', subtitleStyle: { bold: true, italic: false, allCaps: false }, wordAnim: 'Highlight', highlightBgColor: '#000000', highlightTextColor: '#C2F05A' };
+        break;
+      case 'Pop Emoji':
+        overrides = { fontColor: '#FFFFFF', fontFamily: 'Montserrat', bgStyle: 'None', outline: 'Hard', shadow: 'Hard', subtitleStyle: { bold: true, italic: false, allCaps: false }, wordAnim: 'Karaoke', wordColor: '#FFCC00' };
+        break;
+      case 'Float Emoji':
+        overrides = { fontColor: '#FFD700', fontFamily: 'Montserrat', bgStyle: 'None', outline: 'None', shadow: 'Soft', subtitleStyle: { bold: true, italic: false, allCaps: false }, wordAnim: 'Highlight', highlightBgColor: '#000000', highlightTextColor: '#FFD700' };
         break;
       case 'Default':
       default:
@@ -287,6 +354,8 @@ function EditorPage() {
       setIsShadowTransparent(false); setShadowDistance(6); setShadowBlur(0); setShadowAngle(135); setShadowColor('#000000');
     } else if (finalStyle.shadow === 'Soft') {
       setIsShadowTransparent(false); setShadowDistance(3); setShadowBlur(6); setShadowAngle(135); setShadowColor('#000000');
+    } else if (finalStyle.shadow === 'Neon') {
+      setIsShadowTransparent(false); setShadowDistance(0); setShadowBlur(15); setShadowAngle(0); setShadowColor('#00FFCC');
     } else {
       setIsShadowTransparent(true);
     }
@@ -452,7 +521,7 @@ function EditorPage() {
       pollProjectStatus(project.id);
     } catch (err) {
       console.error("Failed to create project", err);
-      alert("Failed to process video");
+      showNotification("Error", "Failed to process video", "error");
     } finally {
       setIsExtractingAudio(false);
     }
@@ -991,7 +1060,8 @@ function EditorPage() {
     return () => video.removeEventListener('timeupdate', handleTimeUpdate);
   }, [removeSilences, silenceCuts]);
 
-  const applyPresetStyle = (style: any) => {
+  const applyPresetStyle = (style: any, presetName?: string) => {
+    if (presetName) setActiveTemplate(presetName);
     if (style.fontColor) setFontColor(style.fontColor);
     if (style.fontFamily) setFontFamily(style.fontFamily);
     if (style.subtitleStyle) setSubtitleStyle(style.subtitleStyle);
@@ -1029,63 +1099,73 @@ function EditorPage() {
     if (style.subtitleBounds) setSubtitleBounds(style.subtitleBounds);
   };
 
-  const handleSavePreset = () => {
-    handleProFeature(async () => {
-      const name = prompt("Enter a name for your custom style preset:");
-      if (!name) return;
-
-      const styleJson = {
-        fontColor,
-        fontFamily,
-        subtitleStyle,
-        bgStyle,
-        bgColor,
-        bgOpacity,
-        isBgTransparent,
-        bgRadius,
-        bgPaddingX,
-        bgPaddingY,
-        outlineColor,
-        outlineWidth,
-        isOutlineTransparent,
-        shadowColor,
-        shadowDistance,
-        shadowBlur,
-        shadowAngle,
-        isShadowTransparent,
-        subtitleAnim,
-        wordAnim,
-        wordColor,
-        isWordColorTransparent,
-        highlightBgColor,
-        highlightTextColor,
-        isHighlightBgTransparent,
-        isHighlightTextTransparent,
-        subtitleFontSize,
-        maxLines,
-        lineSpacing,
-        fontAlign,
-        subtitleBounds,
-      };
-
-      try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-        const response = await axios.post(`${apiUrl}/presets`, {
-          name,
-          styleJson,
-        }, {
-          withCredentials: true,
-        });
-
-        if (response.status === 201 || response.status === 200) {
-          alert(`Style preset "${name}" saved successfully!`);
-          loadCustomPresets();
-        }
-      } catch (err) {
-        console.error("Failed to save style preset:", err);
-        alert("Failed to save style preset. Ensure you are logged in.");
-      }
+  const handleSavePresetClick = () => {
+    handleProFeature(() => {
+      setSavePresetName("");
+      setSavePresetStatus(null);
+      setIsSavePresetModalOpen(true);
     });
+  };
+
+  const confirmSavePreset = async () => {
+    if (!savePresetName.trim()) return;
+    setSavePresetStatus('saving');
+
+    const styleJson = {
+      fontColor,
+      fontFamily,
+      subtitleStyle,
+      bgStyle,
+      bgColor,
+      bgOpacity,
+      isBgTransparent,
+      bgRadius,
+      bgPaddingX,
+      bgPaddingY,
+      outlineColor,
+      outlineWidth,
+      isOutlineTransparent,
+      shadowColor,
+      shadowDistance,
+      shadowBlur,
+      shadowAngle,
+      isShadowTransparent,
+      subtitleAnim,
+      wordAnim,
+      wordColor,
+      isWordColorTransparent,
+      highlightBgColor,
+      highlightTextColor,
+      isHighlightBgTransparent,
+      isHighlightTextTransparent,
+      subtitleFontSize,
+      maxLines,
+      lineSpacing,
+      fontAlign,
+      subtitleBounds,
+    };
+
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+      const response = await axios.post(`${apiUrl}/presets`, {
+        name: savePresetName,
+        styleJson,
+      }, {
+        withCredentials: true,
+      });
+
+      if (response.status === 201 || response.status === 200) {
+        setSavePresetStatus('success');
+        loadCustomPresets();
+        setTimeout(() => {
+          setIsSavePresetModalOpen(false);
+        }, 1500);
+      }
+    } catch (err: any) {
+      console.error("Failed to save style preset:", err);
+      setSavePresetStatus('error');
+      setSavePresetErrorMsg(err.response?.data?.message || "Ensure you are logged in.");
+    }
   };
 
   const pollProjectStatus = (projectId: string) => {
@@ -1110,12 +1190,12 @@ function EditorPage() {
             setTimelineSegments(segments);
             setHistory([JSON.parse(JSON.stringify(segments))]);
             setHistoryIndex(0);
-            alert("Subtitles generated successfully! 🎉");
+            showNotification("Success", "Subtitles generated successfully! 🎉", "success");
           }
         } else if (project.status === 'FAILED') {
           clearInterval(interval);
           setIsProcessingSubtitles(false);
-          alert("Failed to transcribe audio. Please try again.");
+          showNotification("Error", "Failed to transcribe audio. Please try again.", "error");
         }
       } catch (err) {
         console.error("Error polling project status:", err);
@@ -1330,7 +1410,7 @@ function EditorPage() {
                 setShowDownloadModal(true);
               } catch (e) {
                 console.error(e);
-                alert("Export failed. See console for details.");
+                showNotification("Error", "Export failed. See console for details.", "error");
               }
               setIsExporting(false);
               setExportStatus("");
@@ -1545,7 +1625,7 @@ function EditorPage() {
                 setEditingSubtitleIndex(null);
               }}
             >
-              <button onClick={() => handleProFeature(() => alert('Translation started...'))} className="w-full flex items-center justify-center gap-2 py-2.5 md:py-3 mb-6 bg-[#16223f] hover:bg-[#1a294d] border border-[#253966] rounded-xl text-[13px] md:text-sm font-semibold text-zinc-300 transition-all shadow-md group active:scale-95">
+              <button onClick={() => handleProFeature(() => showNotification("Translating", "Translation started...", "info"))} className="w-full flex items-center justify-center gap-2 py-2.5 md:py-3 mb-6 bg-[#16223f] hover:bg-[#1a294d] border border-[#253966] rounded-xl text-[13px] md:text-sm font-semibold text-zinc-300 transition-all shadow-md group active:scale-95">
                 <Languages className="w-4 h-4 group-hover:text-amber-400 transition-all" />
                 Translate / Auto-sync <Crown className="w-3 h-3 ml-1 text-amber-500" />
               </button>
@@ -1701,6 +1781,9 @@ function EditorPage() {
                     <option value="Inter">Inter</option>
                     <option value="Roboto">Roboto</option>
                     <option value="Bebas Neue">Bebas Neue</option>
+                    <option value="Lilita One">Lilita One</option>
+                    <option value="Oswald">Oswald</option>
+                    <option value="Impact">Impact</option>
                   </select>
                 </div>
                 <button className="flex items-center gap-1.5 px-3 py-2.5 bg-[#16223f] hover:bg-[#1a294d] border border-[#253966] rounded-lg text-xs font-semibold text-zinc-300 transition-all shrink-0">
@@ -1936,7 +2019,7 @@ function EditorPage() {
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 md:p-6 scrollbar-thin scrollbar-thumb-[#1e2a4a]">
-              <button onClick={handleSavePreset} className="w-full flex items-center justify-center gap-2 py-2.5 md:py-3 mb-5 md:mb-6 bg-[#16223f] hover:bg-[#1a294d] border border-[#253966] rounded-xl text-[13px] md:text-sm font-semibold text-amber-400 transition-all shadow-md group active:scale-95">
+              <button onClick={handleSavePresetClick} className="w-full flex items-center justify-center gap-2 py-2.5 md:py-3 mb-5 md:mb-6 bg-[#16223f] hover:bg-[#1a294d] border border-[#253966] rounded-xl text-[13px] md:text-sm font-semibold text-amber-400 transition-all shadow-md group active:scale-95">
                 <Bookmark className="w-4 h-4 group-hover:fill-amber-400/20 transition-all" />
                 Save Style <Crown className="w-3.5 h-3.5 ml-0.5 text-amber-500" />
               </button>
@@ -1963,7 +2046,9 @@ function EditorPage() {
                     { name: 'Clean', type: 'clean', element: <span className="text-white font-medium text-lg tracking-tight z-10 transition-transform group-hover:scale-105 pointer-events-none">Clean</span> },
                     { name: 'Highlight', type: 'highlight', element: <span className="bg-amber-500 text-[#0d142d] px-2.5 py-0.5 font-bold text-sm transform -rotate-2 z-10 shadow-lg transition-transform group-hover:scale-110 group-hover:-rotate-3 pointer-events-none">Highlight</span> },
                     { name: 'FIRE', type: 'fire', element: <span className="text-red-500 font-black text-xl uppercase tracking-widest z-10 transition-transform group-hover:scale-105 pointer-events-none" style={{ WebkitTextStroke: '1px #450a0a' }}>FIRE</span> },
-                    { name: 'BEN', type: 'ben', element: <span className="text-white font-black text-2xl uppercase tracking-tight z-10 transition-transform group-hover:scale-105 pointer-events-none" style={{ WebkitTextStroke: '2px black', textShadow: '3px 3px 0px black' }}>BEN</span> }
+                    { name: 'BEN', type: 'ben', element: <span className="text-white font-black text-2xl uppercase tracking-tight z-10 transition-transform group-hover:scale-105 pointer-events-none" style={{ WebkitTextStroke: '2px black', textShadow: '3px 3px 0px black' }}>BEN</span> },
+                    { name: 'NEON', type: 'neon', element: <span className="text-[#00FFCC] font-bold text-xl uppercase tracking-widest z-10 transition-transform group-hover:scale-105 pointer-events-none drop-shadow-[0_0_8px_rgba(0,255,204,0.8)]">NEON</span> },
+                    { name: 'HYPE', type: 'hype', element: <span className="bg-[#FF2A5F] text-white px-2 py-0.5 font-bold text-xl uppercase tracking-normal z-10 transition-transform group-hover:scale-105 pointer-events-none rounded-md" style={{ WebkitTextStroke: '1.5px black', fontFamily: '"Lilita One", sans-serif' }}>HYPE</span> }
                   ].map((tpl, i) => {
                     const isActive = activeTemplate === tpl.name;
                     return (
@@ -1990,30 +2075,47 @@ function EditorPage() {
 
               {activeStyleFilter === 'Business' && (
                 <div className="grid grid-cols-2 gap-3 md:gap-4 pb-4">
-                  {/* Simple */}
-                  <div className="aspect-[4/3] rounded-xl border border-[#1e2a4a] hover:border-amber-400 bg-[#16223f]/20 transition-all cursor-pointer flex items-center justify-center group relative">
-                    <span className="text-white font-bold text-lg tracking-tight z-10 transition-transform group-hover:scale-105">Simple</span>
-                  </div>
-                  {/* Classic */}
-                  <div className="aspect-[4/3] rounded-xl border border-[#1e2a4a] hover:border-amber-400 bg-[#0c1122] transition-all cursor-pointer flex items-center justify-center overflow-hidden shadow-inner relative group">
-                    <span className="px-3 py-1 bg-black/80 rounded-md text-white font-sans font-bold text-sm shadow-md z-10 transition-transform group-hover:scale-105">Classic</span>
-                  </div>
-                  {/* Clean */}
-                  <div className="aspect-[4/3] rounded-xl border border-[#1e2a4a] hover:border-amber-400 bg-[#0c1122]/50 transition-all cursor-pointer flex items-center justify-center group relative">
-                    <span className="text-white font-black text-lg tracking-wide z-10 transition-transform group-hover:scale-105">Clean</span>
-                  </div>
-                  {/* Corporate */}
-                  <div className="aspect-[4/3] rounded-xl border border-[#1e2a4a] hover:border-amber-400 bg-[#09112a] transition-all cursor-pointer flex items-center justify-center group relative overflow-hidden">
-                    <span className="bg-blue-600 text-white px-2 py-0.5 rounded font-bold text-sm shadow-lg z-10 transition-transform group-hover:scale-105">Corporate</span>
-                  </div>
-                  {/* Branded */}
-                  <div className="aspect-[4/3] rounded-xl border border-[#1e2a4a] hover:border-amber-400 bg-[#16223f]/20 transition-all cursor-pointer flex items-center justify-center group relative">
-                    <span className="text-blue-500 bg-white px-2 py-0.5 rounded font-bold text-sm shadow-md z-10 transition-transform group-hover:scale-105 border border-blue-500/20">Branded</span>
-                  </div>
-                  {/* Editorial */}
-                  <div className="aspect-[4/3] rounded-xl border border-[#1e2a4a] hover:border-amber-400 bg-[#16223f]/20 transition-all cursor-pointer flex items-center justify-center group relative overflow-hidden">
-                    <span className="bg-[#c2f05a] text-black px-2 py-0.5 font-serif font-bold text-sm shadow-md z-10 transition-transform group-hover:scale-105 border border-black/10">Editorial</span>
-                  </div>
+                  {[
+                    { name: 'Simple', type: 'simple', element: <span className="text-white font-bold text-lg tracking-tight z-10 transition-transform group-hover:scale-105 pointer-events-none">Simple</span> },
+                    { name: 'Classic', type: 'classic', element: <span className="px-3 py-1 bg-black/80 rounded-md text-white font-sans font-bold text-sm shadow-md z-10 transition-transform group-hover:scale-105 pointer-events-none">Classic</span> },
+                    { name: 'Clean', type: 'clean', element: <span className="text-white font-black text-lg tracking-wide z-10 transition-transform group-hover:scale-105 pointer-events-none">Clean</span> },
+                    { name: 'Corporate', type: 'corporate', element: <span className="bg-blue-600 text-white px-2 py-0.5 rounded font-bold text-sm shadow-lg z-10 transition-transform group-hover:scale-105 pointer-events-none">Corporate</span> },
+                    { name: 'Branded', type: 'branded', element: <span className="text-blue-500 bg-white px-2 py-0.5 rounded font-bold text-sm shadow-md z-10 transition-transform group-hover:scale-105 pointer-events-none border border-blue-500/20">Branded</span> },
+                    { name: 'Editorial', type: 'editorial', element: <span className="bg-[#c2f05a] text-black px-2 py-0.5 font-serif font-bold text-sm shadow-md z-10 transition-transform group-hover:scale-105 pointer-events-none border border-black/10">Editorial</span> }
+                  ].map((tpl, i) => {
+                    const isActive = activeTemplate === tpl.name;
+                    return (
+                      <div
+                        key={i}
+                        onClick={() => handleTemplateSelect(tpl.name)}
+                        className={`aspect-[4/3] rounded-xl transition-all cursor-pointer flex items-center justify-center overflow-hidden relative group ${isActive ? 'bg-[#182747] border-2 border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.15)]' : 'bg-[#0c1122] border border-[#1e2a4a] hover:border-amber-400'}`}
+                      >
+                         <div className="absolute inset-0 bg-[#16223f]/20 pointer-events-none" />
+                         {tpl.element}
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+
+              {activeStyleFilter === 'Emoji' && (
+                <div className="grid grid-cols-2 gap-3 md:gap-4 pb-4">
+                  {[
+                    { name: 'Pop Emoji', type: 'pop_emoji', element: <span className="text-white font-bold text-lg tracking-tight z-10 transition-transform group-hover:scale-105 pointer-events-none">😃 Pop</span> },
+                    { name: 'Float Emoji', type: 'float_emoji', element: <span className="text-[#FFD700] font-bold text-lg tracking-tight z-10 transition-transform group-hover:scale-105 pointer-events-none">✨ Float</span> }
+                  ].map((tpl, i) => {
+                    const isActive = activeTemplate === tpl.name;
+                    return (
+                      <div
+                        key={i}
+                        onClick={() => handleTemplateSelect(tpl.name)}
+                        className={`aspect-[4/3] rounded-xl transition-all cursor-pointer flex items-center justify-center overflow-hidden relative group ${isActive ? 'bg-[#182747] border-2 border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.15)]' : 'bg-[#0c1122] border border-[#1e2a4a] hover:border-amber-400'}`}
+                      >
+                         <div className="absolute inset-0 bg-[#16223f]/20 pointer-events-none" />
+                         {tpl.element}
+                      </div>
+                    )
+                  })}
                 </div>
               )}
 
@@ -2024,11 +2126,13 @@ function EditorPage() {
                       No custom presets saved yet.<br />Click "Save Style" above to save one.
                     </div>
                   ) : (
-                    customPresets.map((preset) => (
+                    customPresets.map((preset) => {
+                      const isActive = activeTemplate === preset.name;
+                      return (
                       <div
                         key={preset.id}
-                        onClick={() => applyPresetStyle(preset.styleJson)}
-                        className="flex items-center justify-between p-3 rounded-xl border border-[#1e2a4a] hover:border-amber-400/50 bg-[#0c1122]/50 hover:bg-[#16223f]/30 transition-all cursor-pointer group/item"
+                        onClick={() => applyPresetStyle(preset.styleJson, preset.name)}
+                        className={`flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer group/item ${isActive ? 'bg-[#182747] border-2 border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.15)]' : 'border-[#1e2a4a] hover:border-amber-400/50 bg-[#0c1122]/50 hover:bg-[#16223f]/30'}`}
                       >
                         <div className="flex flex-col gap-0.5">
                           <span className="text-xs font-semibold text-zinc-200">{preset.name}</span>
@@ -2039,7 +2143,7 @@ function EditorPage() {
                         <button
                           onClick={async (e) => {
                             e.stopPropagation();
-                            if (confirm(`Are you sure you want to delete the preset "${preset.name}"?`)) {
+                            showConfirm("Delete Preset", `Are you sure you want to delete the preset "${preset.name}"?`, async () => {
                               try {
                                 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
                                 await axios.delete(`${apiUrl}/presets/${preset.id}`, {
@@ -2048,8 +2152,9 @@ function EditorPage() {
                                 loadCustomPresets();
                               } catch (err) {
                                 console.error("Failed to delete preset:", err);
+                                showNotification("Error", "Failed to delete preset.", "error");
                               }
-                            }
+                            });
                           }}
                           className="opacity-0 group-hover/item:opacity-100 p-1.5 text-zinc-500 hover:text-red-500 rounded transition-opacity hover:bg-red-500/10"
                           title="Delete Preset"
@@ -2057,7 +2162,7 @@ function EditorPage() {
                           <Trash className="w-3.5 h-3.5" />
                         </button>
                       </div>
-                    ))
+                    )})
                   )}
                 </div>
               )}
@@ -3919,6 +4024,123 @@ function EditorPage() {
           </div>
         </div>
       )}
+
+      {/* Save Preset Modal */}
+      {isSavePresetModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200 p-4">
+          <div className="bg-[#0c1122] border border-[#1e2a4a] rounded-2xl p-6 w-full max-w-sm shadow-2xl flex flex-col gap-5 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-white">Save Custom Style</h3>
+              <button 
+                onClick={() => setIsSavePresetModalOpen(false)}
+                className="text-zinc-500 hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-zinc-300">Preset Name</label>
+              <input 
+                type="text" 
+                value={savePresetName}
+                onChange={(e) => setSavePresetName(e.target.value)}
+                placeholder="e.g. My Viral Style"
+                className="w-full bg-[#16223f] border border-[#253966] rounded-lg px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-amber-400 transition-all"
+                autoFocus
+              />
+            </div>
+
+            {savePresetStatus === 'error' && (
+              <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 text-red-400 mt-0.5 shrink-0" />
+                <p className="text-xs text-red-400">Failed to save preset: {savePresetErrorMsg}</p>
+              </div>
+            )}
+
+            {savePresetStatus === 'success' && (
+              <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3 flex items-center justify-center gap-2">
+                <p className="text-sm font-medium text-green-400">Style preset saved successfully!</p>
+              </div>
+            )}
+
+            <div className="flex justify-end gap-3 mt-2">
+              <button 
+                onClick={() => setIsSavePresetModalOpen(false)}
+                className="px-4 py-2 text-sm font-medium text-zinc-400 hover:text-white transition-colors"
+                disabled={savePresetStatus === 'saving'}
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={confirmSavePreset}
+                disabled={!savePresetName.trim() || savePresetStatus === 'saving' || savePresetStatus === 'success'}
+                className="px-5 py-2.5 bg-amber-400 hover:bg-amber-500 text-[#0d142d] font-bold text-sm rounded-lg transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[80px]"
+              >
+                {savePresetStatus === 'saving' ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  'Save'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Generic Notification Modal */}
+      {notification.isOpen && (
+        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200 p-4">
+          <div className="bg-[#0c1122] border border-[#1e2a4a] rounded-2xl p-6 w-full max-w-sm shadow-2xl flex flex-col gap-4 animate-in zoom-in-95 duration-200">
+            <div className="flex items-start gap-4">
+              {notification.type === 'success' && <CheckCircle className="w-6 h-6 text-green-400 shrink-0 mt-0.5" />}
+              {notification.type === 'error' && <AlertTriangle className="w-6 h-6 text-red-400 shrink-0 mt-0.5" />}
+              {notification.type === 'info' && <Info className="w-6 h-6 text-blue-400 shrink-0 mt-0.5" />}
+              
+              <div className="flex-1">
+                <h3 className="text-lg font-bold text-white mb-1">{notification.title}</h3>
+                <p className="text-sm text-zinc-400">{notification.message}</p>
+              </div>
+            </div>
+            <div className="flex justify-end mt-2">
+              <button 
+                onClick={() => setNotification({ ...notification, isOpen: false })}
+                className="px-5 py-2 bg-[#16223f] hover:bg-[#1f2f54] text-white font-medium text-sm rounded-lg transition-all border border-[#253966]"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Generic Confirm Modal */}
+      {confirmDialog.isOpen && (
+        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200 p-4">
+          <div className="bg-[#0c1122] border border-[#1e2a4a] rounded-2xl p-6 w-full max-w-sm shadow-2xl flex flex-col gap-4 animate-in zoom-in-95 duration-200">
+            <h3 className="text-lg font-bold text-white">{confirmDialog.title}</h3>
+            <p className="text-sm text-zinc-400">{confirmDialog.message}</p>
+            <div className="flex justify-end gap-3 mt-4">
+              <button 
+                onClick={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
+                className="px-4 py-2 text-sm font-medium text-zinc-400 hover:text-white transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => {
+                  setConfirmDialog({ ...confirmDialog, isOpen: false });
+                  confirmDialog.onConfirm();
+                }}
+                className="px-5 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 font-bold text-sm rounded-lg transition-all border border-red-500/20"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
