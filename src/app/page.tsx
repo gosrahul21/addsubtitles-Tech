@@ -206,7 +206,7 @@ function EditorPage() {
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showDownloadModal, setShowDownloadModal] = useState(false);
   const [exportedVideoUrl, setExportedVideoUrl] = useState<string | null>(null);
-  const [uploadLanguage, setUploadLanguage] = useState("en-US");
+  const [uploadLanguage, setUploadLanguage] = useState("multi");
   const [subtitleFontSize, setSubtitleFontSize] = useState(25);
   const [showSubtitleMoreOptions, setShowSubtitleMoreOptions] = useState(false);
   const [subtitleStyle, setSubtitleStyle] = useState({ bold: false, italic: false, allCaps: false });
