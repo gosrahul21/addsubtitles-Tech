@@ -5,7 +5,6 @@ import { useSearchParams } from "next/navigation";
 import { GoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
 import { useAuth } from "@/providers/AuthProvider";
-import { extractAudioToWav } from '@/lib/audioExtractor';
 import { SilenceInterval } from '@/lib/silenceDetection';
 import { generateHooksFromText, translateSubtitles } from '@/lib/magicServices';
 import UpgradeModal from '@/components/UpgradeModal';
