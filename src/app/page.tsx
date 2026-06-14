@@ -70,6 +70,8 @@ import {
 } from "lucide-react";
 import { exportVideo } from '@/lib/exportVideo';
 import { HexColorPicker } from "react-colorful";
+import { cloudinaryVideoUpload } from "@/services/cloudinaryVideoUpload";
+import uploadVideo from "@/services/uploadVideo";
 
 const getSubtitleStyles = (template: string) => {
   let className = "";
@@ -488,38 +490,18 @@ function EditorPage() {
         body: JSON.stringify({ audioUrl }),
       });
 
-      // 5. Upload Original Video if user is logged in
-      let finalVideoUrl = audioUrl;
-      if (user) {
-        const videoFormData = new FormData();
-        videoFormData.append('file', videoFile, videoFile.name);
-        videoFormData.append('api_key', apiKey);
-        videoFormData.append('timestamp', timestamp);
-        videoFormData.append('signature', signature);
-
-        const vidCloudinaryRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, {
-          method: 'POST',
-          body: videoFormData,
-        });
-        if (vidCloudinaryRes.ok) {
-          const vidData = await vidCloudinaryRes.json();
-          finalVideoUrl = vidData.secure_url;
-        }
-      }
-
-      // 6. Update Backend with videoUrl and trigger processing
-      const uploadRes = await fetch(`${apiUrl}/projects/${project.id}/upload`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ videoUrl: finalVideoUrl }),
-      });
-      if (!uploadRes.ok) throw new Error("Failed to save URL to backend");
-
       // 4. Update UI State
       setIsProcessingSubtitles(true);
       setActiveProjectId(project.id);
       setShowUploadModal(false);
       pollProjectStatus(project.id);
+
+
+      // 5. Upload Original Video if user is logged in
+      if (user) {
+        const finalVideoUrl = await cloudinaryVideoUpload(videoFile, videoFile.name, cloudName, apiKey, timestamp, signature);
+        await uploadVideo(apiUrl, project.id, finalVideoUrl)  
+      }
     } catch (err) {
       console.error("Failed to create project", err);
       showNotification("Error", "Failed to process video", "error");
