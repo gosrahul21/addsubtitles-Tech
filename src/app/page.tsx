@@ -1401,10 +1401,29 @@ function EditorPage() {
             }}
             className={`flex items-center gap-1.5 px-2.5 md:px-4 py-1.5 rounded-md ${isExporting ? 'bg-amber-500 text-[#0d142d]' : 'bg-[#16223f] text-[#ccd6e8] hover:bg-[#1f2f54] hover:text-white'} border border-[#253966] text-sm transition-all font-medium whitespace-nowrap overflow-hidden`}
           >
-            <span className="hidden md:inline">{isExporting ? `${exportStatus} ${Math.round(exportProgress)}%` : 'Export'}</span>
-            <Download className="w-4 h-4 md:hidden" />
+            {isExporting ? (
+              <span className="text-xs md:text-sm font-bold">{exportStatus} {Math.round(exportProgress)}%</span>
+            ) : (
+              <>
+                <span className="hidden md:inline">Export</span>
+                <Download className="w-4 h-4 md:hidden" />
+              </>
+            )}
           </button>
         </div>
+
+        {/* Subtitles Processing Global Loader */}
+        {isProcessingSubtitles && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-300">
+            <div className="flex flex-col items-center justify-center gap-4 bg-[#0d132d] p-8 rounded-2xl border border-[#1e2a4a] shadow-2xl">
+              <div className="w-12 h-12 border-4 border-amber-400 border-t-transparent rounded-full animate-spin shadow-[0_0_15px_rgba(251,191,36,0.5)]" />
+              <h3 className="text-lg md:text-xl font-bold text-white tracking-wide mt-2">Processing Video...</h3>
+              <p className="text-xs md:text-sm text-zinc-400 text-center max-w-xs">
+                Analyzing audio, generating subtitles, and synchronizing timestamps. Please wait a moment.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Central Logo - Desktop Only */}
         <Logo size="md" className="hidden md:flex absolute left-1/2 -translate-x-1/2" />
@@ -1612,17 +1631,6 @@ function EditorPage() {
                 <Languages className="w-4 h-4 group-hover:text-amber-400 transition-all" />
                 Translate / Auto-sync <Crown className="w-3 h-3 ml-1 text-amber-500" />
               </button>
-
-              {isProcessingSubtitles && (
-                <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl mb-6 flex flex-col items-center gap-3">
-                  <div className="w-6 h-6 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
-                  <div className="text-center">
-                    <p className="text-xs font-semibold text-white">Transcribing Audio...</p>
-                    <p className="text-[10px] text-zinc-400 mt-1">Analyzing voice & clustering speakers. Please wait.</p>
-                  </div>
-                </div>
-              )}
-
               <div className="flex flex-col gap-3 pb-6">
                 {timelineSegments.map((seg, i) => {
                   const isActive = currentTime >= seg.start && currentTime < seg.end;
