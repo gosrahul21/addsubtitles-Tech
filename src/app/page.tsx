@@ -2682,17 +2682,20 @@ function EditorPage() {
           ref={canvasRef}
           onMouseDown={() => setActiveCanvasElement(null)}
           style={{ aspectRatio: canvasAspectRatio, maxWidth: '100%', maxHeight: '65vh' }}
-          className="relative h-full w-auto max-h-[50vh] md:max-h-[65vh] bg-[#0c1122] rounded-xl md:rounded-2xl border border-amber-400/50 md:border-2 md:border-amber-400/70 shadow-[0_0_20px_rgba(255,184,0,0.15)] flex items-center justify-center overflow-hidden transition-all duration-300"
+          className="relative h-full w-auto max-h-[50vh] md:max-h-[65vh] rounded-xl md:rounded-2xl border border-amber-400/50 md:border-2 md:border-amber-400/70 shadow-[0_0_20px_rgba(255,184,0,0.15)] flex items-center justify-center transition-all duration-300"
         >
-          {/* Interactive Video Layer */}
-          <div
-            onMouseDown={(e) => { e.stopPropagation(); setActiveCanvasElement('video'); setCanvasInteraction({ element: 'video', action: 'move', startX: e.clientX, startY: e.clientY, initialBounds: videoBounds }); }}
-            style={{
-              left: `${videoBounds.x}%`, top: `${videoBounds.y}%`,
-              width: `${videoBounds.width}%`, height: `${videoBounds.height}%`
-            }}
-            className={`absolute ${activeCanvasElement === 'video' ? 'ring-2 ring-fuchsia-500 z-20 cursor-move' : 'z-0'}`}
-          >
+          {/* Video Mask Wrapper */}
+          <div className="absolute inset-0 overflow-hidden rounded-xl md:rounded-2xl bg-[#0c1122] pointer-events-none z-0">
+            <div className="absolute inset-0 pointer-events-auto" onMouseDown={() => setActiveCanvasElement(null)}>
+              {/* Interactive Video Layer */}
+              <div
+                onMouseDown={(e) => { e.stopPropagation(); setActiveCanvasElement('video'); setCanvasInteraction({ element: 'video', action: 'move', startX: e.clientX, startY: e.clientY, initialBounds: videoBounds }); }}
+                style={{
+                  left: `${videoBounds.x}%`, top: `${videoBounds.y}%`,
+                  width: `${videoBounds.width}%`, height: `${videoBounds.height}%`
+                }}
+                className={`absolute ${activeCanvasElement === 'video' ? 'ring-2 ring-fuchsia-500 z-20 cursor-move' : 'z-0'}`}
+              >
             {videoSrc ? (
               <video
                 ref={videoRef}
@@ -2738,11 +2741,13 @@ function EditorPage() {
               </>
             )}
           </div>
+          </div>
 
           {/* Soft Ambient Inner Shadows */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20 pointer-events-none z-10" />
+        </div>
 
-          {/* Interactive Subtitle Layer */}
+        {/* Interactive Subtitle Layer */}
           <div
             onMouseDown={(e) => {
               if (currentActiveSubIdx === -1) return;
@@ -2767,7 +2772,7 @@ function EditorPage() {
             className={`absolute flex items-center justify-center ${isEditingOverlaySubtitle ? 'select-text' : 'select-none'} ${currentActiveSubIdx === -1 ? 'pointer-events-none' : 'pointer-events-auto'} ${(activeCanvasElement === 'subtitle' && currentActiveSubIdx !== -1) ? 'ring-1 ring-fuchsia-500 z-30 cursor-move bg-black/10' : 'z-20 hover:ring-1 hover:ring-white/20'}`}
           >
             {activeCanvasElement === 'subtitle' && currentActiveSubIdx !== -1 && !isEditingOverlaySubtitle && (
-              <div className="absolute -top-14 left-1/2 -translate-x-1/2 bg-[#16223f] border border-[#253966] rounded-xl shadow-2xl flex items-center gap-1.5 p-1.5 z-50 animate-in fade-in zoom-in-95 duration-200 whitespace-nowrap cursor-default" onMouseDown={e => e.stopPropagation()}>
+              <div className="fixed top-20 left-1/2 -translate-x-1/2 md:absolute md:top-auto md:-top-14 md:left-1/2 md:-translate-x-1/2 bg-[#16223f] border border-[#253966] rounded-xl shadow-2xl flex items-center gap-1.5 p-1.5 z-50 animate-in fade-in zoom-in-95 duration-200 whitespace-nowrap cursor-default max-w-[95vw] overflow-x-auto [&::-webkit-scrollbar]:hidden" onMouseDown={e => e.stopPropagation()}>
                 <div className="flex items-center bg-[#0d142d] rounded-lg px-2 py-1 border border-[#1e2a4a]">
                   <button onClick={() => setSubtitleFontSize(prev => Math.max(10, prev - 5))} className="text-zinc-400 hover:text-white px-1.5 py-0.5 text-xs font-mono">-</button>
                   <span className="text-white text-[11px] font-mono px-2">{subtitleFontSize}</span>
