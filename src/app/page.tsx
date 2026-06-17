@@ -72,62 +72,11 @@ import { exportVideo } from '@/lib/exportVideo';
 import { HexColorPicker } from "react-colorful";
 import { cloudinaryVideoUpload } from "@/services/cloudinaryVideoUpload";
 import uploadVideo from "@/services/uploadVideo";
+import { getTemplateByName, getTemplatesByCategory, BASE_STYLE } from "@/config/subtitleTemplates";
 
 const getSubtitleStyles = (template: string) => {
-  let className = "";
-  let style: React.CSSProperties = {};
-
-  switch (template) {
-    case 'Classic':
-      className = "font-sans shadow-md";
-      break;
-    case 'BANGERS':
-      className = "tracking-wide";
-      break;
-    case 'STREET':
-      className = "tracking-widest drop-shadow-lg";
-      break;
-    case 'BEAST':
-      className = "tracking-tighter";
-      break;
-    case 'Clean':
-      className = "tracking-tight drop-shadow-md";
-      break;
-    case 'Highlight':
-      className = "";
-      break;
-    case 'FIRE':
-      className = "tracking-tight uppercase";
-      break;
-    case 'BEN':
-      className = "tracking-tight";
-      break;
-    case 'NEON':
-      className = "tracking-wide uppercase";
-      break;
-    case 'HYPE':
-      className = "uppercase tracking-normal";
-      break;
-    case 'Simple':
-      className = "tracking-normal";
-      break;
-    case 'Corporate':
-    case 'Branded':
-      className = "tracking-tight";
-      break;
-    case 'Editorial':
-      className = "font-serif tracking-normal";
-      break;
-    case 'Pop Emoji':
-    case 'Float Emoji':
-      className = "tracking-normal";
-      break;
-    case 'Default':
-    default:
-      className = "drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]";
-      break;
-  }
-  return { className, style };
+  const tpl = getTemplateByName(template);
+  return { className: "", style: tpl.cssStyle };
 };
 
 const getSubtitleAnimClass = (animName: string) => {
@@ -258,84 +207,8 @@ function EditorPage() {
   const handleTemplateSelect = (templateName: string) => {
     setActiveTemplate(templateName);
 
-    // Default "base" properties that apply to ALL templates unless overridden
-    const baseStyle = {
-      fontColor: '#ffffff',
-      fontFamily: 'Montserrat',
-      subtitleStyle: { bold: false, italic: false, allCaps: false },
-      fontAlign: 'center',
-      bgStyle: 'None',
-      bgColor: '#000000',
-      outline: 'None',
-      shadow: 'None',
-      subtitleAnim: 'Pop',
-      wordAnim: 'Karaoke',
-      subtitleFontSize: 25,
-      maxLines: 2,
-      maxWordsPerLine: "Auto",
-      highlightBgColor: '#F59E0B',
-      highlightTextColor: '#0D142D',
-      wordColor: '#FBBF24',
-    };
-
-    let overrides = {};
-
-    switch (templateName) {
-      case 'Classic':
-        overrides = { bgStyle: 'Fill', bgColor: '#000000', outline: 'None', shadow: 'None', subtitleStyle: { bold: true, italic: false, allCaps: false }, fontFamily: 'Inter' };
-        break;
-      case 'BANGERS':
-        overrides = { fontColor: '#FFFFFF', fontFamily: 'Impact', outline: 'Hard', shadow: 'Hard', subtitleStyle: { bold: true, italic: true, allCaps: true }, subtitleFontSize: 25, maxLines: 1, maxWordsPerLine: "3", wordAnim: 'Karaoke', wordColor: '#EAB308' };
-        break;
-      case 'STREET':
-        overrides = { fontFamily: 'Impact', outline: 'Hard', shadow: 'Soft', subtitleStyle: { bold: true, italic: false, allCaps: true }, wordAnim: 'None' };
-        break;
-      case 'BEAST':
-        overrides = { fontColor: '#FFFFFF', fontFamily: 'Montserrat', outline: 'Hard', shadow: 'Hard', subtitleStyle: { bold: true, italic: true, allCaps: true }, subtitleFontSize: 25, wordAnim: 'Karaoke', wordColor: '#EAB308' };
-        break;
-      case 'Clean':
-        overrides = { fontFamily: 'Montserrat', shadow: 'None' };
-        break;
-      case 'Highlight':
-        overrides = { fontColor: '#FFFFFF', fontFamily: 'Montserrat', bgStyle: 'Wrap', bgColor: '#1A1C29', shadow: 'None', outline: 'None', subtitleStyle: { bold: true, italic: false, allCaps: false }, wordAnim: 'Highlight', highlightBgColor: '#FF6333', highlightTextColor: '#FFFFFF', wordColor: '#FFFFFF' };
-        break;
-      case 'FIRE':
-        overrides = { fontColor: '#FFFFFF', fontFamily: 'Oswald', outline: 'Hard', shadow: 'Hard', subtitleStyle: { bold: false, italic: false, allCaps: true }, wordAnim: 'Karaoke', wordColor: '#FF0000' };
-        break;
-      case 'BEN':
-        overrides = { fontColor: '#FFFFFF', fontFamily: 'Impact', outline: 'Hard', shadow: 'Hard', subtitleStyle: { bold: true, italic: false, allCaps: true }, subtitleFontSize: 25, wordAnim: 'Alternating' };
-        break;
-      case 'NEON':
-        overrides = { fontColor: '#00FFCC', fontFamily: 'Montserrat', outline: 'None', shadow: 'Neon', subtitleStyle: { bold: true, italic: false, allCaps: true }, wordAnim: 'Karaoke', wordColor: '#FFFFFF' };
-        break;
-      case 'HYPE':
-        overrides = { fontColor: '#FFFFFF', fontFamily: 'Lilita One', bgStyle: 'Wrap', bgColor: 'transparent', shadow: 'Soft', outline: 'Thick', subtitleStyle: { bold: false, italic: false, allCaps: true }, wordAnim: 'Highlight', highlightBgColor: '#FF2A5F', highlightTextColor: '#FFFFFF', wordColor: '#FFFFFF' };
-        break;
-      case 'Simple':
-        overrides = { fontColor: '#FFFFFF', fontFamily: 'Inter', bgStyle: 'None', outline: 'None', shadow: 'Soft', subtitleStyle: { bold: true, italic: false, allCaps: false }, wordAnim: 'None' };
-        break;
-      case 'Corporate':
-        overrides = { fontColor: '#FFFFFF', fontFamily: 'Inter', bgStyle: 'Fill', bgColor: '#2563EB', outline: 'None', shadow: 'None', subtitleStyle: { bold: true, italic: false, allCaps: false }, wordAnim: 'None' };
-        break;
-      case 'Branded':
-        overrides = { fontColor: '#3B82F6', fontFamily: 'Montserrat', bgStyle: 'Fill', bgColor: '#FFFFFF', outline: 'None', shadow: 'Soft', subtitleStyle: { bold: true, italic: false, allCaps: false }, wordAnim: 'Highlight', highlightBgColor: '#DBEAFE', highlightTextColor: '#1D4ED8' };
-        break;
-      case 'Editorial':
-        overrides = { fontColor: '#000000', fontFamily: 'Inter', bgStyle: 'Fill', bgColor: '#C2F05A', outline: 'None', shadow: 'None', subtitleStyle: { bold: true, italic: false, allCaps: false }, wordAnim: 'Highlight', highlightBgColor: '#000000', highlightTextColor: '#C2F05A' };
-        break;
-      case 'Pop Emoji':
-        overrides = { fontColor: '#FFFFFF', fontFamily: 'Montserrat', bgStyle: 'None', outline: 'Hard', shadow: 'Hard', subtitleStyle: { bold: true, italic: false, allCaps: false }, wordAnim: 'Karaoke', wordColor: '#FFCC00' };
-        break;
-      case 'Float Emoji':
-        overrides = { fontColor: '#FFD700', fontFamily: 'Montserrat', bgStyle: 'None', outline: 'None', shadow: 'Soft', subtitleStyle: { bold: true, italic: false, allCaps: false }, wordAnim: 'Highlight', highlightBgColor: '#000000', highlightTextColor: '#FFD700' };
-        break;
-      case 'Default':
-      default:
-        overrides = { shadow: 'Soft', fontFamily: 'Montserrat' };
-        break;
-    }
-
-    const finalStyle = { ...baseStyle, ...overrides } as typeof baseStyle;
+    const tpl = getTemplateByName(templateName);
+    const finalStyle = { ...BASE_STYLE, ...tpl.overrides } as typeof BASE_STYLE;
 
     setFontColor(finalStyle.fontColor);
     setFontFamily(finalStyle.fontFamily);
@@ -2026,21 +1899,9 @@ function EditorPage() {
                 ))}
               </div>
 
-              {activeStyleFilter === 'All' && (
+              {['All', 'Business', 'Emoji'].includes(activeStyleFilter) && (
                 <div className="grid grid-cols-2 gap-3 md:gap-4 pb-4">
-                  {[
-                    { name: 'Default', type: 'blank', element: <span className="text-xs text-zinc-500 font-medium group-hover:text-amber-400/70 transition-colors pointer-events-none">Default</span> },
-                    { name: 'Classic', type: 'classic', element: <span className="px-3 py-1 bg-black/80 rounded-md text-white font-sans font-bold text-sm shadow-md z-10 transition-transform group-hover:scale-105 pointer-events-none">Classic</span> },
-                    { name: 'BANGERS', type: 'bangers', element: <span className="text-amber-400 font-black text-xl italic tracking-wider drop-shadow-[0_2px_0_rgba(0,0,0,1)] z-10 transition-transform group-hover:scale-105 pointer-events-none" style={{ WebkitTextStroke: '1px black' }}>BANGERS</span> },
-                    { name: 'STREET', type: 'street', element: <span className="text-white font-black text-lg uppercase tracking-widest z-10 drop-shadow-md transition-transform group-hover:scale-105 pointer-events-none" style={{ WebkitTextStroke: '0.5px rgba(255,255,255,0.5)' }}>STREET</span> },
-                    { name: 'BEAST', type: 'beast', element: <span className="text-yellow-500 font-black text-xl italic uppercase tracking-tighter drop-shadow-[0_3px_5px_rgba(0,0,0,1)] z-10 transition-transform group-hover:scale-105 pointer-events-none">BEAST</span> },
-                    { name: 'Clean', type: 'clean', element: <span className="text-white font-medium text-lg tracking-tight z-10 transition-transform group-hover:scale-105 pointer-events-none">Clean</span> },
-                    { name: 'Highlight', type: 'highlight', element: <span className="bg-amber-500 text-[#0d142d] px-2.5 py-0.5 font-bold text-sm transform -rotate-2 z-10 shadow-lg transition-transform group-hover:scale-110 group-hover:-rotate-3 pointer-events-none">Highlight</span> },
-                    { name: 'FIRE', type: 'fire', element: <span className="text-red-500 font-black text-xl uppercase tracking-widest z-10 transition-transform group-hover:scale-105 pointer-events-none" style={{ WebkitTextStroke: '1px #450a0a' }}>FIRE</span> },
-                    { name: 'BEN', type: 'ben', element: <span className="text-white font-black text-2xl uppercase tracking-tight z-10 transition-transform group-hover:scale-105 pointer-events-none" style={{ WebkitTextStroke: '2px black', textShadow: '3px 3px 0px black' }}>BEN</span> },
-                    { name: 'NEON', type: 'neon', element: <span className="text-[#00FFCC] font-bold text-xl uppercase tracking-widest z-10 transition-transform group-hover:scale-105 pointer-events-none drop-shadow-[0_0_8px_rgba(0,255,204,0.8)]">NEON</span> },
-                    { name: 'HYPE', type: 'hype', element: <span className="bg-[#FF2A5F] text-white px-2 py-0.5 font-bold text-xl uppercase tracking-normal z-10 transition-transform group-hover:scale-105 pointer-events-none rounded-md" style={{ WebkitTextStroke: '1.5px black', fontFamily: '"Lilita One", sans-serif' }}>HYPE</span> }
-                  ].map((tpl, i) => {
+                  {getTemplatesByCategory(activeStyleFilter).map((tpl, i) => {
                     const isActive = activeTemplate === tpl.name;
                     return (
                       <div
@@ -2048,62 +1909,8 @@ function EditorPage() {
                         onClick={() => handleTemplateSelect(tpl.name)}
                         className={`aspect-[4/3] rounded-xl transition-all cursor-pointer flex items-center justify-center overflow-hidden relative group ${isActive ? 'bg-[#182747] border-2 border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.15)]' : 'bg-[#0c1122] border border-[#1e2a4a] hover:border-amber-400'}`}
                       >
-                        {tpl.type === 'blank' && <div className="absolute inset-0 bg-[#060a16]/50 border-2 border-dashed border-[#1e2a4a] rounded-xl pointer-events-none" />}
-                        {tpl.type === 'classic' && <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-all pointer-events-none" />}
-                        {tpl.type === 'bangers' && <div className="absolute inset-0 bg-gradient-to-br from-[#16223f]/50 to-[#0c1122] opacity-0 group-hover:opacity-100 transition-all pointer-events-none" />}
-                        {tpl.type === 'street' && <div className="absolute inset-0 bg-gradient-to-br from-zinc-900 to-black pointer-events-none" />}
-                        {tpl.type === 'beast' && <div className="absolute inset-0 shadow-inner pointer-events-none" />}
-                        {tpl.type === 'clean' && <div className="absolute inset-0 bg-[#16223f]/40 pointer-events-none" />}
-                        {tpl.type === 'ben' && <div className="absolute inset-0 bg-gradient-to-br from-[#0c1122] to-[#1e2a4a]/40 shadow-inner pointer-events-none" />}
-                        {tpl.type === 'highlight' && <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-all pointer-events-none" />}
-                        {tpl.type === 'fire' && <div className="absolute inset-0 bg-gradient-to-t from-red-950/40 to-[#0c1122] pointer-events-none" />}
+                        {tpl.bgElement}
                         {tpl.element}
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
-
-              {activeStyleFilter === 'Business' && (
-                <div className="grid grid-cols-2 gap-3 md:gap-4 pb-4">
-                  {[
-                    { name: 'Simple', type: 'simple', element: <span className="text-white font-bold text-lg tracking-tight z-10 transition-transform group-hover:scale-105 pointer-events-none">Simple</span> },
-                    { name: 'Classic', type: 'classic', element: <span className="px-3 py-1 bg-black/80 rounded-md text-white font-sans font-bold text-sm shadow-md z-10 transition-transform group-hover:scale-105 pointer-events-none">Classic</span> },
-                    { name: 'Clean', type: 'clean', element: <span className="text-white font-black text-lg tracking-wide z-10 transition-transform group-hover:scale-105 pointer-events-none">Clean</span> },
-                    { name: 'Corporate', type: 'corporate', element: <span className="bg-blue-600 text-white px-2 py-0.5 rounded font-bold text-sm shadow-lg z-10 transition-transform group-hover:scale-105 pointer-events-none">Corporate</span> },
-                    { name: 'Branded', type: 'branded', element: <span className="text-blue-500 bg-white px-2 py-0.5 rounded font-bold text-sm shadow-md z-10 transition-transform group-hover:scale-105 pointer-events-none border border-blue-500/20">Branded</span> },
-                    { name: 'Editorial', type: 'editorial', element: <span className="bg-[#c2f05a] text-black px-2 py-0.5 font-serif font-bold text-sm shadow-md z-10 transition-transform group-hover:scale-105 pointer-events-none border border-black/10">Editorial</span> }
-                  ].map((tpl, i) => {
-                    const isActive = activeTemplate === tpl.name;
-                    return (
-                      <div
-                        key={i}
-                        onClick={() => handleTemplateSelect(tpl.name)}
-                        className={`aspect-[4/3] rounded-xl transition-all cursor-pointer flex items-center justify-center overflow-hidden relative group ${isActive ? 'bg-[#182747] border-2 border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.15)]' : 'bg-[#0c1122] border border-[#1e2a4a] hover:border-amber-400'}`}
-                      >
-                         <div className="absolute inset-0 bg-[#16223f]/20 pointer-events-none" />
-                         {tpl.element}
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
-
-              {activeStyleFilter === 'Emoji' && (
-                <div className="grid grid-cols-2 gap-3 md:gap-4 pb-4">
-                  {[
-                    { name: 'Pop Emoji', type: 'pop_emoji', element: <span className="text-white font-bold text-lg tracking-tight z-10 transition-transform group-hover:scale-105 pointer-events-none">😃 Pop</span> },
-                    { name: 'Float Emoji', type: 'float_emoji', element: <span className="text-[#FFD700] font-bold text-lg tracking-tight z-10 transition-transform group-hover:scale-105 pointer-events-none">✨ Float</span> }
-                  ].map((tpl, i) => {
-                    const isActive = activeTemplate === tpl.name;
-                    return (
-                      <div
-                        key={i}
-                        onClick={() => handleTemplateSelect(tpl.name)}
-                        className={`aspect-[4/3] rounded-xl transition-all cursor-pointer flex items-center justify-center overflow-hidden relative group ${isActive ? 'bg-[#182747] border-2 border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.15)]' : 'bg-[#0c1122] border border-[#1e2a4a] hover:border-amber-400'}`}
-                      >
-                         <div className="absolute inset-0 bg-[#16223f]/20 pointer-events-none" />
-                         {tpl.element}
                       </div>
                     )
                   })}

@@ -182,91 +182,133 @@ const SubtitleSnapshot = ({ options, sub, currentTime }: { options: ExportOption
   const scaledPaddingX = bgPaddingX * scaleRatio;
   const scaledPaddingY = bgPaddingY * scaleRatio;
 
+  const renderTextChunks = (isStrokeLayer: boolean) => (
+    chunkedWords.map((chunk, chunkIdx) => (
+      <span key={chunkIdx} className={bgStyle === 'Fit' || bgStyle === 'Wrap' ? 'block' : 'inline'}>
+        <span
+          className={bgStyle === 'Fit' || bgStyle === 'Wrap' ? 'inline-block' : 'inline'}
+          style={(bgStyle === 'Fit' || bgStyle === 'Wrap') && !isBgTransparent ? { backgroundColor, borderRadius: `${scaledRadius}px`, padding: `${scaledPaddingY}px ${scaledPaddingX}px`, marginBottom: '4px' } : {}}
+        >
+          {chunk.map((w, idx) => {
+            const globalIdx = chunkIdx * (maxWordsPerLine === 'Auto' ? words.length : parseInt(maxWordsPerLine, 10)) + idx;
+            let wordStyles: React.CSSProperties = { display: 'inline-block', margin: '0 0.12em' };
+
+            if (wordAnim === 'Reveal') {
+              wordStyles.opacity = globalIdx <= activeWordIndex ? 1 : 0;
+            } else if (wordAnim === 'Karaoke') {
+              if (globalIdx === activeWordIndex && !isWordColorTransparent) {
+                if (isStrokeLayer) {
+                  wordStyles.color = outlineColor;
+                } else {
+                  wordStyles.color = wordColor;
+                  wordStyles.filter = `drop-shadow(0 0 8px ${wordColor}CC)`;
+                }
+              }
+            } else if (wordAnim === 'Alternating') {
+              if (globalIdx === activeWordIndex) {
+                if (isStrokeLayer) {
+                  wordStyles.color = outlineColor;
+                } else {
+                  wordStyles.color = '#FBBF24'; // text-amber-400
+                  wordStyles.filter = 'drop-shadow(0 0 8px rgba(251,191,36,0.8))';
+                }
+              }
+            } else if (wordAnim === 'Highlight') {
+              if (globalIdx === activeWordIndex) {
+                wordStyles.padding = '0 0.25rem'; // px-1
+                wordStyles.borderRadius = '0.125rem'; // rounded-sm
+                if (isStrokeLayer) {
+                  wordStyles.backgroundColor = 'transparent';
+                  wordStyles.color = outlineColor;
+                } else {
+                  wordStyles.backgroundColor = isHighlightBgTransparent ? 'transparent' : highlightBgColor;
+                  wordStyles.color = isHighlightTextTransparent ? 'inherit' : highlightTextColor;
+                }
+              }
+            } else if (wordAnim === 'Scale') {
+              if (globalIdx === activeWordIndex) {
+                wordStyles.transform = 'scale(1.2)';
+                if (isStrokeLayer) {
+                  wordStyles.color = outlineColor;
+                } else {
+                  wordStyles.color = '#FBBF24'; // text-amber-400
+                }
+              }
+            }
+
+            const isFiller = options.filterFillerWords && w.match(/\b(um|uh|ums|uhs)\b/i);
+            if (isFiller) {
+              wordStyles.textDecorationLine = 'line-through';
+              wordStyles.textDecorationColor = '#ef4444'; // red-500
+              wordStyles.textDecorationThickness = '2px';
+              wordStyles.opacity = 0.5;
+            }
+
+            return (
+              <span key={globalIdx} style={wordStyles}>
+                {w}
+              </span>
+            );
+          })}
+        </span>
+        {chunkIdx < chunkedWords.length - 1 && <br />}
+      </span>
+    ))
+  );
+
+  const baseStyle: React.CSSProperties = {
+    ...templateStyle,
+    fontSize: `${scaledFontSize}px`,
+    fontWeight: subtitleStyle.bold ? 900 : (templateStyle.fontWeight || 700),
+    fontFamily: fontFamily || 'inherit',
+    lineHeight: lineSpacing,
+    fontStyle: subtitleStyle.italic ? 'italic' : (templateStyle.fontStyle || 'normal'),
+    textTransform: subtitleStyle.allCaps ? 'uppercase' : (templateStyle.textTransform || 'none'),
+    textAlign: fontAlign as any,
+    WebkitLineClamp: maxLines > 0 ? maxLines : undefined,
+    display: maxLines > 0 ? '-webkit-box' : 'block',
+    WebkitBoxOrient: maxLines > 0 ? 'vertical' : undefined,
+    overflow: maxLines > 0 ? 'hidden' : 'visible',
+    width: bgStyle === 'Fill' ? '100%' : 'auto',
+    transform: animStyles.transform || (randomRotate ? `rotate(${(Math.round(sub.start * 13) % 5) - 2}deg)` : (templateStyle.transform || 'none')),
+    opacity: animStyles.opacity !== undefined ? animStyles.opacity : 1,
+  };
+
   return (
     <div style={{ width: videoWidth, height: videoHeight, position: 'relative', overflow: 'hidden', backgroundColor: 'transparent' }}>
       <div style={{ position: 'absolute', left, top, width, height, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <h2
-          className={`leading-tight ${templateClassName} ${subtitleStyle.italic ? 'italic' : ''} ${subtitleStyle.allCaps ? 'uppercase' : ''}`}
-          style={{
-            ...templateStyle,
-            fontSize: `${scaledFontSize}px`,
-            fontWeight: subtitleStyle.bold ? 900 : (templateStyle.fontWeight || 700),
-            fontFamily: fontFamily || 'inherit',
-            color: fontColor !== '#ffffff' ? fontColor : (templateStyle.color || '#ffffff'),
-            lineHeight: lineSpacing,
-            fontStyle: subtitleStyle.italic ? 'italic' : (templateStyle.fontStyle || 'normal'),
-            textTransform: subtitleStyle.allCaps ? 'uppercase' : (templateStyle.textTransform || 'none'),
-            textAlign: fontAlign as any,
-            ...(!isOutlineTransparent ? { WebkitTextStroke: `${(outlineWidth / 100) * 20 * scaleRatio}px ${outlineColor}` } : {}),
-            ...(!isShadowTransparent ? { textShadow: `${Math.cos(shadowAngle * Math.PI / 180) * (shadowDistance / 100) * 30 * scaleRatio}px ${Math.sin(shadowAngle * Math.PI / 180) * (shadowDistance / 100) * 30 * scaleRatio}px ${(shadowBlur / 100) * 30 * scaleRatio}px ${shadowColor}` } : {}),
-            WebkitLineClamp: maxLines > 0 ? maxLines : undefined,
-            display: maxLines > 0 ? '-webkit-box' : 'block',
-            WebkitBoxOrient: maxLines > 0 ? 'vertical' : undefined,
-            overflow: maxLines > 0 ? 'hidden' : 'visible',
-            backgroundColor: bgStyle === 'Fill' && !isBgTransparent ? backgroundColor : (templateStyle.backgroundColor || 'transparent'),
-            borderRadius: `${scaledRadius}px`,
-            padding: bgStyle === 'Fill' && !isBgTransparent ? `${scaledPaddingY}px ${scaledPaddingX}px` : (templateStyle.padding || '0'),
-            width: bgStyle === 'Fill' ? '100%' : 'auto',
-            transform: animStyles.transform || (randomRotate ? `rotate(${(Math.round(sub.start * 13) % 5) - 2}deg)` : (templateStyle.transform || 'none')),
-            opacity: animStyles.opacity !== undefined ? animStyles.opacity : 1,
-          }}
-        >
-          {chunkedWords.map((chunk, chunkIdx) => (
-            <span key={chunkIdx} className={bgStyle === 'Fit' || bgStyle === 'Wrap' ? 'block' : 'inline'}>
-              <span
-                className={bgStyle === 'Fit' || bgStyle === 'Wrap' ? 'inline-block' : 'inline'}
-                style={(bgStyle === 'Fit' || bgStyle === 'Wrap') && !isBgTransparent ? { backgroundColor, borderRadius: `${scaledRadius}px`, padding: `${scaledPaddingY}px ${scaledPaddingX}px`, marginBottom: '4px' } : {}}
-              >
-                {chunk.map((w, idx) => {
-                  const globalIdx = chunkIdx * (maxWordsPerLine === 'Auto' ? words.length : parseInt(maxWordsPerLine, 10)) + idx;
-                  let wordClasses = "inline-block mx-[0.12em] transition-none "; // Removed transition for instant snapshot
-                  
-                  if (wordAnim === 'Reveal') {
-                    wordClasses += globalIdx <= activeWordIndex ? "opacity-100" : "opacity-0";
-                  } else if (wordAnim === 'Karaoke') {
-                    if (globalIdx === activeWordIndex && !isWordColorTransparent) {
-                      wordClasses += ` !text-[${wordColor}] drop-shadow-[0_0_8px_${wordColor}CC]`;
-                    }
-                  } else if (wordAnim === 'Alternating') {
-                    if (globalIdx === activeWordIndex) {
-                      wordClasses += " text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]";
-                    }
-                  } else if (wordAnim === 'Highlight') {
-                    if (globalIdx === activeWordIndex) {
-                      wordClasses += " px-1 rounded-sm";
-                    }
-                  } else if (wordAnim === 'Scale') {
-                    if (globalIdx === activeWordIndex) {
-                      wordClasses += " scale-[1.2] text-amber-400";
-                    }
-                  }
+        <div style={{ position: 'relative', width: '100%' }}>
+          {!isOutlineTransparent && (
+            <h2
+              className={`absolute inset-0 leading-tight ${templateClassName} ${subtitleStyle.italic ? 'italic' : ''} ${subtitleStyle.allCaps ? 'uppercase' : ''}`}
+              style={{
+                ...baseStyle,
+                color: outlineColor,
+                WebkitTextStroke: `${(outlineWidth / 100) * 20 * scaleRatio}px ${outlineColor}`,
+                ...(!isShadowTransparent ? { textShadow: `${Math.cos(shadowAngle * Math.PI / 180) * (shadowDistance / 100) * 30 * scaleRatio}px ${Math.sin(shadowAngle * Math.PI / 180) * (shadowDistance / 100) * 30 * scaleRatio}px ${(shadowBlur / 100) * 30 * scaleRatio}px ${shadowColor}` } : {}),
+                backgroundColor: 'transparent',
+                zIndex: 1,
+              }}
+            >
+              {renderTextChunks(true)}
+            </h2>
+          )}
 
-                  let wordStyles: React.CSSProperties = {};
-                  if (wordAnim === 'Karaoke' && globalIdx === activeWordIndex && !isWordColorTransparent) {
-                     wordStyles = { color: wordColor, filter: `drop-shadow(0 0 8px ${wordColor}CC)` };
-                  } else if (wordAnim === 'Highlight' && globalIdx === activeWordIndex) {
-                     wordStyles = { 
-                       backgroundColor: isHighlightBgTransparent ? 'transparent' : highlightBgColor, 
-                       color: isHighlightTextTransparent ? 'inherit' : highlightTextColor 
-                     };
-                  }
-
-                  const isFiller = options.filterFillerWords && w.match(/\b(um|uh|ums|uhs)\b/i);
-                  if (isFiller) {
-                    wordClasses += " line-through opacity-50 decoration-red-500 decoration-2";
-                  }
-
-                  return (
-                    <span key={globalIdx} className={wordClasses} style={wordStyles}>
-                      {w}
-                    </span>
-                  );
-                })}
-              </span>
-              {chunkIdx < chunkedWords.length - 1 && <br />}
-            </span>
-          ))}
-        </h2>
+          <h2
+            className={`relative leading-tight ${templateClassName} ${subtitleStyle.italic ? 'italic' : ''} ${subtitleStyle.allCaps ? 'uppercase' : ''}`}
+            style={{
+              ...baseStyle,
+              color: fontColor !== '#ffffff' ? fontColor : (templateStyle.color || '#ffffff'),
+              ...(isOutlineTransparent && !isShadowTransparent ? { textShadow: `${Math.cos(shadowAngle * Math.PI / 180) * (shadowDistance / 100) * 30 * scaleRatio}px ${Math.sin(shadowAngle * Math.PI / 180) * (shadowDistance / 100) * 30 * scaleRatio}px ${(shadowBlur / 100) * 30 * scaleRatio}px ${shadowColor}` } : {}),
+              backgroundColor: bgStyle === 'Fill' && !isBgTransparent ? backgroundColor : (templateStyle.backgroundColor || 'transparent'),
+              borderRadius: `${scaledRadius}px`,
+              padding: bgStyle === 'Fill' && !isBgTransparent ? `${scaledPaddingY}px ${scaledPaddingX}px` : (templateStyle.padding || '0'),
+              zIndex: 2,
+            }}
+          >
+            {renderTextChunks(false)}
+          </h2>
+        </div>
       </div>
     </div>
   );
