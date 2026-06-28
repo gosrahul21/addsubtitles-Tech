@@ -20,7 +20,7 @@ export default function YoutubeTranscriptGeneratorPage() {
     setLoading(true);
     setError(null);
     setTranscript(null);
-    setCopied(false);
+    setCopied(null);
 
     try {
       const res = await fetchYoutubeTranscript(url);
