@@ -16,7 +16,7 @@ export default function YoutubeTranscriptGeneratorPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!url) return;
-    
+
     setLoading(true);
     setError(null);
     setTranscript(null);
