@@ -131,6 +131,15 @@ const TOOLS = [
     tags: ["Animations", "Custom", "Free"],
   },
   {
+    slug: "youtube-transcript-generator",
+    icon: Captions,
+    label: "YouTube Transcript Generator",
+    badge: "New",
+    badgeColor: "amber",
+    short: "Generate and extract transcripts from any YouTube video instantly.",
+    tags: ["YouTube", "Transcript", "Free"],
+  },
+  {
     slug: "capcut-alternative",
     icon: Wand2,
     label: "CapCut Alternative",
