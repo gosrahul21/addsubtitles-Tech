@@ -260,7 +260,7 @@ const SubtitleSnapshot = ({ options, sub, currentTime }: { options: ExportOption
     ...templateStyle,
     fontSize: `${scaledFontSize}px`,
     fontWeight: subtitleStyle.bold ? 900 : (templateStyle.fontWeight || 700),
-    fontFamily: fontFamily || 'inherit',
+    fontFamily: fontFamily ? `"${fontFamily}", "Noto Sans", "Noto Sans Devanagari", "Arial Unicode MS", "Nirmala UI", sans-serif` : 'inherit',
     lineHeight: lineSpacing,
     fontStyle: subtitleStyle.italic ? 'italic' : (templateStyle.fontStyle || 'normal'),
     textTransform: subtitleStyle.allCaps ? 'uppercase' : (templateStyle.textTransform || 'none'),
