@@ -102,6 +102,22 @@ export interface TimelineSegment {
   words?: { start: number; end: number; word: string }[];
 }
 
+const getVideoDuration = (file: File): Promise<number> => {
+  return new Promise((resolve, reject) => {
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    video.onloadedmetadata = () => {
+      window.URL.revokeObjectURL(video.src);
+      resolve(video.duration);
+    };
+    video.onerror = () => {
+      window.URL.revokeObjectURL(video.src);
+      resolve(0); // If it fails, resolve to 0 to bypass or handle gracefully
+    };
+    video.src = URL.createObjectURL(file);
+  });
+};
+
 function EditorPage() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -3648,6 +3664,15 @@ function EditorPage() {
                 disabled={!videoFile || isExtractingAudio}
                 onClick={async () => {
                   if (!videoFile) return;
+
+                  const isProUser = user?.subscriptionTier === 'PRO' || user?.subscriptionTier === 'ENTERPRISE';
+                  const duration = await getVideoDuration(videoFile);
+                  
+                  if (duration > 600 && !isProUser) {
+                    showNotification("Upgrade Required", "Free users can only upload videos up to 10 minutes. Please upgrade to Pro.", "error");
+                    setShowUpgradeModal(true);
+                    return;
+                  }
 
                   setTimelineSegments([]); // Clear mock subtitles on upload
                   setHistory([]);
