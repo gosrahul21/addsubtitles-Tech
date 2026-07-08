@@ -20,7 +20,7 @@ const OTHER_FORMATS = [
   { slug: "webm-subtitle-generator", label: "WebM" },
 ];
 
-const TOOL_META: Record<string, { title: string; desc: string; h1: string; body: string; format?: string }> = {
+export const TOOL_META: Record<string, { title: string; desc: string; h1: string; body: string; format?: string }> = {
   "mp4-subtitle-generator": {
     title: "Free MP4 Subtitle Generator – Add Captions to MP4 Online | AddSubtitles",
     desc: "Generate accurate subtitles for MP4 videos instantly using AI. Upload your MP4, get word-level captions in seconds. No software, no watermark, 100% free.",
