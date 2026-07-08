@@ -1376,6 +1376,13 @@ function EditorPage() {
               )}
             </div>
           )}
+          
+          <div className="hidden md:flex items-center mr-2">
+            <a href="https://www.listbulb.com/tools/addsubtitles" target="_blank" rel="noopener" className="flex items-center">
+              <img src="https://www.listbulb.com/featured-on-listbulb-light.svg" alt="Featured on ListBulb" height="240" className="h-6 w-auto hover:opacity-80 transition-opacity" />
+            </a>
+          </div>
+
           {loading && (
             <div className="relative w-20 md:w-24 h-8 bg-[#16223f] animate-pulse rounded-md border border-[#253966]"></div>
           )}
@@ -3986,12 +3993,7 @@ function EditorPage() {
             </div>
           </div>
         </div>
-      {/* ListBulb Verification Badge */}
-      <div className="flex justify-center p-4 bg-[#070b19] border-t border-[#1e2a4a]/40 z-50">
-        <a href="https://www.listbulb.com/tools/addsubtitles" target="_blank" rel="noopener">
-          <img src="https://www.listbulb.com/featured-on-listbulb-light.svg" alt="Featured on ListBulb" height="240" className="h-8 w-auto hover:opacity-80 transition-opacity" />
-        </a>
-      </div>
+      )}
     </div>
   );
 }
