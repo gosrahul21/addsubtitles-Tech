@@ -235,7 +235,7 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-[#1e2a4a]/30 py-6 px-4 text-center">
+      <footer className="border-t border-[#1e2a4a]/30 py-6 px-4 flex flex-col items-center gap-4 text-center">
         <p className="text-xs text-zinc-600">
           © {new Date().getFullYear()} AddSubtitles ·{" "}
           <Link href="/about" className="hover:text-amber-400 transition-colors">Home</Link>
@@ -244,6 +244,9 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
           {" · "}
           <Link href="/pricing" className="hover:text-amber-400 transition-colors">Pricing</Link>
         </p>
+        <a href="https://www.listbulb.com/tools/addsubtitles" target="_blank" rel="noopener">
+          <img src="https://www.listbulb.com/featured-on-listbulb-light.svg" alt="Featured on ListBulb" height="240" className="h-8 w-auto hover:opacity-80 transition-opacity" />
+        </a>
       </footer>
     </div>
   );

@@ -306,13 +306,18 @@ export default function ToolsPage() {
           <div className="flex items-center gap-1.5">
             <Logo size="sm" />
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col md:flex-row items-center gap-4">
             <Link href="/about" className="hover:text-amber-400 transition-colors">Home</Link>
             <Link href="/tools" className="text-amber-400">Tools</Link>
             <Link href="/pricing" className="hover:text-amber-400 transition-colors">Pricing</Link>
             <Link href="/" className="hover:text-amber-400 transition-colors">Editor</Link>
           </div>
-          <p>© {new Date().getFullYear()} AddSubtitles. All rights reserved.</p>
+          <div className="flex flex-col items-center gap-2">
+            <p>© {new Date().getFullYear()} AddSubtitles. All rights reserved.</p>
+            <a href="https://www.listbulb.com/tools/addsubtitles" target="_blank" rel="noopener">
+              <img src="https://www.listbulb.com/featured-on-listbulb-light.svg" alt="Featured on ListBulb" height="240" className="h-8 w-auto hover:opacity-80 transition-opacity" />
+            </a>
+          </div>
         </div>
       </footer>
     </div>
