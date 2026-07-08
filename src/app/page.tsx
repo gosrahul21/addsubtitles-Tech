@@ -3545,7 +3545,7 @@ function EditorPage() {
           </div>
         </div>
 
-        <div className="hidden">
+        <div className="">
           <BadgeReel />
         </div>
       </footer>
