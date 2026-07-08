@@ -3550,9 +3550,14 @@ function EditorPage() {
           </div>
         </div>
 
-        <a href="https://findly.tools/addsubtitles?utm_source=addsubtitles" target="_blank" rel="noopener noreferrer">
-          <img src="https://findly.tools/badges/findly-tools-badge-light.svg" alt="Featured on Findly.tools" width="175" height="55" />
-        </a>
+        <div className="flex">
+          <a href="https://findly.tools/addsubtitles?utm_source=addsubtitles" target="_blank" rel="noopener noreferrer">
+            <img src="https://findly.tools/badges/findly-tools-badge-light.svg" alt="Featured on Findly.tools" width="175" height="55" />
+          </a>
+          <a href="https://www.listbulb.com/tools/addsubtitles" target="_blank" rel="noopener">
+            <img src="https://www.listbulb.com/featured-on-listbulb-light.svg" alt="Featured on ListBulb" height="55" width="175" />
+          </a>
+        </div>
       </footer>
 
       {/* Upload Modal */}
