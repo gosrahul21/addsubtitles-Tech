@@ -3544,13 +3544,6 @@ function EditorPage() {
             </div>
           </div>
         </div>
-
-        <div className="">
-                          <a href="https://starterbest.com" target="_blank" rel="noopener noreferrer">
-                  <img src="https://starterbest.com/badages-awards.svg"
-                    alt="Featured on Starter Best" style={{ height: "54px", width: "auto" }} />
-                </a>
-        </div>
       </footer>
 
       {/* Upload Modal */}
