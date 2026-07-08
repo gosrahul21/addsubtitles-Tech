@@ -1377,7 +1377,7 @@ function EditorPage() {
             </div>
           )}
           
-          <div className="hidden md:flex items-center mr-2">
+          <div className="hidden items-center mr-2">
             <a href="https://www.listbulb.com/tools/addsubtitles" target="_blank" rel="noopener" className="flex items-center">
               <img src="https://www.listbulb.com/featured-on-listbulb-light.svg" alt="Featured on ListBulb" height="240" className="h-6 w-auto hover:opacity-80 transition-opacity" />
             </a>
