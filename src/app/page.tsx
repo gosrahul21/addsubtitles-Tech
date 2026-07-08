@@ -3550,7 +3550,7 @@ function EditorPage() {
           </div>
         </div>
 
-        <div className="flex">
+        <div className="flex hidden">
           <a href="https://findly.tools/addsubtitles?utm_source=addsubtitles" target="_blank" rel="noopener noreferrer">
             <img src="https://findly.tools/badges/findly-tools-badge-light.svg" alt="Featured on Findly.tools" width="175" height="55" />
           </a>
