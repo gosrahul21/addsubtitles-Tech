@@ -10,6 +10,7 @@ import { generateHooksFromText, translateSubtitles, generateEmojisFromSegments }
 import UpgradeModal from '@/components/UpgradeModal';
 import ProfileModal from '@/components/ProfileModal';
 import Logo from '@/components/Logo';
+import BadgeReel from '@/components/BadgeReel';
 import {
   Type,
   Sparkles,
@@ -1376,12 +1377,6 @@ function EditorPage() {
               )}
             </div>
           )}
-
-          <div className="hidden items-center mr-2">
-            <a href="https://www.listbulb.com/tools/addsubtitles" target="_blank" rel="noopener" className="flex items-center">
-              <img src="https://www.listbulb.com/featured-on-listbulb-light.svg" alt="Featured on ListBulb" height="240" className="h-6 w-auto hover:opacity-80 transition-opacity" />
-            </a>
-          </div>
 
           {loading && (
             <div className="relative w-20 md:w-24 h-8 bg-[#16223f] animate-pulse rounded-md border border-[#253966]"></div>
@@ -3550,13 +3545,8 @@ function EditorPage() {
           </div>
         </div>
 
-        <div className="flex hidden">
-          <a href="https://findly.tools/addsubtitles?utm_source=addsubtitles" target="_blank" rel="noopener noreferrer">
-            <img src="https://findly.tools/badges/findly-tools-badge-light.svg" alt="Featured on Findly.tools" width="175" height="55" />
-          </a>
-          <a href="https://www.listbulb.com/tools/addsubtitles" target="_blank" rel="noopener">
-            <img src="https://www.listbulb.com/featured-on-listbulb-light.svg" alt="Featured on ListBulb" height="55" width="175" />
-          </a>
+        <div className="hidden">
+          <BadgeReel />
         </div>
       </footer>
 

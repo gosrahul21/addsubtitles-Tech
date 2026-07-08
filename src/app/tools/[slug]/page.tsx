@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import Logo from "@/components/Logo";
+import BadgeReel from "@/components/BadgeReel";
 import { ArrowRight, Zap, CheckCircle2, FileVideo, Captions, Sparkles } from "lucide-react";
 
 const FORMAT_FEATURES = [
@@ -244,9 +245,9 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
           {" · "}
           <Link href="/pricing" className="hover:text-amber-400 transition-colors">Pricing</Link>
         </p>
-        <a href="https://www.listbulb.com/tools/addsubtitles" target="_blank" rel="noopener">
-          <img src="https://www.listbulb.com/featured-on-listbulb-light.svg" alt="Featured on ListBulb" height="240" className="h-8 w-auto hover:opacity-80 transition-opacity" />
-        </a>
+        <div className="w-full mt-4">
+          <BadgeReel />
+        </div>
       </footer>
     </div>
   );

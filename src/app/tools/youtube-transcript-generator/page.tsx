@@ -5,6 +5,7 @@ import Link from "next/link";
 import Logo from "@/components/Logo";
 import { ArrowRight, Zap, Captions, Loader2, Copy, Check, Download, FileText } from "lucide-react";
 import { fetchYoutubeTranscript } from "./actions";
+import BadgeReel from "@/components/BadgeReel";
 
 export default function YoutubeTranscriptGeneratorPage() {
   const [url, setUrl] = useState("");
@@ -228,9 +229,7 @@ export default function YoutubeTranscriptGeneratorPage() {
           {" · "}
           <Link href="/pricing" className="hover:text-amber-400 transition-colors">Pricing</Link>
         </p>
-        <a href="https://www.listbulb.com/tools/addsubtitles" target="_blank" rel="noopener">
-          <img src="https://www.listbulb.com/featured-on-listbulb-light.svg" alt="Featured on ListBulb" height="240" className="h-8 w-auto hover:opacity-80 transition-opacity" />
-        </a>
+        <BadgeReel />
       </footer>
     </div>
   );

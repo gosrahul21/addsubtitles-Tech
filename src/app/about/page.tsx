@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
+import BadgeReel from "@/components/BadgeReel";
 import {
   ChevronDown,
   Scissors,
@@ -175,13 +176,13 @@ function AnimatedSubtitlePreview() {
   const getAnimStyle = (): React.CSSProperties => {
     const base: React.CSSProperties = { display: "inline-block" };
     switch (anim) {
-      case "Pop":    return { ...base, animation: "anim-pop 0.4s cubic-bezier(0.175,0.885,0.32,1.275) forwards" };
-      case "Stomp":  return { ...base, animation: "anim-stomp 0.4s cubic-bezier(0.175,0.885,0.32,1.275) forwards" };
-      case "Wave":   return { ...base, animation: "anim-wave 0.5s ease-in-out forwards" };
-      case "Flip":   return { ...base, animation: "anim-flip 0.5s ease-out forwards" };
-      case "Slide":  return { ...base, animation: "anim-slide 0.4s ease-out forwards" };
+      case "Pop": return { ...base, animation: "anim-pop 0.4s cubic-bezier(0.175,0.885,0.32,1.275) forwards" };
+      case "Stomp": return { ...base, animation: "anim-stomp 0.4s cubic-bezier(0.175,0.885,0.32,1.275) forwards" };
+      case "Wave": return { ...base, animation: "anim-wave 0.5s ease-in-out forwards" };
+      case "Flip": return { ...base, animation: "anim-flip 0.5s ease-out forwards" };
+      case "Slide": return { ...base, animation: "anim-slide 0.4s ease-out forwards" };
       case "Karaoke": return base;
-      default:       return base;
+      default: return base;
     }
   };
 
@@ -197,11 +198,10 @@ function AnimatedSubtitlePreview() {
             <span
               key={`${key}-${i}`}
               style={{ ...getAnimStyle(), animationDelay: `${i * 60}ms`, opacity: 0 }}
-              className={`text-xl font-black uppercase tracking-wide ${
-                anim === "Karaoke" && i === 2
+              className={`text-xl font-black uppercase tracking-wide ${anim === "Karaoke" && i === 2
                   ? "text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]"
                   : "text-white"
-              }`}
+                }`}
             >
               {w}
             </span>
@@ -279,11 +279,10 @@ export default function LandingPage() {
 
       {/* ── 1. NAVIGATION ─────────────────────────────────────────────── */}
       <nav
-        className={`fixed left-1/2 -translate-x-1/2 z-50 transition-all duration-300 w-[95%] max-w-6xl rounded-full ${
-          scrolled 
-            ? "top-4 bg-[#0d142d]/80 backdrop-blur-xl border border-[#1e2a4a] shadow-2xl" 
+        className={`fixed left-1/2 -translate-x-1/2 z-50 transition-all duration-300 w-[95%] max-w-6xl rounded-full ${scrolled
+            ? "top-4 bg-[#0d142d]/80 backdrop-blur-xl border border-[#1e2a4a] shadow-2xl"
             : "top-6 bg-[#070b19]/20 backdrop-blur-sm border border-transparent"
-        }`}
+          }`}
       >
         <div className="px-4 md:px-6 h-14 md:h-16 flex items-center justify-between">
 
@@ -411,7 +410,7 @@ export default function LandingPage() {
         {/* Layered backgrounds */}
         <div className="absolute inset-0 landing-grid opacity-60" />
         <div className="absolute inset-0 bg-gradient-to-b from-[#070b19]/30 via-[#070b19]/80 to-[#070b19]" />
-        
+
         {/* Animated Premium Glow Orbs */}
         <div className="absolute top-1/4 left-1/4 w-[800px] h-[800px] rounded-full bg-amber-500/10 blur-[150px] pointer-events-none animate-orb" />
         <div className="absolute top-1/3 right-1/4 w-[600px] h-[600px] rounded-full bg-blue-600/10 blur-[150px] pointer-events-none animate-orb" style={{ animationDelay: '-5s' }} />
@@ -637,7 +636,7 @@ export default function LandingPage() {
                         {ti === 0 && (
                           <>
                             {/* Silence cut zones */}
-                            {[{l: "18%", w: "8%"}, {l: "42%", w: "6%"}, {l: "71%", w: "9%"}].map((z, zi) => (
+                            {[{ l: "18%", w: "8%" }, { l: "42%", w: "6%" }, { l: "71%", w: "9%" }].map((z, zi) => (
                               <div
                                 key={zi}
                                 className="absolute inset-y-0"
@@ -654,8 +653,8 @@ export default function LandingPage() {
                         )}
                         {ti === 1 && (
                           <div className="flex gap-1 px-1">
-                            {[{w: "30%", l: "0%"}, {w: "20%", l: "35%"}, {w: "25%", l: "60%"}].map((s, si) => (
-                              <div key={si} className="absolute inset-y-0.5 rounded bg-blue-900/60 border border-blue-500/40" style={{left: s.l, width: s.w}} />
+                            {[{ w: "30%", l: "0%" }, { w: "20%", l: "35%" }, { w: "25%", l: "60%" }].map((s, si) => (
+                              <div key={si} className="absolute inset-y-0.5 rounded bg-blue-900/60 border border-blue-500/40" style={{ left: s.l, width: s.w }} />
                             ))}
                           </div>
                         )}
@@ -877,16 +876,14 @@ export default function LandingPage() {
             </p>
             <div className="flex items-center gap-3">
               <a href="#" aria-label="Twitter" className="text-zinc-600 hover:text-white transition-colors">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.631L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.631L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z" /></svg>
               </a>
               <a href="#" aria-label="YouTube" className="text-zinc-600 hover:text-white transition-colors">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" /></svg>
               </a>
             </div>
-            <div className="mt-2">
-              <a href="https://www.listbulb.com/tools/addsubtitles" target="_blank" rel="noopener">
-                <img src="https://www.listbulb.com/featured-on-listbulb-light.svg" alt="Featured on ListBulb" height="240" className="h-10 w-auto hover:opacity-80 transition-opacity" />
-              </a>
+            <div className="mt-4 w-full md:w-[150%] lg:w-[200%] -ml-2">
+              <BadgeReel />
             </div>
           </div>
 

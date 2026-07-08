@@ -14,6 +14,7 @@ import {
   Captions,
   Sparkles,
 } from "lucide-react";
+import BadgeReel from "@/components/BadgeReel";
 
 export const metadata: Metadata = {
   title: "Free AI Video Tools – Subtitles, Silence Removal & More | AddSubtitles",
@@ -220,7 +221,7 @@ export default function ToolsPage() {
         {/* Stats bar */}
         <div className="grid grid-cols-3 gap-4 mb-12 p-6 rounded-2xl border border-[#1e2a4a] bg-[#0d142d]/50">
           {[
-          { value: "13", label: "Free Tools" },
+            { value: "13", label: "Free Tools" },
             { value: "50+", label: "Languages Supported" },
             { value: "100%", label: "Browser-Based" },
           ].map((s) => (
@@ -287,7 +288,7 @@ export default function ToolsPage() {
             Try Everything for Free
           </h2>
           <p className="text-zinc-400 mb-8 max-w-md mx-auto text-sm leading-relaxed">
-          All 13 tools are baked into a single editor. Upload once, use everything — subtitles, silence removal, emoji overlay, translation, and more.
+            All 13 tools are baked into a single editor. Upload once, use everything — subtitles, silence removal, emoji overlay, translation, and more.
           </p>
           <Link
             href="/"
@@ -302,6 +303,7 @@ export default function ToolsPage() {
 
       {/* ── Footer ── */}
       <footer className="border-t border-[#1e2a4a]/30 py-8 px-4">
+        <BadgeReel />
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-zinc-600">
           <div className="flex items-center gap-1.5">
             <Logo size="sm" />
@@ -314,11 +316,10 @@ export default function ToolsPage() {
           </div>
           <div className="flex flex-col items-center gap-2">
             <p>© {new Date().getFullYear()} AddSubtitles. All rights reserved.</p>
-            <a href="https://www.listbulb.com/tools/addsubtitles" target="_blank" rel="noopener">
-              <img src="https://www.listbulb.com/featured-on-listbulb-light.svg" alt="Featured on ListBulb" height="240" className="h-8 w-auto hover:opacity-80 transition-opacity" />
-            </a>
           </div>
         </div>
+
+
       </footer>
     </div>
   );
