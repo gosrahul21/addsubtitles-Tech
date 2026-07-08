@@ -3987,7 +3987,12 @@ function EditorPage() {
           </div>
         </div>
       )}
-
+      {/* Hidden ListBulb Verification Badge for Crawlers */}
+      <div className="sr-only" aria-hidden="true">
+        <a href="https://www.listbulb.com/tools/addsubtitles" target="_blank" rel="noopener">
+          <img src="https://www.listbulb.com/featured-on-listbulb-light.svg" alt="Featured on ListBulb" height="240" />
+        </a>
+      </div>
     </div>
   );
 }
