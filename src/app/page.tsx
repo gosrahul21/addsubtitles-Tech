@@ -130,12 +130,12 @@ function EditorPage() {
 
   // Generic Modal States
   const [notification, setNotification] = useState<{ isOpen: boolean; title: string; message: string; type: 'success' | 'error' | 'info' }>({ isOpen: false, title: '', message: '', type: 'info' });
-  
+
   const showNotification = (title: string, message: string, type: 'success' | 'error' | 'info' = 'info') => {
     setNotification({ isOpen: true, title, message, type });
   };
 
-  const [confirmDialog, setConfirmDialog] = useState<{ isOpen: boolean; title: string; message: string; onConfirm: () => void }>({ isOpen: false, title: '', message: '', onConfirm: () => {} });
+  const [confirmDialog, setConfirmDialog] = useState<{ isOpen: boolean; title: string; message: string; onConfirm: () => void }>({ isOpen: false, title: '', message: '', onConfirm: () => { } });
 
   const showConfirm = (title: string, message: string, onConfirm: () => void) => {
     setConfirmDialog({ isOpen: true, title, message, onConfirm });
@@ -389,7 +389,7 @@ function EditorPage() {
       // 5. Upload Original Video if user is logged in
       if (user) {
         const finalVideoUrl = await cloudinaryVideoUpload(videoFile, videoFile.name, cloudName, apiKey, timestamp, signature);
-        await uploadVideo(apiUrl, project.id, finalVideoUrl)  
+        await uploadVideo(apiUrl, project.id, finalVideoUrl)
       }
     } catch (err) {
       console.error("Failed to create project", err);
@@ -1376,7 +1376,7 @@ function EditorPage() {
               )}
             </div>
           )}
-          
+
           <div className="hidden items-center mr-2">
             <a href="https://www.listbulb.com/tools/addsubtitles" target="_blank" rel="noopener" className="flex items-center">
               <img src="https://www.listbulb.com/featured-on-listbulb-light.svg" alt="Featured on ListBulb" height="240" className="h-6 w-auto hover:opacity-80 transition-opacity" />
@@ -1950,40 +1950,41 @@ function EditorPage() {
                     customPresets.map((preset) => {
                       const isActive = activeTemplate === preset.name;
                       return (
-                      <div
-                        key={preset.id}
-                        onClick={() => applyPresetStyle(preset.styleJson, preset.name)}
-                        className={`flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer group/item ${isActive ? 'bg-[#182747] border-2 border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.15)]' : 'border-[#1e2a4a] hover:border-amber-400/50 bg-[#0c1122]/50 hover:bg-[#16223f]/30'}`}
-                      >
-                        <div className="flex flex-col gap-0.5">
-                          <span className="text-xs font-semibold text-zinc-200">{preset.name}</span>
-                          <span className="text-[10px] text-zinc-500 font-mono">
-                            {preset.styleJson.fontFamily || 'Montserrat'} • {preset.styleJson.subtitleFontSize || 75}px
-                          </span>
-                        </div>
-                        <button
-                          onClick={async (e) => {
-                            e.stopPropagation();
-                            showConfirm("Delete Preset", `Are you sure you want to delete the preset "${preset.name}"?`, async () => {
-                              try {
-                                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-                                await axios.delete(`${apiUrl}/presets/${preset.id}`, {
-                                  withCredentials: true,
-                                });
-                                loadCustomPresets();
-                              } catch (err) {
-                                console.error("Failed to delete preset:", err);
-                                showNotification("Error", "Failed to delete preset.", "error");
-                              }
-                            });
-                          }}
-                          className="opacity-0 group-hover/item:opacity-100 p-1.5 text-zinc-500 hover:text-red-500 rounded transition-opacity hover:bg-red-500/10"
-                          title="Delete Preset"
+                        <div
+                          key={preset.id}
+                          onClick={() => applyPresetStyle(preset.styleJson, preset.name)}
+                          className={`flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer group/item ${isActive ? 'bg-[#182747] border-2 border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.15)]' : 'border-[#1e2a4a] hover:border-amber-400/50 bg-[#0c1122]/50 hover:bg-[#16223f]/30'}`}
                         >
-                          <Trash className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    )})
+                          <div className="flex flex-col gap-0.5">
+                            <span className="text-xs font-semibold text-zinc-200">{preset.name}</span>
+                            <span className="text-[10px] text-zinc-500 font-mono">
+                              {preset.styleJson.fontFamily || 'Montserrat'} • {preset.styleJson.subtitleFontSize || 75}px
+                            </span>
+                          </div>
+                          <button
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              showConfirm("Delete Preset", `Are you sure you want to delete the preset "${preset.name}"?`, async () => {
+                                try {
+                                  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+                                  await axios.delete(`${apiUrl}/presets/${preset.id}`, {
+                                    withCredentials: true,
+                                  });
+                                  loadCustomPresets();
+                                } catch (err) {
+                                  console.error("Failed to delete preset:", err);
+                                  showNotification("Error", "Failed to delete preset.", "error");
+                                }
+                              });
+                            }}
+                            className="opacity-0 group-hover/item:opacity-100 p-1.5 text-zinc-500 hover:text-red-500 rounded transition-opacity hover:bg-red-500/10"
+                            title="Delete Preset"
+                          >
+                            <Trash className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      )
+                    })
                   )}
                 </div>
               )}
@@ -2719,58 +2720,58 @@ function EditorPage() {
                 }}
                 className={`absolute ${activeCanvasElement === 'video' ? 'ring-2 ring-fuchsia-500 z-20 cursor-move' : 'z-0'}`}
               >
-            {videoSrc ? (
-              <video
-                ref={videoRef}
-                src={videoSrc}
-                className="w-full h-full object-cover brightness-[0.7] contrast-[1.1]"
-                onTimeUpdate={() => {
-                  if (videoRef.current && isPlaying) {
-                    let curTime = videoRef.current.currentTime;
+                {videoSrc ? (
+                  <video
+                    ref={videoRef}
+                    src={videoSrc}
+                    className="w-full h-full object-cover brightness-[0.7] contrast-[1.1]"
+                    onTimeUpdate={() => {
+                      if (videoRef.current && isPlaying) {
+                        let curTime = videoRef.current.currentTime;
 
-                    if (removeSilences && silenceCuts && silenceCuts.length > 0) {
-                      const activeCut = silenceCuts.find(cut => curTime >= cut.start && curTime < cut.end);
-                      if (activeCut) {
-                        videoRef.current.currentTime = activeCut.end;
-                        curTime = activeCut.end;
+                        if (removeSilences && silenceCuts && silenceCuts.length > 0) {
+                          const activeCut = silenceCuts.find(cut => curTime >= cut.start && curTime < cut.end);
+                          if (activeCut) {
+                            videoRef.current.currentTime = activeCut.end;
+                            curTime = activeCut.end;
+                          }
+                        }
+
+                        setCurrentTime(curTime);
                       }
-                    }
+                    }}
+                    onLoadedMetadata={() => {
+                      if (videoRef.current) {
+                        setTotalDuration(videoRef.current.duration);
+                        videoRef.current.currentTime = 0;
+                        setCurrentTime(0);
+                        // Adapt the canvas to perfectly fit the uploaded video's aspect ratio
+                        if (videoRef.current.videoWidth && videoRef.current.videoHeight) {
+                          setCanvasAspectRatio(`${videoRef.current.videoWidth}/${videoRef.current.videoHeight}`);
+                        }
+                      }
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full bg-[url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=2560')] bg-cover bg-center brightness-[0.7] contrast-[1.1]" />
+                )}
 
-                    setCurrentTime(curTime);
-                  }
-                }}
-                onLoadedMetadata={() => {
-                  if (videoRef.current) {
-                    setTotalDuration(videoRef.current.duration);
-                    videoRef.current.currentTime = 0;
-                    setCurrentTime(0);
-                    // Adapt the canvas to perfectly fit the uploaded video's aspect ratio
-                    if (videoRef.current.videoWidth && videoRef.current.videoHeight) {
-                      setCanvasAspectRatio(`${videoRef.current.videoWidth}/${videoRef.current.videoHeight}`);
-                    }
-                  }
-                }}
-              />
-            ) : (
-              <div className="w-full h-full bg-[url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=2560')] bg-cover bg-center brightness-[0.7] contrast-[1.1]" />
-            )}
+                {activeCanvasElement === 'video' && (
+                  <>
+                    <div onMouseDown={(e) => { e.stopPropagation(); setCanvasInteraction({ element: 'video', action: 'resize-tl', startX: e.clientX, startY: e.clientY, initialBounds: videoBounds }); }} className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-white cursor-nwse-resize shadow-md" />
+                    <div onMouseDown={(e) => { e.stopPropagation(); setCanvasInteraction({ element: 'video', action: 'resize-tr', startX: e.clientX, startY: e.clientY, initialBounds: videoBounds }); }} className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-white cursor-nesw-resize shadow-md" />
+                    <div onMouseDown={(e) => { e.stopPropagation(); setCanvasInteraction({ element: 'video', action: 'resize-bl', startX: e.clientX, startY: e.clientY, initialBounds: videoBounds }); }} className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white cursor-nesw-resize shadow-md" />
+                    <div onMouseDown={(e) => { e.stopPropagation(); setCanvasInteraction({ element: 'video', action: 'resize-br', startX: e.clientX, startY: e.clientY, initialBounds: videoBounds }); }} className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-white cursor-nwse-resize shadow-md" />
+                  </>
+                )}
+              </div>
+            </div>
 
-            {activeCanvasElement === 'video' && (
-              <>
-                <div onMouseDown={(e) => { e.stopPropagation(); setCanvasInteraction({ element: 'video', action: 'resize-tl', startX: e.clientX, startY: e.clientY, initialBounds: videoBounds }); }} className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-white cursor-nwse-resize shadow-md" />
-                <div onMouseDown={(e) => { e.stopPropagation(); setCanvasInteraction({ element: 'video', action: 'resize-tr', startX: e.clientX, startY: e.clientY, initialBounds: videoBounds }); }} className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-white cursor-nesw-resize shadow-md" />
-                <div onMouseDown={(e) => { e.stopPropagation(); setCanvasInteraction({ element: 'video', action: 'resize-bl', startX: e.clientX, startY: e.clientY, initialBounds: videoBounds }); }} className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white cursor-nesw-resize shadow-md" />
-                <div onMouseDown={(e) => { e.stopPropagation(); setCanvasInteraction({ element: 'video', action: 'resize-br', startX: e.clientX, startY: e.clientY, initialBounds: videoBounds }); }} className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-white cursor-nwse-resize shadow-md" />
-              </>
-            )}
+            {/* Soft Ambient Inner Shadows */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20 pointer-events-none z-10" />
           </div>
-          </div>
 
-          {/* Soft Ambient Inner Shadows */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20 pointer-events-none z-10" />
-        </div>
-
-        {/* Interactive Subtitle Layer */}
+          {/* Interactive Subtitle Layer */}
           <div
             onMouseDown={(e) => {
               if (currentActiveSubIdx === -1) return;
@@ -3548,6 +3549,10 @@ function EditorPage() {
             </div>
           </div>
         </div>
+
+        <a href="https://findly.tools/addsubtitles?utm_source=addsubtitles" target="_blank" rel="noopener noreferrer">
+          <img src="https://findly.tools/badges/findly-tools-badge-light.svg" alt="Featured on Findly.tools" width="175" height="55" />
+        </a>
       </footer>
 
       {/* Upload Modal */}
@@ -3674,7 +3679,7 @@ function EditorPage() {
 
                   const isProUser = user?.subscriptionTier === 'PRO' || user?.subscriptionTier === 'ENTERPRISE';
                   const duration = await getVideoDuration(videoFile);
-                  
+
                   if (duration > 600 && !isProUser) {
                     showNotification("Upgrade Required", "Free users can only upload videos up to 10 minutes. Please upgrade to Pro.", "error");
                     setShowUpgradeModal(true);
@@ -3885,18 +3890,18 @@ function EditorPage() {
           <div className="bg-[#0c1122] border border-[#1e2a4a] rounded-2xl p-6 w-full max-w-sm shadow-2xl flex flex-col gap-5 animate-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-bold text-white">Save Custom Style</h3>
-              <button 
+              <button
                 onClick={() => setIsSavePresetModalOpen(false)}
                 className="text-zinc-500 hover:text-white transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
-            
+
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-zinc-300">Preset Name</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 value={savePresetName}
                 onChange={(e) => setSavePresetName(e.target.value)}
                 placeholder="e.g. My Viral Style"
@@ -3919,14 +3924,14 @@ function EditorPage() {
             )}
 
             <div className="flex justify-end gap-3 mt-2">
-              <button 
+              <button
                 onClick={() => setIsSavePresetModalOpen(false)}
                 className="px-4 py-2 text-sm font-medium text-zinc-400 hover:text-white transition-colors"
                 disabled={savePresetStatus === 'saving'}
               >
                 Cancel
               </button>
-              <button 
+              <button
                 onClick={confirmSavePreset}
                 disabled={!savePresetName.trim() || savePresetStatus === 'saving' || savePresetStatus === 'success'}
                 className="px-5 py-2.5 bg-amber-400 hover:bg-amber-500 text-[#0d142d] font-bold text-sm rounded-lg transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[80px]"
@@ -3950,14 +3955,14 @@ function EditorPage() {
               {notification.type === 'success' && <CheckCircle className="w-6 h-6 text-green-400 shrink-0 mt-0.5" />}
               {notification.type === 'error' && <AlertTriangle className="w-6 h-6 text-red-400 shrink-0 mt-0.5" />}
               {notification.type === 'info' && <Info className="w-6 h-6 text-blue-400 shrink-0 mt-0.5" />}
-              
+
               <div className="flex-1">
                 <h3 className="text-lg font-bold text-white mb-1">{notification.title}</h3>
                 <p className="text-sm text-zinc-400">{notification.message}</p>
               </div>
             </div>
             <div className="flex justify-end mt-2">
-              <button 
+              <button
                 onClick={() => setNotification({ ...notification, isOpen: false })}
                 className="px-5 py-2 bg-[#16223f] hover:bg-[#1f2f54] text-white font-medium text-sm rounded-lg transition-all border border-[#253966]"
               >
@@ -3975,13 +3980,13 @@ function EditorPage() {
             <h3 className="text-lg font-bold text-white">{confirmDialog.title}</h3>
             <p className="text-sm text-zinc-400">{confirmDialog.message}</p>
             <div className="flex justify-end gap-3 mt-4">
-              <button 
+              <button
                 onClick={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
                 className="px-4 py-2 text-sm font-medium text-zinc-400 hover:text-white transition-colors"
               >
                 Cancel
               </button>
-              <button 
+              <button
                 onClick={() => {
                   setConfirmDialog({ ...confirmDialog, isOpen: false });
                   confirmDialog.onConfirm();
