@@ -3544,6 +3544,11 @@ function EditorPage() {
             </div>
           </div>
         </div>
+        <div className="hidden">
+          <a href="https://huzzler.so/products/7eJFWNheLV/addsubtitles?utm_source=huzzler_product_website&amp;utm_medium=badge&amp;utm_campaign=badge" target="_blank" rel="noopener noreferrer">
+            <img alt="Huzzler Embed Badge" src="https://huzzler.so/assets/images/embeddable-badges/featured.png" width="159" height="55" />
+          </a>
+        </div>
       </footer>
 
       {/* Upload Modal */}
