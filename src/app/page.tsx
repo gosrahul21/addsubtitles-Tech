@@ -790,7 +790,7 @@ export default function LandingPage() {
           </div>
           <div className="mt-8 text-center">
             <Link
-              href="/"
+              href="/editor"
               className="subplus-button inline-flex items-center gap-2 px-8 py-4 rounded-xl font-black text-base shadow-[0_0_30px_rgba(212,175,55,0.2)]"
             >
               <Zap className="w-5 h-5" />
