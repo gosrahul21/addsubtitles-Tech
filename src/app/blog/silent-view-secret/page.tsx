@@ -258,7 +258,7 @@ export default function BlogPost() {
                   Try addsubtitles.tech and plug automated, accurate subtitles into your content pipeline today.
                 </p>
                 
-                <Link href="/" className="inline-flex items-center justify-center gap-3 px-10 py-5 rounded-full bg-gradient-to-b from-amber-400 to-amber-600 text-[#332b10] font-black text-xl hover:scale-[1.02] active:scale-95 transition-all shadow-[0_0_40px_rgba(212,175,55,0.3)] hover:shadow-[0_0_80px_rgba(212,175,55,0.5)]">
+                <Link href="/editor" className="inline-flex items-center justify-center gap-3 px-10 py-5 rounded-full bg-gradient-to-b from-amber-400 to-amber-600 text-[#332b10] font-black text-xl hover:scale-[1.02] active:scale-95 transition-all shadow-[0_0_40px_rgba(212,175,55,0.3)] hover:shadow-[0_0_80px_rgba(212,175,55,0.5)]">
                   Try AddSubtitles Free <ArrowRight className="w-6 h-6" />
                 </Link>
               </div>

@@ -15,7 +15,7 @@ export default function PaymentSuccessPage() {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(interval);
-          router.push('/');
+          router.push('/editor');
           return 0;
         }
         return prev - 1;
@@ -54,7 +54,7 @@ export default function PaymentSuccessPage() {
         </div>
 
         <Link 
-          href="/"
+          href="/editor"
           className="subplus-button w-full py-4 rounded-xl font-bold text-lg text-[#332b10] flex justify-center items-center shadow-[0_0_20px_rgba(212,175,55,0.2)] hover:shadow-[0_0_30px_rgba(212,175,55,0.4)] transition-all duration-300 relative overflow-hidden group"
         >
           <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent group-hover:animate-[shimmer_1.5s_infinite]" />
