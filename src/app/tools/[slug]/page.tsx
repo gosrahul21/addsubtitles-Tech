@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import BadgeReel from "@/components/BadgeReel";
+import { getEditorUrl } from "@/config/urls";
 import { ArrowRight, Zap, CheckCircle2, FileVideo, Captions, Sparkles } from "lucide-react";
 
 const FORMAT_FEATURES = [
@@ -125,7 +126,7 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
   };
 
   const isFormatTool = !!meta.format;
-  const editorHref = slug === 'remove-silences-online' ? '/?subtitles=false&removeSilences=true' : '/editor';
+  const editorHref = getEditorUrl(slug);
   const otherFormats = OTHER_FORMATS.filter((f) => f.slug !== slug);
 
   return (
