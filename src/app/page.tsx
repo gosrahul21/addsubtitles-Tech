@@ -367,7 +367,7 @@ export default function LandingPage() {
             </Link>
             <Link
               id="nav-cta-btn"
-              href="/"
+              href="/editor"
               className="subplus-button px-5 py-2 rounded-lg text-sm font-bold flex items-center gap-1.5 animate-pulse-glow"
             >
               Start for Free
