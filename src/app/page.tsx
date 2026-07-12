@@ -849,6 +849,9 @@ export default function LandingPage() {
 
       {/* ── 7. FOOTER ────────────────────────────────────────────────── */}
       <footer className="border-t border-[#1e2a4a]/40 bg-[#070b19]">
+        <div className="w-full border-b border-[#1e2a4a]/20 bg-[#0d142d]/30">
+          <BadgeReel />
+        </div>
         {/* SEO link net */}
         <div className="border-b border-[#1e2a4a]/30 py-8 px-4">
           <div className="max-w-6xl mx-auto">
@@ -883,9 +886,6 @@ export default function LandingPage() {
               <a href="#" aria-label="YouTube" className="text-zinc-600 hover:text-white transition-colors">
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" /></svg>
               </a>
-            </div>
-            <div className="mt-4 w-full md:w-[150%] lg:w-[200%] -ml-2">
-              <BadgeReel />
             </div>
           </div>
 
