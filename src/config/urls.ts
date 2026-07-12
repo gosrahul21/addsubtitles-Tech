@@ -1,6 +1,8 @@
+import { AppConfig } from './appConfig';
+
 export const getEditorUrl = (toolSlug?: string): string => {
   if (toolSlug === 'remove-silences-online') {
-    return '/editor?subtitles=false&removeSilences=true';
+    return `${AppConfig.EDITOR_URL}?subtitles=false&removeSilences=true`;
   }
-  return '/editor';
+  return AppConfig.EDITOR_URL;
 };

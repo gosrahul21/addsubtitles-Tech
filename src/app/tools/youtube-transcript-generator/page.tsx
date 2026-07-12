@@ -1,4 +1,6 @@
 "use client";
+import { AppConfig } from "@/config/appConfig";
+
 
 import { useState } from "react";
 import Link from "next/link";
@@ -113,7 +115,7 @@ export default function YoutubeTranscriptGeneratorPage() {
             All Tools
           </Link>
           <Link
-            href="/editor"
+            href={AppConfig.EDITOR_URL}
             className="subplus-button px-5 py-2 rounded-lg text-sm font-bold flex items-center gap-1.5 bg-amber-500 text-black hover:bg-amber-400 transition"
           >
             Try Free <ArrowRight className="w-3.5 h-3.5" />

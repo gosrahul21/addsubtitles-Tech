@@ -1,3 +1,4 @@
+import { AppConfig } from "@/config/appConfig";
 import { Metadata } from "next";
 import Link from "next/link";
 import Logo from "@/components/Logo";
@@ -188,7 +189,7 @@ export default function ToolsPage() {
             <Link href="/pricing" className="text-zinc-400 hover:text-white transition-colors">Pricing</Link>
           </div>
           <Link
-            href="/editor"
+            href={AppConfig.EDITOR_URL}
             className="flex items-center gap-2 bg-gradient-to-r from-amber-400 to-yellow-500 text-zinc-900 px-5 py-2 rounded-lg text-sm font-black hover:from-amber-300 hover:to-yellow-400 transition-all shadow-[0_0_20px_rgba(251,191,36,0.25)]"
           >
             <Zap className="w-3.5 h-3.5" />
@@ -291,7 +292,7 @@ export default function ToolsPage() {
             All 13 tools are baked into a single editor. Upload once, use everything — subtitles, silence removal, emoji overlay, translation, and more.
           </p>
           <Link
-            href="/editor"
+            href={AppConfig.EDITOR_URL}
             className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-400 to-yellow-500 text-zinc-900 px-8 py-4 rounded-xl font-black text-base hover:from-amber-300 hover:to-yellow-400 transition-all shadow-[0_0_30px_rgba(251,191,36,0.2)]"
           >
             <Zap className="w-5 h-5" />
@@ -312,7 +313,7 @@ export default function ToolsPage() {
             <Link href="/about" className="hover:text-amber-400 transition-colors">Home</Link>
             <Link href="/tools" className="text-amber-400">Tools</Link>
             <Link href="/pricing" className="hover:text-amber-400 transition-colors">Pricing</Link>
-            <Link href="/editor" className="hover:text-amber-400 transition-colors">Editor</Link>
+            <Link href={AppConfig.EDITOR_URL} className="hover:text-amber-400 transition-colors">Editor</Link>
           </div>
           <div className="flex flex-col items-center gap-2">
             <p>© {new Date().getFullYear()} AddSubtitles. All rights reserved.</p>

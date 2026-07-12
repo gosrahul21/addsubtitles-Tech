@@ -1,4 +1,6 @@
 "use client";
+import { AppConfig } from "@/config/appConfig";
+
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
@@ -367,7 +369,7 @@ export default function LandingPage() {
             </Link>
             <Link
               id="nav-cta-btn"
-              href="/editor"
+              href={AppConfig.EDITOR_URL}
               className="subplus-button px-5 py-2 rounded-lg text-sm font-bold flex items-center gap-1.5 animate-pulse-glow"
             >
               Start for Free
@@ -394,7 +396,7 @@ export default function LandingPage() {
               </Link>
             ))}
             <div className="border-t border-[#1e2a4a]/50 pt-3 mt-1">
-              <Link href="/editor" onClick={() => setMobileMenuOpen(false)} className="subplus-button w-full py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2">
+              <Link href={AppConfig.EDITOR_URL} onClick={() => setMobileMenuOpen(false)} className="subplus-button w-full py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2">
                 Start for Free – No Credit Card
               </Link>
             </div>
@@ -455,7 +457,7 @@ export default function LandingPage() {
           >
             <Link
               id="hero-cta-primary"
-              href="/editor"
+              href={AppConfig.EDITOR_URL}
               className="subplus-button px-8 py-4 rounded-xl text-base font-black flex items-center gap-2 shadow-[0_0_30px_rgba(212,175,55,0.25)] hover:shadow-[0_0_50px_rgba(212,175,55,0.4)] transition-all"
             >
               <Zap className="w-4 h-4" />
@@ -670,7 +672,7 @@ export default function LandingPage() {
                 Silence zones detected and removed
               </div>
               <Link
-                href="/editor"
+                href={AppConfig.EDITOR_URL}
                 className="subplus-button w-full py-3 rounded-xl text-sm font-bold text-center flex items-center justify-center gap-2 mt-2"
               >
                 Try it now – free <ArrowRight className="w-4 h-4" />
@@ -702,7 +704,7 @@ export default function LandingPage() {
                   </span>
                 ))}
               </div>
-              <Link href="/editor" className="subplus-button w-fit px-6 py-3 rounded-xl text-sm font-bold flex items-center gap-2">
+              <Link href={AppConfig.EDITOR_URL} className="subplus-button w-fit px-6 py-3 rounded-xl text-sm font-bold flex items-center gap-2">
                 Pick your animation <ChevronRight className="w-4 h-4" />
               </Link>
             </div>
@@ -790,7 +792,7 @@ export default function LandingPage() {
           </div>
           <div className="mt-8 text-center">
             <Link
-              href="/editor"
+              href={AppConfig.EDITOR_URL}
               className="subplus-button inline-flex items-center gap-2 px-8 py-4 rounded-xl font-black text-base shadow-[0_0_30px_rgba(212,175,55,0.2)]"
             >
               <Zap className="w-5 h-5" />
@@ -835,7 +837,7 @@ export default function LandingPage() {
           </p>
           <Link
             id="final-cta-btn"
-            href="/editor"
+            href={AppConfig.EDITOR_URL}
             className="subplus-button px-12 py-5 rounded-xl text-lg font-black flex items-center gap-2 shadow-[0_0_50px_rgba(212,175,55,0.3)] hover:scale-105 transition-all"
           >
             <Zap className="w-5 h-5" />
