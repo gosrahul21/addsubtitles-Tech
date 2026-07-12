@@ -125,7 +125,7 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
   };
 
   const isFormatTool = !!meta.format;
-  const editorHref = slug === 'remove-silences-online' ? '/?subtitles=false&removeSilences=true' : '/';
+  const editorHref = slug === 'remove-silences-online' ? '/?subtitles=false&removeSilences=true' : '/editor';
   const otherFormats = OTHER_FORMATS.filter((f) => f.slug !== slug);
 
   return (
