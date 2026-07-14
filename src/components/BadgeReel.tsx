@@ -29,6 +29,10 @@ export default function BadgeReel() {
                   <img alt="Huzzler Embed Badge" src="https://huzzler.so/assets/images/embeddable-badges/featured.png" style={{ height: "37px", width: "106px" }} />
                 </a>
 
+                <a href="https://launchpanda.dev/launches/ai-tool/addsubtitles" target="_blank" rel="noopener noreferrer" className="shrink-0 flex items-center">
+                  <img src="https://launchpanda.dev/images/badges/launchpanda-badge.svg" alt="Launched on LaunchPanda" style={{ height: "30px", width: "auto" }} />
+                </a>
+
               </div>
             ))}
           </div>
