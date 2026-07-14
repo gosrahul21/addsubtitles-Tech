@@ -33,7 +33,11 @@ export default function BadgeReel() {
                   <img src="https://launchpanda.dev/images/badges/launchpanda-badge.svg" alt="Launched on LaunchPanda" style={{ height: "30px", width: "auto" }} />
                 </a>
 
-                <a target="_blank" href="https://goodaitools.com/ai/addsubtitles"><img src="https://goodaitools.com/assets/images/badge.png" alt="Good AI Tools" height="54" loading="lazy"></a>
+                <a target="_blank" href="https://goodaitools.com/ai/addsubtitles"><img src="https://goodaitools.com/assets/images/badge.png" alt="Good AI Tools" height="54" loading="lazy" /></a>
+
+                <a href="https://neeed.directory/products/addsubtitles?utm_source=addsubtitles" target="_blank" rel="noopener">
+                  <img src="https://neeed.directory/badges/neeed-badge-light.svg" alt="Featured on neeed.directory" width="139" />
+                </a>
               </div>
             ))}
           </div>
