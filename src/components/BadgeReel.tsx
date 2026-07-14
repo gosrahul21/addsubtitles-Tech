@@ -33,6 +33,7 @@ export default function BadgeReel() {
                   <img src="https://launchpanda.dev/images/badges/launchpanda-badge.svg" alt="Launched on LaunchPanda" style={{ height: "30px", width: "auto" }} />
                 </a>
 
+                <a target="_blank" href="https://goodaitools.com/ai/addsubtitles"><img src="https://goodaitools.com/assets/images/badge.png" alt="Good AI Tools" height="54" loading="lazy"></a>
               </div>
             ))}
           </div>
