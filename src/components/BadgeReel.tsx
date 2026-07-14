@@ -11,22 +11,22 @@ export default function BadgeReel() {
     >
       <div className="flex w-max animate-ticker hover:[animation-play-state:paused]">
         {[...Array(2)].map((_, groupIdx) => (
-          <div key={groupIdx} className="flex items-center">
+          <div key={groupIdx} className="flex items-center shrink-0">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="flex items-center gap-8 px-4">
-                <a href="https://www.listbulb.com/tools/addsubtitles" target="_blank" rel="noopener noreferrer">
-                  <img src="https://www.listbulb.com/featured-on-listbulb-light.svg" alt="Featured on ListBulb" className="h-100 w-150 hover:opacity-80 transition-opacity" />
+              <div key={i} className="flex items-center gap-8 px-4 shrink-0">
+                <a href="https://www.listbulb.com/tools/addsubtitles" target="_blank" rel="noopener noreferrer" className="shrink-0 flex items-center">
+                  <img src="https://www.listbulb.com/featured-on-listbulb-light.svg" alt="Featured on ListBulb" className="h-[64px] md:h-[80px] w-auto hover:opacity-80 transition-opacity" />
                 </a>
-                <a href="https://findly.tools/addsubtitles?utm_source=addsubtitles" target="_blank" rel="noopener noreferrer">
-                  <img src="https://findly.tools/badges/findly-tools-badge-light.svg" alt="Featured on Findly.tools" className="h-32 w-auto hover:opacity-80 transition-opacity" />
+                <a href="https://findly.tools/addsubtitles?utm_source=addsubtitles" target="_blank" rel="noopener noreferrer" className="shrink-0 flex items-center">
+                  <img src="https://findly.tools/badges/findly-tools-badge-light.svg" alt="Featured on Findly.tools" className="h-[80px] md:h-[96px] w-auto hover:opacity-80 transition-opacity" />
                 </a>
-                <a href="https://starterbest.com" target="_blank" rel="noopener noreferrer">
+                <a href="https://starterbest.com" target="_blank" rel="noopener noreferrer" className="shrink-0 flex items-center">
                   <img src="https://starterbest.com/badages-awards.svg"
-                    alt="Featured on Starter Best" style={{ height: "54px", width: "auto" }} />
+                    alt="Featured on Starter Best" style={{ height: "108px", width: "auto" }} />
                 </a>
 
-                <a href="https://huzzler.so/products/7eJFWNheLV/addsubtitles?utm_source=huzzler_product_website&utm_medium=badge&utm_campaign=free_listing" target="_blank" rel="noopener noreferrer">
-                  <img alt="Huzzler Embed Badge" src="https://huzzler.so/assets/images/embeddable-badges/featured.png" width="159" height="55" />
+                <a href="https://huzzler.so/products/7eJFWNheLV/addsubtitles?utm_source=huzzler_product_website&utm_medium=badge&utm_campaign=free_listing" target="_blank" rel="noopener noreferrer" className="shrink-0 flex items-center">
+                  <img alt="Huzzler Embed Badge" src="https://huzzler.so/assets/images/embeddable-badges/featured.png" style={{ height: "110px", width: "318px" }} />
                 </a>
 
               </div>
