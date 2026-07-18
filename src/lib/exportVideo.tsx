@@ -168,6 +168,18 @@ const SubtitleSnapshot = ({ options, sub, currentTime }: { options: ExportOption
     if (activeWordIndex === -1) activeWordIndex = currentTime >= sub.end ? words.length - 1 : 0;
   }
 
+  const limit = maxWordsPerLine !== 'Auto' ? parseInt(maxWordsPerLine, 10) : words.length;
+  let activeChunkIdx = 0;
+  if (activeWordIndex >= 0) {
+    activeChunkIdx = Math.floor(activeWordIndex / limit);
+  }
+
+  let visibleChunks = chunkedWords.map((chunk, idx) => ({ chunk, originalChunkIdx: idx }));
+  if (maxLines > 0 && maxWordsPerLine !== 'Auto') {
+    const startChunkIdx = Math.floor(activeChunkIdx / maxLines) * maxLines;
+    visibleChunks = visibleChunks.slice(startChunkIdx, startChunkIdx + maxLines);
+  }
+
   // We render the container at the absolute pixel dimensions to match the video exactly
   const left = (subtitleBounds.x / 100) * videoWidth;
   const top = (subtitleBounds.y / 100) * videoHeight;
@@ -183,14 +195,14 @@ const SubtitleSnapshot = ({ options, sub, currentTime }: { options: ExportOption
   const scaledPaddingY = bgPaddingY * scaleRatio;
 
   const renderTextChunks = (isStrokeLayer: boolean) => (
-    chunkedWords.map((chunk, chunkIdx) => (
-      <span key={chunkIdx} className={bgStyle === 'Fit' || bgStyle === 'Wrap' ? 'block' : 'inline'}>
+    visibleChunks.map(({ chunk, originalChunkIdx }, renderIdx) => (
+      <span key={originalChunkIdx} className={bgStyle === 'Fit' || bgStyle === 'Wrap' ? 'block' : 'inline'}>
         <span
           className={bgStyle === 'Fit' || bgStyle === 'Wrap' ? 'inline-block' : 'inline'}
           style={(bgStyle === 'Fit' || bgStyle === 'Wrap') && !isBgTransparent ? { backgroundColor, borderRadius: `${scaledRadius}px`, padding: `${scaledPaddingY}px ${scaledPaddingX}px`, marginBottom: '4px' } : {}}
         >
           {chunk.map((w, idx) => {
-            const globalIdx = chunkIdx * (maxWordsPerLine === 'Auto' ? words.length : parseInt(maxWordsPerLine, 10)) + idx;
+            const globalIdx = originalChunkIdx * limit + idx;
             let wordStyles: React.CSSProperties = { display: 'inline-block', margin: '0 0.12em' };
 
             if (wordAnim === 'Reveal') {
@@ -251,7 +263,7 @@ const SubtitleSnapshot = ({ options, sub, currentTime }: { options: ExportOption
             );
           })}
         </span>
-        {chunkIdx < chunkedWords.length - 1 && <br />}
+        {renderIdx < visibleChunks.length - 1 && <br />}
       </span>
     ))
   );
@@ -265,10 +277,6 @@ const SubtitleSnapshot = ({ options, sub, currentTime }: { options: ExportOption
     fontStyle: subtitleStyle.italic ? 'italic' : (templateStyle.fontStyle || 'normal'),
     textTransform: subtitleStyle.allCaps ? 'uppercase' : (templateStyle.textTransform || 'none'),
     textAlign: fontAlign as any,
-    WebkitLineClamp: maxLines > 0 ? maxLines : undefined,
-    display: maxLines > 0 ? '-webkit-box' : 'block',
-    WebkitBoxOrient: maxLines > 0 ? 'vertical' : undefined,
-    overflow: maxLines > 0 ? 'hidden' : 'visible',
     width: bgStyle === 'Fill' ? '100%' : 'auto',
     transform: animStyles.transform || (randomRotate ? `rotate(${(Math.round(sub.start * 13) % 5) - 2}deg)` : (templateStyle.transform || 'none')),
     opacity: animStyles.opacity !== undefined ? animStyles.opacity : 1,
