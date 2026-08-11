@@ -1268,7 +1268,7 @@ function EditorPage() {
                   removeSilences,
                   silenceCuts,
                   filterFillerWords,
-                  addWatermark: true,
+                  addWatermark: !isPro,
                 }, (status, progress) => {
                   setExportStatus(status);
                   setExportProgress(progress);
