@@ -1041,6 +1041,26 @@ function EditorPage() {
     }
   };
 
+  const handleTranslateSubtitles = async (lang: string = targetLanguage) => {
+    if (timelineSegments.length === 0) {
+      showNotification("No Subtitles", "Please upload a video or create subtitles first.", "info");
+      return;
+    }
+    try {
+      setIsTranslating(true);
+      showNotification("Translating", `Translating subtitles into ${lang} using Groq...`, "info");
+      const translated = await translateSubtitles(timelineSegments, lang);
+      if (translated && translated.length > 0) {
+        setTimelineSegments(translated);
+        showNotification("Success", `Subtitles translated into ${lang}!`, "success");
+      }
+    } catch (err: any) {
+      showNotification("Translation Failed", err?.message || "Failed to translate subtitles", "error");
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
   const pollProjectStatus = (projectId: string) => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
     const interval = setInterval(async () => {
@@ -1518,10 +1538,33 @@ function EditorPage() {
                 setEditingSubtitleIndex(null);
               }}
             >
-              <button onClick={() => handleProFeature(() => showNotification("Translating", "Translation started...", "info"))} className="w-full flex items-center justify-center gap-2 py-2.5 md:py-3 mb-6 bg-[#16223f] hover:bg-[#1a294d] border border-[#253966] rounded-xl text-[13px] md:text-sm font-semibold text-zinc-300 transition-all shadow-md group active:scale-95">
-                <Languages className="w-4 h-4 group-hover:text-amber-400 transition-all" />
-                Translate / Auto-sync <Crown className="w-3 h-3 ml-1 text-amber-500" />
-              </button>
+              <div className="flex items-center gap-2 mb-6">
+                <select
+                  value={targetLanguage}
+                  onChange={(e) => setTargetLanguage(e.target.value)}
+                  className="bg-[#16223f] border border-[#253966] rounded-xl text-xs md:text-sm text-zinc-300 px-3 py-2.5 outline-none focus:border-amber-400 cursor-pointer"
+                >
+                  <option value="Spanish">Spanish</option>
+                  <option value="Hindi">Hindi</option>
+                  <option value="French">French</option>
+                  <option value="German">German</option>
+                  <option value="Japanese">Japanese</option>
+                  <option value="Portuguese">Portuguese</option>
+                  <option value="Italian">Italian</option>
+                  <option value="Arabic">Arabic</option>
+                  <option value="Russian">Russian</option>
+                  <option value="Chinese">Chinese</option>
+                </select>
+                <button
+                  disabled={isTranslating}
+                  onClick={() => handleProFeature(() => handleTranslateSubtitles(targetLanguage))}
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 md:py-3 bg-[#16223f] hover:bg-[#1a294d] border border-[#253966] rounded-xl text-[13px] md:text-sm font-semibold text-zinc-300 transition-all shadow-md group active:scale-95 disabled:opacity-50"
+                >
+                  <Languages className={`w-4 h-4 ${isTranslating ? 'animate-spin text-amber-400' : 'group-hover:text-amber-400'} transition-all`} />
+                  {isTranslating ? 'Translating...' : 'Translate'}
+                  <Crown className="w-3 h-3 ml-1 text-amber-500" />
+                </button>
+              </div>
               <div className="flex flex-col gap-3 pb-6">
                 {timelineSegments.map((seg, i) => {
                   const isActive = currentTime >= seg.start && currentTime < seg.end;

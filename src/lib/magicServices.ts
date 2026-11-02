@@ -28,35 +28,21 @@ export const generateEmojisFromSegments = async (segments: any[]): Promise<any[]
 };
 
 export const translateSubtitles = async (segments: any[], language: string): Promise<any[]> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      // Mock translated strings based on language
-      const mockTranslations = {
-        "Spanish": [
-          "um o uso, sin registro, uh sin pago requerido.",
-          "Así es como funciona...",
-          "Sube tu video.",
-          "Edita tus subtítulos um palabra por palabra.",
-          "Personaliza fuentes, colores y posicionamiento.",
-          "Ajusta uh el tiempo y el estilo"
-        ],
-        "French": [
-          "um o utilisation, pas d'inscription, uh aucun paiement requis.",
-          "Voici comment ça marche...",
-          "Téléchargez votre vidéo.",
-          "Modifiez vos sous-titres um mot par mot.",
-          "Personnalisez les polices, les couleurs et le positionnement.",
-          "Ajustez uh le timing et le style"
-        ]
-      };
-
-      const translatedLabels = (mockTranslations as any)[language] || segments.map(s => `[${language}] ${s.label}`);
-      
-      const translated = segments.map((seg, idx) => ({
-        ...seg,
-        label: translatedLabels[idx] || seg.label
-      }));
-      resolve(translated);
-    }, 1500);
-  });
+  try {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    const response = await axios.post(
+      `${apiUrl}/ai/translate-subtitles`,
+      { segments, targetLanguage: language },
+      { withCredentials: true }
+    );
+    return response.data.translatedSegments || [];
+  } catch (error) {
+    console.error('Failed to translate subtitles with Groq API:', error);
+    // Fallback if network or backend error occurs
+    return segments.map((seg) => ({
+      ...seg,
+      label: `[${language}] ${seg.label || seg.text}`,
+      text: `[${language}] ${seg.text || seg.label}`,
+    }));
+  }
 };

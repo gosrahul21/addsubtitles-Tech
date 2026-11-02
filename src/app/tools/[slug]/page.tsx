@@ -4,6 +4,7 @@ import Logo from "@/components/Logo";
 import BadgeReel from "@/components/BadgeReel";
 import { getEditorUrl } from "@/config/urls";
 import { ArrowRight, Zap, CheckCircle2, FileVideo, Captions, Sparkles } from "lucide-react";
+import ViewCounter from "@/components/ViewCounter";
 
 const FORMAT_FEATURES = [
   "AI transcription with word-level timestamps",
@@ -151,11 +152,12 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
 
       {/* Hero */}
       <main className="flex-1 w-full max-w-5xl mx-auto px-4 py-16 md:py-24">
-        {/* Badge */}
-        <div className="flex justify-center mb-6">
+        {/* Badge & Views */}
+        <div className="flex flex-wrap items-center justify-center gap-3 mb-6">
           <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold px-3 py-1 rounded-full">
             <Zap className="w-3.5 h-3.5" /> Free Tool · No Account Required
           </div>
+          <ViewCounter entityType="tool" slug={slug} />
         </div>
 
         {/* H1 + body */}

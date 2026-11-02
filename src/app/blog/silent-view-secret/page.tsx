@@ -3,6 +3,7 @@ import React from 'react';
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { VolumeX, Search, Accessibility, Clock, Share2, ArrowRight, Video, Scissors, Type, Globe, CalendarClock, Zap } from 'lucide-react';
+import ViewCounter from "@/components/ViewCounter";
 
 export const metadata: Metadata = {
   title: 'The Silent-View Secret: Why Captioned Shorts Win the Feed | addsubtitles.tech',
@@ -33,13 +34,14 @@ export default function BlogPost() {
           <div className="absolute top-40 -right-20 w-96 h-96 bg-blue-500/20 rounded-full blur-[120px] pointer-events-none" />
           
           <div className="relative z-10 space-y-8 ">
-            <div className="flex items-center gap-3 text-sm font-medium">
+            <div className="flex flex-wrap items-center gap-3 text-sm font-medium">
               <span className="px-3 py-1 rounded-full bg-white/10 text-amber-400 border border-white/10 shadow-sm backdrop-blur-sm">
                 Content Strategy
               </span>
               <span className="text-white/50 flex items-center gap-1.5">
                 <Clock className="w-4 h-4" /> 5 min read
               </span>
+              <ViewCounter entityType="blog" slug="silent-view-secret" />
             </div>
             
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-heading font-bold leading-[1.1] tracking-tight">

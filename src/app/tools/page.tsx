@@ -16,6 +16,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import BadgeReel from "@/components/BadgeReel";
+import ViewCounter from "@/components/ViewCounter";
 
 export const metadata: Metadata = {
   title: "Free AI Video Tools – Subtitles, Silence Removal & More | AddSubtitles",
@@ -245,10 +246,13 @@ export default function ToolsPage() {
                 href={`/tools/${tool.slug}`}
                 className="group relative flex flex-col p-5 rounded-2xl border border-[#1e2a4a] bg-[#0d142d]/60 hover:border-[#2a3a6a] hover:bg-[#0d142d] transition-all duration-200 hover:shadow-[0_8px_40px_rgba(251,191,36,0.06)]"
               >
-                {/* Badge */}
-                <span className={`self-start text-[10px] font-bold px-2 py-0.5 rounded-full border mb-4 ${badgeStyle}`}>
-                  {tool.badge}
-                </span>
+                {/* Badge & Views */}
+                <div className="flex items-center justify-between mb-4">
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${badgeStyle}`}>
+                    {tool.badge}
+                  </span>
+                  <ViewCounter entityType="tool" slug={tool.slug} className="text-[10px] px-2 py-0.5" />
+                </div>
 
                 {/* Icon */}
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${iconStyle}`}>

@@ -8,6 +8,7 @@ import Logo from "@/components/Logo";
 import { ArrowRight, Zap, Captions, Loader2, Copy, Check, Download, FileText } from "lucide-react";
 import { fetchYoutubeTranscript } from "./actions";
 import BadgeReel from "@/components/BadgeReel";
+import ViewCounter from "@/components/ViewCounter";
 
 export default function YoutubeTranscriptGeneratorPage() {
   const [url, setUrl] = useState("");
@@ -125,11 +126,12 @@ export default function YoutubeTranscriptGeneratorPage() {
 
       {/* Hero / Main Content */}
       <main className="flex-1 w-full max-w-5xl mx-auto px-4 py-16 md:py-24">
-        {/* Badge */}
-        <div className="flex justify-center mb-6">
+        {/* Badge & Views */}
+        <div className="flex flex-wrap items-center justify-center gap-3 mb-6">
           <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold px-3 py-1 rounded-full">
             <Zap className="w-3.5 h-3.5" /> Free Tool · No Account Required
           </div>
+          <ViewCounter entityType="tool" slug="youtube-transcript-generator" />
         </div>
 
         {/* Header */}

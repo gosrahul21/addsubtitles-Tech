@@ -40,12 +40,13 @@ const NAV_FEATURES = [
 ];
 
 const NAV_TOOLS = [
-  { label: "TikTok Subtitle Generator", href: "/tools/tiktok-subtitle-generator" },
-  { label: "Remove Silences Online", href: "/tools/remove-silences-online" },
-  { label: "Add Emojis to Video", href: "/tools/add-emojis-to-video" },
-  { label: "CapCut Alternative", href: "/tools/capcut-alternative" },
-  { label: "Translate Subtitles to Spanish", href: "/tools/translate-subtitles-spanish" },
-  { label: "YouTube Shorts Editor", href: "/tools/youtube-shorts-editor" },
+  { icon: FileVideo, label: "TikTok Subtitle Generator", desc: "Auto captions with viral animations", href: "/tools/tiktok-subtitle-generator" },
+  { icon: Scissors, label: "Remove Silences Online", desc: "Auto-cut dead air & pauses in 1 click", href: "/tools/remove-silences-online" },
+  { icon: Smile, label: "Add Emojis to Video", desc: "Context-aware viral AI emoji overlays", href: "/tools/add-emojis-to-video" },
+  { icon: Sparkles, label: "CapCut Alternative", desc: "Browser-based video subtitles with no watermark", href: "/tools/capcut-alternative" },
+  { icon: Languages, label: "Translate Subtitles", desc: "Instant multilingual translation with Groq", href: "/tools/translate-subtitles-spanish" },
+  { icon: Play, label: "YouTube Shorts Editor", desc: "Format & edit 9:16 vertical shorts", href: "/tools/youtube-shorts-editor" },
+  { icon: Type, label: "Auto Subtitle Generator", desc: "Speech-to-text with word timestamps", href: "/tools/auto-subtitle-generator" },
 ];
 
 const PAIN_POINTS = [
@@ -264,6 +265,9 @@ export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
 
+  const featuresRef = useRef<HTMLDivElement>(null);
+  const toolsRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -272,9 +276,17 @@ export default function LandingPage() {
 
   // Close dropdowns when clicking outside
   useEffect(() => {
-    const handler = () => { setFeaturesOpen(false); setToolsOpen(false); };
-    document.addEventListener("click", handler);
-    return () => document.removeEventListener("click", handler);
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (featuresRef.current && !featuresRef.current.contains(target)) {
+        setFeaturesOpen(false);
+      }
+      if (toolsRef.current && !toolsRef.current.contains(target)) {
+        setToolsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
@@ -298,59 +310,101 @@ export default function LandingPage() {
           <div className="hidden md:flex items-center gap-1">
 
             {/* Features Dropdown */}
-            <div className="relative" onClick={e => e.stopPropagation()}>
+            <div
+              ref={featuresRef}
+              className="relative"
+              onMouseEnter={() => { setFeaturesOpen(true); setToolsOpen(false); }}
+              onMouseLeave={() => setFeaturesOpen(false)}
+            >
               <button
                 id="nav-features-btn"
-                onClick={() => { setFeaturesOpen(!featuresOpen); setToolsOpen(false); }}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/5 transition-all"
+                type="button"
+                onClick={() => { setFeaturesOpen(prev => !prev); setToolsOpen(false); }}
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  featuresOpen ? "text-white bg-white/10" : "text-zinc-300 hover:text-white hover:bg-white/5"
+                }`}
               >
                 Features
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${featuresOpen ? "rotate-180" : ""}`} />
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${featuresOpen ? "rotate-180 text-amber-400" : ""}`} />
               </button>
               {featuresOpen && (
-                <div className="absolute top-full left-0 mt-2 w-72 glass-card rounded-xl shadow-2xl shadow-black/60 py-2 z-50">
-                  {NAV_FEATURES.map(f => (
-                    <Link
-                      key={f.label}
-                      href="/"
-                      className="flex items-start gap-3 px-4 py-3 hover:bg-white/5 transition-colors group"
-                      onClick={() => setFeaturesOpen(false)}
-                    >
-                      <div className="mt-0.5 p-1.5 rounded-md bg-amber-500/10 group-hover:bg-amber-500/20 transition-colors">
-                        <f.icon className="w-3.5 h-3.5 text-amber-400" />
-                      </div>
-                      <div>
-                        <div className="text-sm font-semibold text-white">{f.label}</div>
-                        <div className="text-xs text-zinc-500 mt-0.5">{f.desc}</div>
-                      </div>
-                    </Link>
-                  ))}
+                <div className="absolute top-full left-0 pt-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="w-72 bg-[#0d142d]/98 backdrop-blur-2xl border border-[#1e2a4a] rounded-2xl shadow-2xl shadow-black/80 py-2">
+                    {NAV_FEATURES.map(f => (
+                      <Link
+                        key={f.label}
+                        href="/"
+                        className="flex items-start gap-3 px-4 py-3 hover:bg-white/5 transition-colors group"
+                        onClick={() => setFeaturesOpen(false)}
+                      >
+                        <div className="mt-0.5 p-1.5 rounded-md bg-amber-500/10 group-hover:bg-amber-500/20 transition-colors">
+                          <f.icon className="w-3.5 h-3.5 text-amber-400" />
+                        </div>
+                        <div>
+                          <div className="text-sm font-semibold text-white">{f.label}</div>
+                          <div className="text-xs text-zinc-500 mt-0.5">{f.desc}</div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
 
             {/* Tools Dropdown */}
-            <div className="relative" onClick={e => e.stopPropagation()}>
+            <div
+              ref={toolsRef}
+              className="relative"
+              onMouseEnter={() => { setToolsOpen(true); setFeaturesOpen(false); }}
+              onMouseLeave={() => setToolsOpen(false)}
+            >
               <button
                 id="nav-tools-btn"
-                onClick={() => { setToolsOpen(!toolsOpen); setFeaturesOpen(false); }}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/5 transition-all"
+                type="button"
+                onClick={() => { setToolsOpen(prev => !prev); setFeaturesOpen(false); }}
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  toolsOpen ? "text-white bg-white/10" : "text-zinc-300 hover:text-white hover:bg-white/5"
+                }`}
               >
                 Tools
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${toolsOpen ? "rotate-180" : ""}`} />
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${toolsOpen ? "rotate-180 text-amber-400" : ""}`} />
               </button>
               {toolsOpen && (
-                <div className="absolute top-full left-0 mt-2 w-60 glass-card rounded-xl shadow-2xl shadow-black/60 py-2 z-50">
-                  {NAV_TOOLS.map(t => (
-                    <Link
-                      key={t.label}
-                      href={t.href}
-                      className="block px-4 py-2.5 text-sm text-zinc-300 hover:text-white hover:bg-white/5 transition-colors"
-                      onClick={() => setToolsOpen(false)}
-                    >
-                      {t.label}
-                    </Link>
-                  ))}
+                <div className="absolute top-full left-0 pt-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="w-80 bg-[#0d142d]/98 backdrop-blur-2xl border border-[#1e2a4a] rounded-2xl shadow-2xl shadow-black/80 p-2">
+                    <div className="max-h-[380px] overflow-y-auto scrollbar-thin scrollbar-thumb-[#1e2a4a] flex flex-col gap-0.5">
+                      {NAV_TOOLS.map(t => (
+                        <Link
+                          key={t.label}
+                          href={t.href}
+                          className="flex items-start gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 transition-all group"
+                          onClick={() => setToolsOpen(false)}
+                        >
+                          <div className="mt-0.5 p-1.5 rounded-lg bg-amber-500/10 group-hover:bg-amber-500/20 text-amber-400 transition-colors flex-shrink-0">
+                            <t.icon className="w-4 h-4" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm font-semibold text-white group-hover:text-amber-300 transition-colors truncate">
+                              {t.label}
+                            </div>
+                            <div className="text-xs text-zinc-400 mt-0.5 line-clamp-1">
+                              {t.desc}
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                    <div className="border-t border-[#1e2a4a]/80 mt-1.5 pt-1.5 px-1">
+                      <Link
+                        href="/tools"
+                        onClick={() => setToolsOpen(false)}
+                        className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-amber-400 hover:text-amber-300 hover:bg-amber-400/10 transition-all group"
+                      >
+                        <span>Explore all free tools</span>
+                        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                      </Link>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -390,13 +444,34 @@ export default function LandingPage() {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 right-0 mt-3 bg-[#0d142d]/95 backdrop-blur-xl border border-[#1e2a4a]/50 rounded-2xl px-4 py-4 flex flex-col gap-3 shadow-2xl">
-            {NAV_FEATURES.map(f => (
-              <Link key={f.label} href="/" className="flex items-center gap-2 text-sm text-zinc-300 py-1 hover:text-white" onClick={() => setMobileMenuOpen(false)}>
-                <f.icon className="w-4 h-4 text-amber-400" /> {f.label}
-              </Link>
-            ))}
-            <div className="border-t border-[#1e2a4a]/50 pt-3 mt-1">
+          <div className="md:hidden absolute top-full left-0 right-0 mt-3 bg-[#0d142d]/98 backdrop-blur-2xl border border-[#1e2a4a] rounded-2xl px-4 py-4 flex flex-col gap-4 shadow-2xl max-h-[85vh] overflow-y-auto">
+            <div>
+              <div className="text-[11px] font-bold uppercase tracking-wider text-amber-400 mb-2 px-1">Features</div>
+              <div className="flex flex-col gap-1">
+                {NAV_FEATURES.map(f => (
+                  <Link key={f.label} href="/" className="flex items-center gap-2.5 text-sm text-zinc-300 py-1.5 px-2 rounded-lg hover:bg-white/5 hover:text-white transition-colors" onClick={() => setMobileMenuOpen(false)}>
+                    <f.icon className="w-4 h-4 text-amber-400" /> {f.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div className="border-t border-[#1e2a4a]/80 pt-3">
+              <div className="text-[11px] font-bold uppercase tracking-wider text-amber-400 mb-2 px-1">Free AI Video Tools</div>
+              <div className="flex flex-col gap-1">
+                {NAV_TOOLS.map(t => (
+                  <Link key={t.label} href={t.href} className="flex items-center gap-2.5 text-sm text-zinc-300 py-1.5 px-2 rounded-lg hover:bg-white/5 hover:text-white transition-colors" onClick={() => setMobileMenuOpen(false)}>
+                    <t.icon className="w-4 h-4 text-amber-400" /> {t.label}
+                  </Link>
+                ))}
+                <Link href="/tools" className="text-xs font-semibold text-amber-400 py-1.5 px-2 mt-1 flex items-center justify-between hover:text-amber-300 transition-colors" onClick={() => setMobileMenuOpen(false)}>
+                  <span>Explore all tools</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+
+            <div className="border-t border-[#1e2a4a]/80 pt-3">
               <Link href={AppConfig.EDITOR_URL} onClick={() => setMobileMenuOpen(false)} className="subplus-button w-full py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2">
                 Start for Free – No Credit Card
               </Link>
