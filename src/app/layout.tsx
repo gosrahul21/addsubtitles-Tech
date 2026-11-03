@@ -38,6 +38,7 @@ export const metadata: Metadata = {
 
 
 import AuthProvider from "@/providers/AuthProvider";
+import PostHogProvider from "@/providers/PostHogProvider";
 
 export default function RootLayout({
   children,
@@ -52,9 +53,11 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&amp;family=Oswald:wght@400;700&amp;family=Roboto:wght@400;700;900&amp;family=Bebas+Neue&amp;family=Lilita+One&amp;family=Bangers&amp;family=Anton&amp;display=swap" rel="stylesheet" crossOrigin="anonymous" />
       </head>
       <body className={`${inter.variable} ${outfit.variable} antialiased`}>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <PostHogProvider>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </PostHogProvider>
         <Script id="crisp-widget" strategy="afterInteractive">
           {`
             window.$crisp=[];

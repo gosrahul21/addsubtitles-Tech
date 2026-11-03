@@ -6,12 +6,15 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CheckCircle2, Loader2, PartyPopper } from 'lucide-react';
 import Link from 'next/link';
+import { analytics } from '@/lib/analytics';
 
 export default function PaymentSuccessPage() {
   const router = useRouter();
   const [countdown, setCountdown] = useState(5);
 
   useEffect(() => {
+    analytics.paymentCompleted();
+
     // Automatically redirect back to the editor after 5 seconds
     const interval = setInterval(() => {
       setCountdown((prev) => {

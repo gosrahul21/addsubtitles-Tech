@@ -9,6 +9,7 @@ import { ArrowRight, Zap, Captions, Loader2, Copy, Check, Download, FileText } f
 import { fetchYoutubeTranscript } from "./actions";
 import BadgeReel from "@/components/BadgeReel";
 import ViewCounter from "@/components/ViewCounter";
+import { analytics } from "@/lib/analytics";
 
 export default function YoutubeTranscriptGeneratorPage() {
   const [url, setUrl] = useState("");
@@ -30,8 +31,10 @@ export default function YoutubeTranscriptGeneratorPage() {
       const res = await fetchYoutubeTranscript(url);
       if (res.success && res.data) {
         setTranscript(res.data);
+        analytics.toolUsed({ toolSlug: "youtube-transcript-generator", success: true, url });
       } else {
         setError(res.error || "Failed to fetch transcript");
+        analytics.toolUsed({ toolSlug: "youtube-transcript-generator", success: false, url });
       }
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred");

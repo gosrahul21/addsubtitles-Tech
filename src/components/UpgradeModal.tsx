@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Check, X, Sparkles, Zap, Crown, X as CloseIcon } from 'lucide-react';
 import axios from 'axios';
 import { useAuth } from '@/providers/AuthProvider';
+import { analytics } from '@/lib/analytics';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -102,6 +103,7 @@ export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
 
   useEffect(() => {
     if (!isOpen) return;
+    analytics.upgradeModalOpened({ triggerSource: "pro_feature_lock" });
 
     async function loadPlans() {
       try {
@@ -146,6 +148,7 @@ export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
     }
     
     setLoadingTier(tierName);
+    analytics.checkoutInitiated({ tier: tierName });
     try {
       const response = await axios.post(`${API_BASE_URL}/payments/checkout-session`, {
         tier: tierName

@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import axios from 'axios';
+import { analytics } from '@/lib/analytics';
 
 type User = {
   id: string;
@@ -92,6 +93,13 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
         // Successfully loaded session — clear any stale logout flag
         sessionStorage.removeItem('logged_out');
         setUser(res.data);
+        if (res.data?.id) {
+          analytics.identifyUser(res.data.id, {
+            email: res.data.email,
+            subscriptionTier: res.data.subscriptionTier,
+            createdAt: res.data.createdAt,
+          });
+        }
       } catch (err) {
         setUser(null);
       } finally {
@@ -106,6 +114,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
         sessionStorage.setItem('logged_out', 'true');
         await axios.post(`${apiUrl}/auth/logout`, {}, { withCredentials: true });
       } catch (e) { /* swallow */ } finally {
+        analytics.resetUser();
         setUser(null);
       }
     };
@@ -125,6 +134,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
     try {
       await axios.post(`${apiUrl}/auth/logout`, {}, { withCredentials: true });
     } catch (e) { /* swallow */ } finally {
+      analytics.resetUser();
       setUser(null);
     }
   };

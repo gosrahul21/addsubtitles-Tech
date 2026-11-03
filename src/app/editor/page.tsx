@@ -73,6 +73,7 @@ import { exportVideo } from '@/lib/exportVideo';
 import { HexColorPicker } from "react-colorful";
 import { cloudinaryVideoUpload } from "@/services/cloudinaryVideoUpload";
 import uploadVideo from "@/services/uploadVideo";
+import { analytics } from "@/lib/analytics";
 import { getTemplateByName, getTemplatesByCategory, BASE_STYLE } from "@/config/subtitleTemplates";
 
 const getSubtitleStyles = (template: string) => {
@@ -223,6 +224,7 @@ function EditorPage() {
 
   const handleTemplateSelect = (templateName: string) => {
     setActiveTemplate(templateName);
+    analytics.templateSelected({ templateName });
 
     const tpl = getTemplateByName(templateName);
     const finalStyle = { ...BASE_STYLE, ...tpl.overrides } as typeof BASE_STYLE;
@@ -319,6 +321,7 @@ function EditorPage() {
   const handleUploadAndTranscribe = async () => {
     if (!videoFile) return;
     try {
+      analytics.transcriptionStarted({ language: uploadLanguage });
       setIsExtractingAudio(true);
       setAudioExtractProgress(0);
 
@@ -1083,6 +1086,10 @@ function EditorPage() {
             setTimelineSegments(segments);
             setHistory([JSON.parse(JSON.stringify(segments))]);
             setHistoryIndex(0);
+            analytics.transcriptionCompleted({
+              segmentCount: segments.length,
+              wordCount: segments.reduce((acc: number, s: any) => acc + (s.words?.length || s.label?.split(' ').length || 0), 0),
+            });
             showNotification("Success", "Subtitles generated successfully! 🎉", "success");
           }
         } else if (project.status === 'FAILED') {
@@ -1240,6 +1247,14 @@ function EditorPage() {
             onClick={async () => {
               if (!videoFile || !videoRef.current) return;
               setIsExporting(true);
+              const exportStartTime = Date.now();
+              analytics.exportStarted({
+                isPro,
+                hasWatermark: !isPro,
+                removeSilences,
+                filterFillerWords,
+                resolution: `${videoRef.current.videoWidth || 1080}x${videoRef.current.videoHeight || 1920}`,
+              });
               try {
                 const { className: templateClassName, style: templateStyle } = getSubtitleStyles(activeTemplate);
                 const blob = await exportVideo({
@@ -1301,8 +1316,16 @@ function EditorPage() {
                 const url = URL.createObjectURL(blob);
                 setExportedVideoUrl(url);
                 setShowDownloadModal(true);
-              } catch (e) {
+                analytics.exportCompleted({
+                  renderDurationMs: Date.now() - exportStartTime,
+                  fileSizeMb: +(blob.size / (1024 * 1024)).toFixed(2),
+                  resolution: `${videoRef.current.videoWidth || 1080}x${videoRef.current.videoHeight || 1920}`,
+                });
+              } catch (e: any) {
                 console.error(e);
+                analytics.exportFailed({
+                  error: e?.message || "Export failed",
+                });
                 showNotification("Error", "Export failed. See console for details.", "error");
               }
               setIsExporting(false);
@@ -3619,6 +3642,11 @@ function EditorPage() {
                       if (file) {
                         setVideoSrc(URL.createObjectURL(file));
                         setVideoFile(file);
+                        analytics.videoUploaded({
+                          fileName: file.name,
+                          fileSizeMb: +(file.size / (1024 * 1024)).toFixed(2),
+                          fileType: file.type,
+                        });
                       }
                     }}
                   />
@@ -3863,6 +3891,7 @@ function EditorPage() {
                 <a
                   href={exportedVideoUrl}
                   download="exported_video.mp4"
+                  onClick={() => analytics.videoDownloaded({ fileName: "exported_video.mp4" })}
                   className="w-full py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-amber-400 to-amber-600 text-[#332b10] hover:shadow-[0_0_15px_rgba(212,175,55,0.3)] hover:scale-[1.01] transition-all flex justify-center items-center gap-2"
                 >
                   <Download className="w-4 h-4" />

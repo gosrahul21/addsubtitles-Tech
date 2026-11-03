@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Check, X, Sparkles, Zap, Crown } from 'lucide-react';
 import axios from 'axios';
+import { analytics } from '@/lib/analytics';
 
 // Mock endpoint or use the real one if env is set
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
@@ -143,6 +144,7 @@ export default function PricingPage() {
     }
     
     setLoadingTier(tierName);
+    analytics.checkoutInitiated({ tier: tierName });
     try {
       // Integrate with the backend endpoint we built
       const response = await axios.post(`${API_BASE_URL}/payments/checkout-session`, {
